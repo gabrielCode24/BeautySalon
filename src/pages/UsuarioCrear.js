@@ -128,7 +128,6 @@ class UsuarioCrear extends Component {
                             setTimeout(() => {
                                 fetch(this.state.url, requestOptionsUsuario)
                                     .then((response) => {
-                                        console.log(response.status)
                                         if (response.status === 200) {
                                             Swal.close();
                                             
