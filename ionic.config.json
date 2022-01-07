@@ -1,0 +1,7 @@
+{
+  "name": "beauty-salon-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
