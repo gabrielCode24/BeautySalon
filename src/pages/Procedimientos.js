@@ -20,30 +20,30 @@ class Usuarios extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      lista_usuarios: false,
-      crear_usuario: false
+      lista_procedimientos: false,
+      crear_procedimiento: false
     }
   }
 
   redirigir = (modulo) => {
     switch (modulo) {
-      case 'lista_usuarios':
-        this.setState({ lista_usuarios: true });
+      case 'lista_procedimientos':
+        this.setState({ lista_procedimientos: true });
         break;
-      case 'crear_usuario':
-        this.setState({ crear_usuario: true });
+      case 'crear_procedimiento':
+        this.setState({ crear_procedimiento: true });
         break;
     }
   }
-
+  
   render() {
 
-    if (this.state.lista_usuarios) {
-      //return (<Redirect to={'/usuarios-lista'} />)
+    if (this.state.lista_procedimientos) {
+      //return (<Redirect to={'/procedimientos-lista'} />)
     }
 
-    if (this.state.crear_usuario) {
-      //return (<Redirect to={'/usuario-crear'} />)
+    if (this.state.crear_procedimiento) {
+      return (<Redirect to={'/procedimiento-crear'} />)
     }
 
     return (
@@ -52,7 +52,7 @@ class Usuarios extends Component {
           <IonToolbar>
             <IonButtons slot="start">
               <IonBackButton defaultHref="/home" icon={arrowBackOutline} />
-              <IonTitle><b>Usuarios</b></IonTitle>
+              <IonTitle><b>Procedimientos</b></IonTitle>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
@@ -61,13 +61,13 @@ class Usuarios extends Component {
           <div>
             <IonGrid>
               <IonRow>
-                <IonCol size="6" onClick={() => this.redirigir('crear_usuario')} style={{
+                <IonCol size="6" onClick={() => this.redirigir('lista_procedimiento')} style={{
                   height: "140px", borderColor: "#C0C0C0",
                   borderWidth: "1px", borderStyle: "solid", backgroundSize: "cover"
                   
                 }}>LISTA DE PROCEDIMIENTOS</IonCol>
 
-                <IonCol size="6" onClick={() => this.redirigir('crear_usuario')} style={{
+                <IonCol size="6" onClick={() => this.redirigir('crear_procedimiento')} style={{
                   height: "140px", borderColor: "#C0C0C0",
                   borderWidth: "1px", borderStyle: "solid"
                 }}>{/*<IonImg src={agregar_usuario} style={{ height: "100%" }}></IonImg>*/}CREAR PROCEDIMIENTO</IonCol>

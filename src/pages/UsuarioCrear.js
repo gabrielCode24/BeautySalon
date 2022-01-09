@@ -230,15 +230,15 @@ class UsuarioCrear extends Component {
                             <IonLabel>Usuario:</IonLabel>
                             <IonInput id="usuario" type="text" placeholder="Usuario" required></IonInput>
                         </IonItem>
-
+                        
                         <IonItem>
                             <IonLabel>Clave:</IonLabel>
                             <IonInput id="clave" type="password" placeholder="Clave" required></IonInput>
                         </IonItem>
 
                         <IonItem>
-                            <IonLabel>Rescriba la clave:</IonLabel>
-                            <IonInput id="repetir_clave" type="password" placeholder="Rescriba la clave" required></IonInput>
+                            <IonLabel>Reescriba la clave:</IonLabel>
+                            <IonInput id="repetir_clave" type="password" placeholder="Reescriba la clave" required></IonInput>
                         </IonItem>
 
                         <IonItem>
