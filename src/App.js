@@ -31,6 +31,7 @@ import Usuarios from './pages/Usuarios'
 import UsuarioCrear from './pages/UsuarioCrear'
 import ClienteCrear from './pages/ClienteCrear'
 import ProcediminetoCrear from './pages/ProcedimientoCrear'
+import ProcedimientoLista from './pages/ProcedimientoLista'
 
 setupIonicReact();
 
@@ -66,6 +67,9 @@ function App() {
           </Route>
           <Route exact path="/procedimiento-crear">
             <ProcediminetoCrear />
+          </Route>
+          <Route exact path="/procedimiento-lista">
+            <ProcedimientoLista />
           </Route>
           
           <Route exact path="/">

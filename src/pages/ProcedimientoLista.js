@@ -4,7 +4,8 @@ import {
     IonTitle, IonButtons, IonIcon,
     IonButton, IonList, IonItem,
     IonLabel, IonInput, IonSelect,
-    IonBackButton, IonFooter
+    IonSelectOption, IonBackButton,
+    IonFooter, IonSearchbar
 } from '@ionic/react';
 import {
     arrowBackOutline
@@ -13,17 +14,53 @@ import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 //import './Home.css';
 import { url, prepararPost } from '../utilities/utilities.js'
-import { MD5 } from '../utilities/crypto'
 import Swal from 'sweetalert2'
 
-class ProcedimientoCrear extends Component {
+import { connect } from 'react-redux'
+import { getProcedimientos } from '../actions/procedimientosAction'
+
+const mapStateToProps = store => ({
+    procedimientos: store.procedimientos
+});
+
+class ProcedimientoLista extends Component {
     constructor(props) {
         super(props);
         this.state = {
             url: url(),
             logged: true,
-            usuarios: false
+            loading_procedimientos: false,
+            procedimientos: [],
+            search_string: ""
         }
+    }
+
+    UNSAFE_componentWillMount() {
+        this._getProcedimientos();
+    }
+
+    _getProcedimientos = () => {
+        this.setState({ loading_procedimientos: true });
+
+        let Parameters = '?action=getJSON&get=procedimientos_lista';
+
+        fetch(this.state.url + Parameters)
+            .then((res) => res.json())
+            .then((responseJson) => {
+
+                //Guardamos la lista de procedimientos que vienen del API en el store de Redux
+                this.props.dispatch(getProcedimientos(responseJson))
+
+                this.setState({
+                    loading_procedimientos: false,
+                    procedimientos: this.props.procedimientos.list
+                });
+
+                Swal.close();
+            })
+            .catch((error) => {
+                console.log(error)
+            });
     }
 
     mensajeValidacion = (mensaje) => {
@@ -73,7 +110,7 @@ class ProcedimientoCrear extends Component {
                 nombre: nombre, descripcion: descripcion, precio_sug: precio,
                 fec_ing: fec_ing, usr_ing: usr_ing
             }
-                    
+
             const requestOptionsProcedimiento = prepararPost(valuesUsuario, "procedimiento", "setJsons", "jsonSingle");
 
             fetch(this.state.url, requestOptionsProcedimiento)
@@ -113,15 +150,27 @@ class ProcedimientoCrear extends Component {
         }
     }
 
+    filtrarProcedimientos = () => {
+        let text = document.getElementById('search').value;
+
+        this.setState({
+            search_string: text
+        })
+    }
+
+    getProcedimientoData = (item) => {
+        console.log("Nombre: " + item.nombre + " | Id: " + item.id);
+    }
+
     render() {
 
-        if (!this.state.logged) {
-            //return (<Redirect to={'/login'} />)
+        if (this.state.loading_procedimientos) {
+            return <h1>
+                {Swal.showLoading()}
+            </h1>;
         }
 
-        if (this.state.facturar) {
-            //return (<Redirect to={'/factura'} />)
-        }
+        let procedimientos = this.state.procedimientos;
 
         return (
             <IonPage>
@@ -133,33 +182,28 @@ class ProcedimientoCrear extends Component {
                                 <IonBackButton defaultHref="/procedimientos" icon={arrowBackOutline} />
                             </IonButtons>
 
-                            <IonTitle style={{ fontFamily: "sans-serif" }}><b>CREAR PROCEDIMIENTO</b></IonTitle>
+                            <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>LISTA DE PROCEDIMIENTOS</b></IonTitle>
                         </IonToolbar>
                     </IonHeader>
+
+                    <IonSearchbar id="search" onIonChange={(e) => this.filtrarProcedimientos()} showCancelButton="focus" placeholder="Buscar procedimiento"></IonSearchbar>
                     <IonList>
-                        <IonItem>
-                            <IonLabel>Nombre:</IonLabel>
-                            <IonInput id="nombre" type="text" placeholder="Nombre del procedimiento" required></IonInput>
-                        </IonItem>
-
-                        <IonItem>
-                            <IonLabel>Descripción:</IonLabel>
-                            <IonInput id="descripcion" type="textarea" placeholder="Descripción del procedimiento" required></IonInput>
-                        </IonItem>
-
-                        <IonItem>
-                            <IonLabel>Precio (L):</IonLabel>
-                            <IonInput id="precio" type="number" placeholder="Precio (L)" required></IonInput>
-                        </IonItem>
+                        {
+                            procedimientos.filter(procedimiento => procedimiento.nombre.includes(this.state.search_string)).map(item => (
+                                <IonItem key={item.id} onClick={ (e) => this.getProcedimientoData(item) }>
+                                    {item.id} - {item.nombre}
+                                </IonItem>
+                            ))
+                        }
                     </IonList>
 
                 </IonContent>
                 <IonFooter>
-                    <IonButton color="favorite" expand="block" onClick={() => this.registrarProcedimiento()}>Registrar Procedimiento</IonButton>
+                    <IonButton color="favorite" expand="block" onClick={() => this.registrarProcedimiento()}>Registrar Cliente</IonButton>
                 </IonFooter>
             </IonPage >
         )
     }
 }
 
-export default ProcedimientoCrear;
+export default connect(mapStateToProps)(ProcedimientoLista);

@@ -39,7 +39,7 @@ class Usuarios extends Component {
   render() {
 
     if (this.state.lista_procedimientos) {
-      //return (<Redirect to={'/procedimientos-lista'} />)
+      return (<Redirect to={'/procedimiento-lista'} />)
     }
 
     if (this.state.crear_procedimiento) {
@@ -61,7 +61,7 @@ class Usuarios extends Component {
           <div>
             <IonGrid>
               <IonRow>
-                <IonCol size="6" onClick={() => this.redirigir('lista_procedimiento')} style={{
+                <IonCol size="6" onClick={() => this.redirigir('lista_procedimientos')} style={{
                   height: "140px", borderColor: "#C0C0C0",
                   borderWidth: "1px", borderStyle: "solid", backgroundSize: "cover"
                   
