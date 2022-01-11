@@ -1,10 +1,9 @@
 import {
     IonContent, IonPage,
     IonHeader, IonToolbar,
-    IonTitle, IonButtons, IonIcon,
+    IonTitle, IonButtons,
     IonButton, IonList, IonItem,
-    IonLabel, IonInput, IonSelect,
-    IonSelectOption, IonBackButton,
+    IonBackButton,
     IonFooter, IonSearchbar
 } from '@ionic/react';
 import {
@@ -12,15 +11,17 @@ import {
 } from 'ionicons/icons';
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-//import './Home.css';
+
 import { url, prepararPost } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { connect } from 'react-redux'
 import { getProcedimientos } from '../actions/procedimientosAction'
+import { getProcedimiento } from '../actions/procedimientoAction'
 
 const mapStateToProps = store => ({
-    procedimientos: store.procedimientos
+    procedimientos: store.procedimientos,
+    procedimiento: store.procedimiento
 });
 
 class ProcedimientoLista extends Component {
@@ -30,8 +31,11 @@ class ProcedimientoLista extends Component {
             url: url(),
             logged: true,
             loading_procedimientos: false,
+            loading_procedimiento_data: false,
             procedimientos: [],
-            search_string: ""
+            procedimiento: [],
+            search_string: "",
+            redirigir_a_procedimiento_detalle: false
         }
     }
 
@@ -50,10 +54,10 @@ class ProcedimientoLista extends Component {
 
                 //Guardamos la lista de procedimientos que vienen del API en el store de Redux
                 this.props.dispatch(getProcedimientos(responseJson))
-
+                
                 this.setState({
                     loading_procedimientos: false,
-                    procedimientos: this.props.procedimientos.list
+                    procedimientos: this.props.procedimientos.list,
                 });
 
                 Swal.close();
@@ -158,8 +162,29 @@ class ProcedimientoLista extends Component {
         })
     }
 
-    getProcedimientoData = (item) => {
-        console.log("Nombre: " + item.nombre + " | Id: " + item.id);
+    _getProcedimiento = (id) => {
+        this.setState({ loading_procedimiento_data: true });
+
+        let Parameters = '?action=getJSON&get=procedimiento&id=' + id;
+
+        fetch(this.state.url + Parameters)
+            .then((res) => res.json())
+            .then((responseJson) => {
+
+                //Guardamos la lista de procedimientos que vienen del API en el store de Redux
+                this.props.dispatch(getProcedimiento(responseJson))
+                
+                this.setState({
+                    loading_procedimiento_data: false,
+                    procedimiento: this.props.procedimiento.list,
+                    redirigir_a_procedimiento_detalle: true
+                });
+                
+                Swal.close();
+            })
+            .catch((error) => {
+                console.log(error)
+            });
     }
 
     render() {
@@ -169,6 +194,10 @@ class ProcedimientoLista extends Component {
                 {Swal.showLoading()}
             </h1>;
         }
+
+        if (this.state.redirigir_a_procedimiento_detalle) {
+            return (<Redirect to={'/procedimiento-detalle'} />)
+          }
 
         let procedimientos = this.state.procedimientos;
 
@@ -190,7 +219,7 @@ class ProcedimientoLista extends Component {
                     <IonList>
                         {
                             procedimientos.filter(procedimiento => procedimiento.nombre.includes(this.state.search_string)).map(item => (
-                                <IonItem key={item.id} onClick={ (e) => this.getProcedimientoData(item) }>
+                                <IonItem key={item.id} onClick={(e) => this._getProcedimiento(item.id)}>
                                     {item.id} - {item.nombre}
                                 </IonItem>
                             ))
