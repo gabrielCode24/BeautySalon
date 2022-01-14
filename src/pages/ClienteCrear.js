@@ -14,7 +14,6 @@ import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 //import './Home.css';
 import { url, prepararPost } from '../utilities/utilities.js'
-import { MD5 } from '../utilities/crypto'
 import Swal from 'sweetalert2'
 
 class ClienteCrear extends Component {

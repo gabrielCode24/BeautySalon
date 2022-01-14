@@ -28,11 +28,16 @@ import Citas from './pages/Citas'
 import Clientes from './pages/Clientes'
 import Procedimientos from './pages/Procedimientos'
 import Usuarios from './pages/Usuarios'
+
 import UsuarioCrear from './pages/UsuarioCrear'
 import ClienteCrear from './pages/ClienteCrear'
 import ProcediminetoCrear from './pages/ProcedimientoCrear'
+
 import ProcedimientoLista from './pages/ProcedimientoLista'
+import UsuarioLista from './pages/UsuarioLista'
+
 import ProcedimientoDetalle from './pages/ProcedimientoDetalle'
+import UsuarioDetalle from './pages/UsuarioDetalle'
 
 setupIonicReact();
 
@@ -60,6 +65,7 @@ function App() {
           <Route exact path="/usuarios">
             <Usuarios />
           </Route>
+
           <Route exact path="/usuario-crear">
             <UsuarioCrear />
           </Route>
@@ -69,11 +75,19 @@ function App() {
           <Route exact path="/procedimiento-crear">
             <ProcediminetoCrear />
           </Route>
+
           <Route exact path="/procedimiento-lista">
             <ProcedimientoLista />
           </Route>
+          <Route exact path="/usuario-lista">
+            <UsuarioLista />
+          </Route>
+
           <Route exact path="/procedimiento-detalle">
             <ProcedimientoDetalle />
+          </Route>
+          <Route exact path="/usuario-detalle">
+            <UsuarioDetalle />
           </Route>
           
           <Route exact path="/">
