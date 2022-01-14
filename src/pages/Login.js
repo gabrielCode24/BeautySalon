@@ -5,8 +5,6 @@ import {
 }
   from '@ionic/react'
 
-//import './Home.css';
-
 import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import { MD5 } from '../utilities/crypto'

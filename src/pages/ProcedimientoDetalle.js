@@ -17,6 +17,7 @@ import { url, prepararPost } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { connect } from 'react-redux'
+import { setTimeout } from 'timers';
 
 const mapStateToProps = store => ({
     procedimiento: store.procedimiento
@@ -27,7 +28,8 @@ class ProcedimientoDetalle extends Component {
         super(props);
         this.state = {
             url: url(),
-            procedimiento: []
+            procedimiento: [],
+            redireccionar_atras: false
         }
     }
 
@@ -76,7 +78,7 @@ class ProcedimientoDetalle extends Component {
                 return;
             }
 
-            //Teléfono
+            //Descripción
             if (descripcion.length > 1) {
                 if (descripcion.length < 10) {
                     this.mensajeValidacion("La descripción del procedimiento debe tener al menos 10 caracteres.");
@@ -84,7 +86,7 @@ class ProcedimientoDetalle extends Component {
                 }
             }
 
-            //Identidad
+            //Precio
             if (precio == 0.00 & precio == 0 && precio < 0) {
                 this.mensajeValidacion("El precio ingresado no es correcto, favor ingrese un precio válido.");
                 return;
@@ -107,12 +109,20 @@ class ProcedimientoDetalle extends Component {
                             sending: false
                         });
 
+                        setTimeout(() => {
+                            this.setState({
+                                redireccionar_atras: true
+                            });
+                        }, 1500);
+
                         Swal.fire({
                             title: '¡Éxito!',
                             text: '¡Procedimiento modificado exitosamente!',
                             icon: 'success',
-                            confirmButtonText: 'Aceptar',
-                            confirmButtonColor: '#E0218A'
+                            showConfirmButton: false,
+                            //confirmButtonText: 'Aceptar',
+                            //confirmButtonColor: '#E0218A',
+                            timer: 1500
                         });
                     } else {
                         Swal.fire({
@@ -134,15 +144,15 @@ class ProcedimientoDetalle extends Component {
             });
         }
     }
-
+    
     render() {
 
         if (!this.state.logged) {
             //return (<Redirect to={'/login'} />)
         }
 
-        if (this.state.facturar) {
-            //return (<Redirect to={'/factura'} />)
+        if (this.state.redireccionar_atras) {
+            return (<Redirect to={'/procedimiento-lista'} />)
         }
 
         let procedimiento = this.state.procedimiento;
@@ -158,13 +168,13 @@ class ProcedimientoDetalle extends Component {
                                 <IonBackButton defaultHref="/procedimientos" icon={arrowBackOutline} />
                             </IonButtons>
 
-                            <IonTitle style={{ fontFamily: "sans-serif" }}><b>CREAR PROCEDIMIENTO</b></IonTitle>
+                            <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>MODIFICAR PROCEDIMIENTO</b></IonTitle>
                         </IonToolbar>
                     </IonHeader>
                     <IonList>
-                        
+
                         <IonInput id="id" value={procedimiento.id} type="hidden"></IonInput>
-                        
+
                         <IonItem>
                             <IonLabel>Nombre:</IonLabel>
                             <IonInput id="nombre" value={procedimiento.nombre} type="text" placeholder="Nombre del procedimiento" required></IonInput>
