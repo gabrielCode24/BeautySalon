@@ -12,8 +12,8 @@ import {
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 //import './Home.css';
-//import lista_usuarios from '../assets/images/lista_usuarios.jpg'
-//import agregar_usuario from '../assets/images/agregar_usuario.png'
+import agregarUsuario from '../assets/images/agregar.JPG'
+import listaUsuarios from '../assets/images/lista.png'
 import Swal from 'sweetalert2'
 
 class Usuarios extends Component {
@@ -65,12 +65,12 @@ class Usuarios extends Component {
                   height: "140px", borderColor: "#C0C0C0",
                   borderWidth: "1px", borderStyle: "solid", backgroundSize: "cover"
                   
-                }}>LISTA DE USUARIOS</IonCol>
+                }}>{<IonImg src={listaUsuarios} style={{ height: "100%" }}></IonImg>}</IonCol>
 
                 <IonCol size="6" onClick={() => this.redirigir('crear_usuario')} style={{
                   height: "140px", borderColor: "#C0C0C0",
                   borderWidth: "1px", borderStyle: "solid"
-                }}>{/*<IonImg src={agregar_usuario} style={{ height: "100%" }}></IonImg>*/}CREAR USUARIO</IonCol>
+                }}>{<IonImg src={agregarUsuario} style={{ height: "100%" }}></IonImg>}</IonCol>
               </IonRow>
             </IonGrid>
           </div>

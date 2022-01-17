@@ -122,7 +122,7 @@ class ProcedimientoLista extends Component {
           }
 
         let procedimientos = this.state.procedimientos;
-
+        
         return (
             <IonPage>
                 <IonContent>
