@@ -39,7 +39,7 @@ class Usuarios extends Component {
   render() {
 
     if (this.state.lista_clientes) {
-      //return (<Redirect to={'/usuarios-lista'} />)
+      return (<Redirect to={'/cliente-lista'} />)
     }
     
     if (this.state.crear_cliente) {

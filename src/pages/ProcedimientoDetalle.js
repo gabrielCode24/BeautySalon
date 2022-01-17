@@ -156,8 +156,7 @@ class ProcedimientoDetalle extends Component {
         }
 
         let procedimiento = this.state.procedimiento;
-        console.log(JSON.stringify(procedimiento))
-
+        
         return (
             <IonPage>
                 <IonContent>
@@ -200,22 +199,22 @@ class ProcedimientoDetalle extends Component {
 
                         <IonItem>
                             <IonLabel>Fecha Ingreso:</IonLabel>
-                            <IonInput id="nombre" style={{ "color": "gray" }} value={procedimiento.fec_ing} type="text" readonly></IonInput>
+                            <IonInput id="fec_ing" style={{ "color": "gray" }} value={procedimiento.fec_ing} type="text" readonly></IonInput>
                         </IonItem>
 
                         <IonItem>
                             <IonLabel>Usuario Ingresa:</IonLabel>
-                            <IonInput id="nombre" style={{ "color": "gray" }} value={procedimiento.usr_ing} type="text" readonly></IonInput>
+                            <IonInput id="usr_ing" style={{ "color": "gray" }} value={procedimiento.usr_ing} type="text" readonly></IonInput>
                         </IonItem>
 
                         <IonItem>
                             <IonLabel>Fecha Actualiza:</IonLabel>
-                            <IonInput id="nombre" style={{ "color": "gray" }} value={procedimiento.fec_act} type="text" readonly></IonInput>
+                            <IonInput id="fec_act" style={{ "color": "gray" }} value={procedimiento.fec_act} type="text" readonly></IonInput>
                         </IonItem>
 
                         <IonItem>
                             <IonLabel>Usuario Actualiza:</IonLabel>
-                            <IonInput id="nombre" style={{ "color": "gray" }} value={procedimiento.usr_act} type="text" readonly></IonInput>
+                            <IonInput id="usr_act" style={{ "color": "gray" }} value={procedimiento.usr_act} type="text" readonly></IonInput>
                         </IonItem>
 
                     </IonList>

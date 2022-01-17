@@ -16,48 +16,48 @@ import { url, prepararPost } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { connect } from 'react-redux'
-import { getUsuarios } from '../actions/usuariosAction'
-import { getUsuarioData } from '../actions/usuarioAction'
+import { getClientes } from '../actions/clientesAction'
+import { getClienteData } from '../actions/clienteAction'
 
 const mapStateToProps = store => ({
-    usuarios: store.usuarios,
-    usuario: store.usuario
+    clientes: store.clientes,
+    cliente: store.cliente
 });
 
-class UsuarioLista extends Component {
+class ClienteLista extends Component {
     constructor(props) {
         super(props);
         this.state = {
             url: url(),
             logged: true,
-            loading_usuarios: false,
-            loading_usuario_data: false,
-            usuarios: [],
-            usuario: [],
+            loading_clientes: false,
+            loading_cliente_data: false,
+            clientes: [],
+            cliente: [],
             search_string: "",
-            redirigir_a_usuario_detalle: false
+            redirigir_a_cliente_detalle: false
         }
     }
 
     UNSAFE_componentWillMount() {
-        this._getUsuarios();
+        this._getClientes();
     }
 
-    _getUsuarios = () => {
-        this.setState({ loading_usuarios: true });
+    _getClientes = () => {
+        this.setState({ loading_clientes: true });
 
-        let Parameters = '?action=getJSON&get=usuarios_lista';
+        let Parameters = '?action=getJSON&get=clientes_lista';
 
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
 
-                //Guardamos la lista de usuarios que vienen del API en el store de Redux
-                this.props.dispatch(getUsuarios(responseJson))
+                //Guardamos la lista de clientes que vienen del API en el store de Redux
+                this.props.dispatch(getClientes(responseJson))
                 
                 this.setState({
-                    loading_usuarios: false,
-                    usuarios: this.props.usuarios.list,
+                    loading_clientes: false,
+                    clientes: this.props.clientes.list,
                 });
 
                 Swal.close();
@@ -77,7 +77,7 @@ class UsuarioLista extends Component {
         });
     }
 
-    filtrarUsuarios = () => {
+    filtrarClientes = () => {
         let text = document.getElementById('search').value;
 
         this.setState({
@@ -85,22 +85,22 @@ class UsuarioLista extends Component {
         })
     }
 
-    _getUsuario = (id) => {
-        this.setState({ loading_usuario_data: true });
+    _getCliente = (id) => {
+        this.setState({ loading_cliente_data: true });
 
-        let Parameters = '?action=getJSON&get=usuario_data&id=' + id;
+        let Parameters = '?action=getJSON&get=cliente_data&id=' + id;
 
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
-
-                //Guardamos la lista de usuarios que vienen del API en el store de Redux
-                this.props.dispatch(getUsuarioData(responseJson))
+                console.log(JSON.stringify(responseJson))
+                //Guardamos la lista de clientes que vienen del API en el store de Redux
+                this.props.dispatch(getClienteData(responseJson))
                 
                 this.setState({
-                    loading_usuario_data: false,
-                    usuario: this.props.usuario.list,
-                    redirigir_a_usuario_detalle: true
+                    loading_cliente_data: false,
+                    cliente: this.props.cliente.list,
+                    redirigir_a_cliente_detalle: true
                 });
                 
                 Swal.close();
@@ -112,17 +112,17 @@ class UsuarioLista extends Component {
 
     render() {
 
-        if (this.state.loading_usuarios) {
+        if (this.state.loading_clientes) {
             return <h1>
                 {Swal.showLoading()}
             </h1>;
         }
 
-        if (this.state.redirigir_a_usuario_detalle) {
-            return (<Redirect to={'/usuario-detalle'} />)
+        if (this.state.redirigir_a_cliente_detalle) {
+            return (<Redirect to={'/cliente-detalle'} />)
           }
 
-        let usuarios = this.state.usuarios;
+        let clientes = this.state.clientes;
 
         return (
             <IonPage>
@@ -131,18 +131,18 @@ class UsuarioLista extends Component {
                         <IonToolbar>
 
                             <IonButtons slot="start">
-                                <IonBackButton defaultHref="/usuarios" icon={arrowBackOutline} />
+                                <IonBackButton defaultHref="/clientes" icon={arrowBackOutline} />
                             </IonButtons>
 
-                            <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>LISTA DE USUARIOS</b></IonTitle>
+                            <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>LISTA DE CLIENTES</b></IonTitle>
                         </IonToolbar>
                     </IonHeader>
 
-                    <IonSearchbar id="search" onIonChange={(e) => this.filtrarUsuarios()} showCancelButton="focus" placeholder="Buscar usuario"></IonSearchbar>
+                    <IonSearchbar id="search" onIonChange={(e) => this.filtrarClientes()} showCancelButton="focus" placeholder="Buscar cliente"></IonSearchbar>
                     <IonList>
                         {
-                            usuarios.filter(usuario => usuario.nombre.includes(this.state.search_string)).map(item => (
-                                <IonItem key={item.id} onClick={(e) => this._getUsuario(item.id)}>
+                            clientes.filter(cliente => cliente.nombre.includes(this.state.search_string)).map(item => (
+                                <IonItem key={item.id} onClick={(e) => this._getCliente(item.id)}>
                                     {item.id} - {item.nombre}
                                 </IonItem>
                             ))
@@ -155,4 +155,4 @@ class UsuarioLista extends Component {
     }
 }
 
-export default connect(mapStateToProps)(UsuarioLista);
+export default connect(mapStateToProps)(ClienteLista);
