@@ -14,7 +14,6 @@ import { Redirect } from 'react-router-dom'
 //import './Home.css';
 import agregarUsuario from '../assets/images/agregar.JPG'
 import listaUsuarios from '../assets/images/lista.png'
-import Swal from 'sweetalert2'
 
 class Usuarios extends Component {
   constructor(props) {

@@ -36,10 +36,12 @@ import ProcediminetoCrear from './pages/ProcedimientoCrear'
 import ProcedimientoLista from './pages/ProcedimientoLista'
 import UsuarioLista from './pages/UsuarioLista'
 import ClienteLista from './pages/ClienteLista'
+import CitaPreLista from './pages/CitaPreLista';
 
 import ProcedimientoDetalle from './pages/ProcedimientoDetalle'
 import UsuarioDetalle from './pages/UsuarioDetalle'
 import ClienteDetalle from './pages/ClienteDetalle'
+import CitaCrear from './pages/CitaCrear'
 
 
 setupIonicReact();
@@ -78,6 +80,9 @@ function App() {
           <Route exact path="/procedimiento-crear">
             <ProcediminetoCrear />
           </Route>
+          <Route exact path="/cita-crear">
+            <CitaCrear />
+          </Route>
 
           <Route exact path="/procedimiento-lista">
             <ProcedimientoLista />
@@ -87,6 +92,9 @@ function App() {
           </Route>
           <Route exact path="/cliente-lista">
             <ClienteLista />
+          </Route>
+          <Route exact path="/cita-pre-lista">
+            <CitaPreLista />
           </Route>
 
           <Route exact path="/procedimiento-detalle">

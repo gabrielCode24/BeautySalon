@@ -4,7 +4,8 @@ import {
     IonTitle, IonButtons,
     IonList, IonItem,
     IonBackButton,
-    IonSearchbar
+    IonSearchbar, IonAccordion, IonAccordionGroup,
+    IonLabel
 } from '@ionic/react';
 import {
     arrowBackOutline
@@ -96,13 +97,13 @@ class ClienteLista extends Component {
                 console.log(JSON.stringify(responseJson))
                 //Guardamos la lista de clientes que vienen del API en el store de Redux
                 this.props.dispatch(getClienteData(responseJson))
-                
+
                 this.setState({
                     loading_cliente_data: false,
                     cliente: this.props.cliente.list,
                     redirigir_a_cliente_detalle: true
                 });
-                
+
                 Swal.close();
             })
             .catch((error) => {
@@ -120,7 +121,7 @@ class ClienteLista extends Component {
 
         if (this.state.redirigir_a_cliente_detalle) {
             return (<Redirect to={'/cliente-detalle'} />)
-          }
+        }
 
         let clientes = this.state.clientes;
 
@@ -137,7 +138,7 @@ class ClienteLista extends Component {
                             <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>LISTA DE CLIENTES</b></IonTitle>
                         </IonToolbar>
                     </IonHeader>
-
+                    
                     <IonSearchbar id="search" onIonChange={(e) => this.filtrarClientes()} showCancelButton="focus" placeholder="Buscar cliente"></IonSearchbar>
                     <IonList>
                         {
@@ -148,7 +149,7 @@ class ClienteLista extends Component {
                             ))
                         }
                     </IonList>
-
+                    
                 </IonContent>
             </IonPage >
         )

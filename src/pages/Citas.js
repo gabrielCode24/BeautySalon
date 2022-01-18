@@ -7,21 +7,21 @@ import {
   IonIcon, IonButton
 } from '@ionic/react';
 import {
-  logOutOutline, arrowBackOutline
+  arrowBackOutline
 } from 'ionicons/icons';
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
+import agregarCita from '../assets/images/agregar_nueva.JPG'
+import listaCitas from '../assets/images/lista.png'
 
 import Swal from 'sweetalert2'
 
-class Home extends Component {
+class Citas extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      citas: false,
-      clientes: false,
-      procedimientos: false,
-      usuarios: false,
+      pre_lista_citas: false,
+      crear_cita: false,
       logged: true
     }
   }
@@ -44,35 +44,57 @@ class Home extends Component {
     })
   }
 
+  redirigir = (modulo) => {
+    switch (modulo) {
+      case 'pre_lista_citas':
+        this.setState({ pre_lista_citas: true });
+        break;
+      case 'crear_cita':
+        this.setState({ crear_cita: true });
+        break;
+    }
+  }
+  
   render() {
 
     if (!localStorage.getItem("userData")) {
       return (<Redirect to={'/login'} />)
     }
 
+    if (this.state.pre_lista_citas) {
+      return (<Redirect to={'/cita-pre-lista'} />)
+    }
+
+    if (this.state.crear_cita) {
+      return (<Redirect to={'/cita-crear'} />)
+    }
+
     return (
       <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonBackButton defaultHref="/home" icon={arrowBackOutline} />
+              <IonTitle><b>Citas</b></IonTitle>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+
         <IonContent>
           <div>
-            <IonHeader style={{ textAlign: "right" }}>
-              <IonToolbar>
+            <IonGrid>
+              <IonRow>
+                <IonCol size="6" onClick={() => this.redirigir('pre_lista_citas')} style={{
+                  height: "140px", borderColor: "#C0C0C0",
+                  borderWidth: "1px", borderStyle: "solid", backgroundSize: "cover"
+                }}>{<IonImg src={listaCitas} style={{ height: "100%" }}></IonImg>}</IonCol>
 
-                <IonButtons slot="end">
-                  <IonButton onClick={() => this.logout()} title="Cerrar sesión">
-                    <IonIcon slot="icon-only" icon={logOutOutline} />
-                  </IonButton>
-                </IonButtons>
-
-                <IonButtons slot="start">
-                  <IonBackButton defaultHref="/home" icon={arrowBackOutline} />
-                </IonButtons>
-
-                <IonTitle style={{ fontFamily: "sans-serif" }}><b>Eyebrows By: GR</b></IonTitle>
-              </IonToolbar>
-            </IonHeader>
-
-            <h1>CITAS</h1>
-
+                <IonCol size="6" onClick={() => this.redirigir('crear_cita')} style={{
+                  height: "140px", borderColor: "#C0C0C0",
+                  borderWidth: "1px", borderStyle: "solid"
+                }}>{<IonImg src={agregarCita} style={{ height: "100%" }}></IonImg>}</IonCol>
+              </IonRow>
+            </IonGrid>
           </div>
         </IonContent>
       </IonPage >
@@ -80,4 +102,4 @@ class Home extends Component {
   }
 }
 
-export default Home;
+export default Citas;
