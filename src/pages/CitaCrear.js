@@ -48,7 +48,7 @@ class CitaCrear extends Component {
             search_string_procedimiento: "",
             search_string_vendedor: "",
             search_string_tecnico: "",
-            date_selected: "",
+            date_selected: '',
             show_picker: true,
             fecha_rotulo: '',
 
@@ -57,7 +57,11 @@ class CitaCrear extends Component {
             procedimiento_precio_sug_selected: '',
             tecnico_id_selected: '',
             vendedor_recepcionista_id_selected: '',
-            fecha_cita_selected: ''
+            fecha_cita_selected: '',
+
+            url_guardar_imagen: 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr',
+            image_updloaded_name: '',
+            imagen_anticipo_uploading: false
         }
     }
 
@@ -298,10 +302,6 @@ class CitaCrear extends Component {
             fecha_cita_selected: formattedString
         })
 
-        console.log(dateFromIonDatetime);
-        console.log(this.state.date_selected);
-
-
         //FECHA FORMATEADA EN ESPAÑOL
         let d = new Date(formattedString);
         let date = '';
@@ -311,9 +311,7 @@ class CitaCrear extends Component {
         optionsHour = { hour: 'numeric', minute: 'numeric', hour12: false };
 
         date = d.toLocaleDateString("es-MX", optionsDate);
-        hour = d.toLocaleString("en-US", optionsHour);
-
-        console.log("Cita agendada para el " + date + " a las " + hour + " horas");
+        hour = d.toLocaleString("es-MX", optionsHour);
 
         //Fecha que será guardada en la base de datos
         let dateAndTimeOfAppointment = formattedStringDate + " " + hour;
@@ -322,18 +320,34 @@ class CitaCrear extends Component {
             date_selected: dateAndTimeOfAppointment
         });
 
-        setTimeout(() => {
-            console.log("Fecha y hora seleccionada para la cita: " + dateAndTimeOfAppointment);
-        }, 1000);
-
         let datex = new Date(formattedString);
         let datePast = isPast(datex);
 
         if (datePast) {
-            console.log("Es una fecha del pasado");
+            Swal.fire({
+                title: 'Fecha no válida',
+                text: 'No se permite establecer una fecha u hora del pasado como una fecha para cita.',
+                icon: 'info',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#E0218A'
+            });
+
+            this.setState({
+                date_selected: ''
+            });
+            return;
         } else {
             console.log("Es una fecha en el futuro");
         }
+
+        console.log("Cita agendada para el " + date + " a las " + hour + " horas");
+
+        console.log(dateFromIonDatetime);
+        console.log(this.state.date_selected);
+
+        setTimeout(() => {
+            console.log("Fecha y hora seleccionada para la cita: " + dateAndTimeOfAppointment);
+        }, 1000);
 
         this.setState({
             show_picker: false,
@@ -349,58 +363,97 @@ class CitaCrear extends Component {
 
     registrarCita = () => {
 
-        let cliente = this.state.cliente_id_selected;
-        let procedimiento = this.state.procedimiento_id_selected;
-        let tecnico = this.state.tecnico_id_selected;
-        let vendedor_recepcionista = this.state.vendedor_recepcionista_id_selected;
-        let fecha_cita = this.state.date_selected;
-        let procedimiento_precio_sug = this.state.procedimiento_precio_sug_selected;
+        this.setState({
+            imagen_anticipo_uploading: true
+        });
 
-        var fec_ing = "NOW()";
-        var usr_ing = "admin";
+        let inputFile = document.getElementById('imagen-anticipo').files[0]; // En la posición 0; es decir, el primer elemento
 
-        if (cliente != '' || procedimiento != '' || procedimiento_precio_sug != '' || tecnico != '' ||
-            vendedor_recepcionista != '' || fecha_cita != '') {
-
-            var valuesCita = {
-                cliente_id: cliente, proc_id: procedimiento, proc_precio_sug: procedimiento_precio_sug,
-                tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista, fecha_hora: fecha_cita,
-                fec_ing: fec_ing, usr_ing: usr_ing
-            }
-
-            const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
-
-            fetch(this.state.url, requestOptionsCita)
-                .then((response) => {
-                    if (response.status === 200) {
-                        Swal.close();
-
+        if (typeof (inputFile) !== "undefined") {
+            if (inputFile) {
+                let formData = new FormData();
+                formData.append("archivo", inputFile);
+                fetch(this.state.url_guardar_imagen + "/guardar.php", {
+                    method: 'POST',
+                    body: formData,
+                }).then(respuesta => respuesta.text())
+                    .then(nombreArchivo => {
                         this.setState({
-                            sending: false
+                            image_updloaded_name: nombreArchivo,
+                            imagen_anticipo_uploading: false
                         });
+                        console.log(nombreArchivo);
 
-                        Swal.fire({
-                            title: '¡Éxito!',
-                            text: '¡Cita ingresada exitosamente!',
-                            icon: 'success',
-                            confirmButtonText: 'Aceptar',
-                            confirmButtonColor: '#E0218A'
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Algo falló',
-                            text: 'Ocurrió un error inesperado, no se pudo ingresar la cita, favor comunicarse con el desarrollador.',
-                            icon: 'error',
-                            confirmButtonText: 'Aceptar',
-                            confirmButtonColor: 'red'
-                        });
-                    }
-                })
+                        setTimeout(() => {
+                            let cliente = this.state.cliente_id_selected;
+                            let procedimiento = this.state.procedimiento_id_selected;
+                            let tecnico = this.state.tecnico_id_selected;
+                            let vendedor_recepcionista = this.state.vendedor_recepcionista_id_selected;
+                            let fecha_cita = this.state.date_selected;
+                            let procedimiento_precio_sug = this.state.procedimiento_precio_sug_selected;
+                            let image_updloaded_name = this.state.image_updloaded_name;
+
+                            var fec_ing = "NOW()";
+                            var usr_ing = "admin";
+                            console.log(fecha_cita);
+
+                            if (cliente != '' || procedimiento != '' || procedimiento_precio_sug != '' || tecnico != '' ||
+                                vendedor_recepcionista != '' || fecha_cita != '') {
+
+                                let image_uploaded_path = this.state.url_guardar_imagen + "/archivos_imagenes/" + image_updloaded_name;
+
+                                var valuesCita = {
+                                    cliente_id: cliente, proc_id: procedimiento, proc_precio_sug: procedimiento_precio_sug,
+                                    tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista,
+                                    deposito_foto: image_uploaded_path, fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
+                                }
+
+                                const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
+
+                                fetch(this.state.url, requestOptionsCita)
+                                    .then((response) => {
+                                        if (response.status === 200) {
+                                            Swal.close();
+
+                                            this.setState({
+                                                sending: false
+                                            });
+
+                                            Swal.fire({
+                                                title: '¡Éxito!',
+                                                text: '¡Cita ingresada exitosamente!',
+                                                icon: 'success',
+                                                confirmButtonText: 'Aceptar',
+                                                confirmButtonColor: '#E0218A'
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                title: 'Algo falló',
+                                                text: 'Ocurrió un error inesperado, no se pudo ingresar la cita, favor comunicarse con el desarrollador.',
+                                                icon: 'error',
+                                                confirmButtonText: 'Aceptar',
+                                                confirmButtonColor: 'red'
+                                            });
+                                        }
+                                    })
+                            } else {
+                                Swal.fire({
+                                    title: 'Faltan datos',
+                                    text: 'Es necesario seleccionar un valor de cada opción del formulario',
+                                    icon: 'info',
+                                    confirmButtonText: 'Aceptar',
+                                    confirmButtonColor: '#E0218A'
+                                });
+                            }
+                        }, 2000);
+                    });
+                return true;
+            }
         } else {
             Swal.fire({
                 title: 'Faltan datos',
-                text: 'Es necesario seleccionar un valor de cada opción del formulario',
-                icon: 'info',
+                text: 'La imagen del depósito es obligatoria, favor adjunte la imagen del depósito',
+                icon: 'warning',
                 confirmButtonText: 'Aceptar',
                 confirmButtonColor: '#E0218A'
             });
@@ -408,12 +461,18 @@ class CitaCrear extends Component {
     }
 
     render() {
-
+        
         if (this.state.loading_clientes && this.state.loading_procedimientos &&
             this.state.loading_tecnicos && this.state.loading_vendedores) {
             return <h1>
                 {Swal.showLoading()}
             </h1>;
+        }
+
+        if (this.state.imagen_anticipo_uploading) {
+            return <h1>
+                {Swal.showLoading()}
+            </h1>
         }
 
         let clientes = this.state.clientes;
@@ -547,43 +606,27 @@ class CitaCrear extends Component {
                             </IonList>
                         </IonItemGroup>
                     </IonAccordionGroup>
+                    
+                    <IonList>
+                        <IonItem>
+                            <IonLabel style={{ fontSize: "12px" }}>Seleccionar foto de anticipo</IonLabel>
+                        </IonItem>
+                        <IonItem>
+                            <input id="imagen-anticipo" type="file" accept='image/*,.pdf'></input>
+                        </IonItem>
+                    </IonList>
 
                     {/* SELECCIONAR FECHA Y HORA */}
-                    {/*
-                    <IonAccordionGroup id="fecha_y_hora">
-                        <IonAccordion value="fecha_y_hora">
-                            
-                            <IonItem slot="header" onClick={() => this.showPicker()}>
-                                <b><IonLabel>Seleccionar Fecha y Hora:</IonLabel></b>
-                            </IonItem>
-
-                            
-                                /*this.state.show_picker ?
-
-                                <IonList slot="content">
-                                <IonCard>
-                                    <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar"></IonDatetime>
-                                </IonCard>
-                                </IonList>
-
-                                : 0
-
-                        </IonAccordion>
-                    </IonAccordionGroup>
-                    */
-                    }
-
                     <IonButton id="open-modal" expand="full" color="medium">Seleccionar fecha y hora</IonButton>
                     <IonModal trigger="open-modal" style={{ Background: "transparent", paddingTop: "10vh", paddingLeft: "2vh", paddingRight: "2vh", paddingBottom: "35vh" }}>
                         <IonContent force-overscroll="false" style={{ Background: "#f2f2f7" }}>
-                            <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }}></IonDatetime>
+                            <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }} minuteValues="0,30"></IonDatetime>
                         </IonContent>
                     </IonModal>
 
                     <IonItem>
-                        <IonInput type="text">{this.state.fecha_rotulo}</IonInput>
+                        <IonInput type="text" readonly>{this.state.fecha_rotulo}</IonInput>
                     </IonItem>
-
                 </IonContent>
                 <IonFooter>
                     <IonButton color="favorite" expand="block" onClick={() => this.registrarCita()} disabled="false">Registrar Cita</IonButton>
