@@ -136,7 +136,7 @@ class ProcedimientoLista extends Component {
                             <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>LISTA DE PROCEDIMIENTOS</b></IonTitle>
                         </IonToolbar>
                     </IonHeader>
-
+                    
                     <IonSearchbar id="search" onIonChange={(e) => this.filtrarProcedimientos()} showCancelButton="focus" placeholder="Buscar procedimiento"></IonSearchbar>
                     <IonList>
                         {

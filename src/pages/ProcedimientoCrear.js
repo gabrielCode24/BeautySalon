@@ -12,7 +12,7 @@ import {
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 //import './Home.css';
-import { url, prepararPost } from '../utilities/utilities.js'
+import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import { MD5 } from '../utilities/crypto'
 import Swal from 'sweetalert2'
 
@@ -22,6 +22,7 @@ class ProcedimientoCrear extends Component {
         this.state = {
             url: url(),
             logged: true,
+            usuario_logueado: infoUsuario('usuario'),
             usuarios: false
         }
     }
@@ -42,7 +43,7 @@ class ProcedimientoCrear extends Component {
         var precio = document.getElementById('precio').value;
 
         var fec_ing = "NOW()";
-        var usr_ing = "admin";
+        var usr_ing = this.state.usuario_logueado;
 
         if (nombre.length > 0 && precio.length > 0) {
 

@@ -15,7 +15,7 @@ import {
 import { Component } from 'react'
 
 //import './Home.css';
-import { url, prepararPost } from '../utilities/utilities.js'
+import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { getClientes } from '../actions/clientesAction'
@@ -36,6 +36,7 @@ class CitaCrear extends Component {
         this.state = {
             url: url(),
             logged: true,
+            usuario_logueado: infoUsuario('usuario'),
             clientes: [],
             procedimientos: [],
             vendedores: [],
@@ -362,7 +363,7 @@ class CitaCrear extends Component {
     }
 
     registrarCita = () => {
-
+        
         this.setState({
             imagen_anticipo_uploading: true
         });
@@ -392,9 +393,9 @@ class CitaCrear extends Component {
                             let fecha_cita = this.state.date_selected;
                             let procedimiento_precio_sug = this.state.procedimiento_precio_sug_selected;
                             let image_updloaded_name = this.state.image_updloaded_name;
-
+                            
                             var fec_ing = "NOW()";
-                            var usr_ing = "admin";
+                            var usr_ing = this.state.usuario_logueado;
                             console.log(fecha_cita);
 
                             if (cliente != '' || procedimiento != '' || procedimiento_precio_sug != '' || tecnico != '' ||
@@ -461,7 +462,7 @@ class CitaCrear extends Component {
     }
 
     render() {
-        
+
         if (this.state.loading_clientes && this.state.loading_procedimientos &&
             this.state.loading_tecnicos && this.state.loading_vendedores) {
             return <h1>

@@ -13,7 +13,7 @@ import {
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 //import './Home.css';
-import { url, saltingCode, prepararPost } from '../utilities/utilities.js'
+import { url, saltingCode, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import { MD5 } from '../utilities/crypto'
 import Swal from 'sweetalert2'
 
@@ -23,6 +23,7 @@ class UsuarioCrear extends Component {
         this.state = {
             url: url(),
             logged: true,
+            usuario_logueado: infoUsuario('usuario'),
             usuarios: false,
             perfil: 1,
             saltingCode: saltingCode
@@ -60,7 +61,7 @@ class UsuarioCrear extends Component {
         var repetir_clave = document.getElementById('repetir_clave').value;
         var perfil = this.state.perfil;
         var fec_ing = "NOW()";
-        var usr_ing = "admin";
+        var usr_ing = this.state.usuario_logueado;
 
         if (nombre.length > 0 && telefono.length && fecha_nac.length > 0 &&
             identidad.length > 0 && direccion.length > 0 && usuario.length > 0 &&
@@ -101,6 +102,7 @@ class UsuarioCrear extends Component {
             if (clave == repetir_clave) {
 
                 let Parameters = '?action=getJSON&get=verificar_usuario_existe&usr=' + usuario;
+                
                 clave = MD5(clave + saltingCode);
                 console.log(clave);
                 console.log(saltingCode)

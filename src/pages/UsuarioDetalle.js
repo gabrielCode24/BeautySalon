@@ -10,10 +10,10 @@ import {
 import {
     arrowBackOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 //import './Home.css';
-import { url, saltingCode, prepararPost } from '../utilities/utilities.js'
+import { url, saltingCode, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import { MD5 } from '../utilities/crypto'
 import Swal from 'sweetalert2'
 
@@ -29,6 +29,8 @@ class UsuarioDetalle extends Component {
         super(props);
         this.state = {
             url: url(),
+            usuario_logueado: infoUsuario('usuario'),
+            usuario_logueado_perfil: infoUsuario('perfil'),
             usuario: [],
             redireccionar_atras: false,
         }
@@ -69,7 +71,7 @@ class UsuarioDetalle extends Component {
         
         var activo = document.getElementById('activo').value;
         var fec_act = "NOW()";
-        var usr_act = "admin";
+        var usr_act = this.state.usuario_logueado;
 
         var clave = document.getElementById('clave').value;
         var clave_hidden = document.getElementById('clave_hidden').value;
@@ -157,7 +159,7 @@ class UsuarioDetalle extends Component {
         }
 
         let usuario = this.state.usuario;
-        console.log(JSON.stringify(usuario))
+        let usuario_perfil = this.state.usuario_logueado_perfil;
 
         return (
             <IonPage>
@@ -253,7 +255,11 @@ class UsuarioDetalle extends Component {
                     </IonList>
                 </IonContent>
                 <IonFooter>
-                    <IonButton color="favorite" expand="block" onClick={() => this.modificarUsuario()}>Modificar Usuario</IonButton>
+                    {
+                        usuario_perfil == 4 ?
+                        <IonButton disabled="true" color="favorite" expand="block" onClick={() => this.modificarUsuario()}>Modificar Usuario</IonButton> :
+                        <IonButton disabled="false" color="favorite" expand="block" onClick={() => this.modificarUsuario()}>Modificar Usuario</IonButton>
+                    }
                 </IonFooter>
             </IonPage >
         )

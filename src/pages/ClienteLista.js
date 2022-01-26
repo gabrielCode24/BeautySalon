@@ -60,7 +60,6 @@ class ClienteLista extends Component {
                     loading_clientes: false,
                     clientes: this.props.clientes.list,
                 });
-
                 Swal.close();
             })
             .catch((error) => {

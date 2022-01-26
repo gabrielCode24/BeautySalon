@@ -43,6 +43,10 @@ import UsuarioDetalle from './pages/UsuarioDetalle'
 import ClienteDetalle from './pages/ClienteDetalle'
 import CitaCrear from './pages/CitaCrear'
 
+import CitasTodas from './pages/CitasTodas'
+import CitasHoy from './pages/CitasHoy'
+import CitasManana from './pages/CitasManana'
+
 
 setupIonicReact();
 
@@ -107,6 +111,16 @@ function App() {
             <ClienteDetalle />
           </Route>
           
+          <Route exact path="/citas-todas">
+            <CitasTodas />
+          </Route>
+          <Route exact path="/citas-hoy">
+            <CitasHoy />
+          </Route>
+          <Route exact path="/citas-manana">
+            <CitasManana />
+          </Route>
+
           <Route exact path="/">
             <Redirect to="/login" />
           </Route>

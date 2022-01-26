@@ -1,3 +1,16 @@
+import { format, parseISO } from 'date-fns';
+
+//Guarda la información del usuario que está logueado
+export function infoUsuario(info) {
+  if (localStorage.getItem('userData')) {
+    var userData = JSON.parse(localStorage.getItem("userData"));
+    userData = userData[0][info];
+
+    return userData;
+  }
+  return "X";
+}
+
 //Función genérica para preparar solicitudes POST en el formato de la app (action - set - data)
 export function prepararPost(values, set, action = "setJsons", structure = "jsonSingle") {
 
@@ -19,7 +32,7 @@ export function prepararPost(values, set, action = "setJsons", structure = "json
       var encodedValue = encodeURIComponent(requestMetaData[property]);
       formBody.push(encodedKey + "=" + encodedValue);
     }
-    formBody = formBody.join("&"); 
+    formBody = formBody.join("&");
 
     //Finalmente preparamos toda la estructura del request que enviaremos a la función fetch para hacer el POST
     const requestOptions = {
@@ -68,7 +81,7 @@ export function getTodayDate(params) {
   let options = {};
   let d = new Date();
   let date = '';
-  
+
   switch (params) {
     case 1:
       options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -84,8 +97,31 @@ export function getTodayDate(params) {
   return date;
 }
 
-export function url(){
+export function url() {
   return 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr/api/beautysalon_eyebrowsbygr.php';
 }
 
 export var saltingCode = "kDHXM!yMMS$mS60x*EPJD*";
+
+//FECHA FORMATEADA EN ESPAÑOL
+export function formatearFechaLista(dateParam) {
+
+  let formattedString = format(parseISO(dateParam), 'yyyy-MM-dd hh:mm:ss a');
+
+  let d = new Date(formattedString);
+  let fecha_cita = '';
+  let date = '';
+  let hour = '';
+  let optionsDate = {};
+  let optionsHour = {};
+
+  optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  optionsHour = { hour: 'numeric', minute: 'numeric', hour12: false };
+
+  date = d.toLocaleDateString("es-MX", optionsDate);
+  hour = d.toLocaleString("es-MX", optionsHour);
+
+  fecha_cita = date + ", a las " + hour + " horas";
+
+  return fecha_cita;
+}

@@ -10,10 +10,9 @@ import {
 import {
     arrowBackOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Component } from 'react'
 //import './Home.css';
-import { url, prepararPost } from '../utilities/utilities.js'
+import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 class ClienteCrear extends Component {
@@ -22,6 +21,7 @@ class ClienteCrear extends Component {
         this.state = {
             url: url(),
             logged: true,
+            usuario_logueado: infoUsuario('usuario'),
             usuarios: false
         }
     }
@@ -45,7 +45,7 @@ class ClienteCrear extends Component {
         var direccion = document.getElementById('direccion').value;
 
         var fec_ing = "NOW()";
-        var usr_ing = "admin";
+        var usr_ing = this.state.usuario_logueado;
 
         if (nombre.length > 0 && telefono.length && fecha_nac.length > 0) {
 

@@ -10,10 +10,10 @@ import {
 import {
     arrowBackOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 //import './Home.css';
-import { url, prepararPost } from '../utilities/utilities.js'
+import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { connect } from 'react-redux'
@@ -28,6 +28,8 @@ class ProcedimientoDetalle extends Component {
         super(props);
         this.state = {
             url: url(),
+            usuario_logueado: infoUsuario('usuario'),
+            usuario_logueado_perfil: infoUsuario('perfil'),
             procedimiento: [],
             redireccionar_atras: false
         }
@@ -67,7 +69,7 @@ class ProcedimientoDetalle extends Component {
         var activo = document.getElementById('activo').value;
 
         var fec_act = "NOW()";
-        var usr_act = "admin";
+        var usr_act = this.state.usuario_logueado;
 
         if (nombre.length > 0 && precio.length > 0) {
 
@@ -156,6 +158,7 @@ class ProcedimientoDetalle extends Component {
         }
 
         let procedimiento = this.state.procedimiento;
+        let usuario_perfil = this.state.usuario_logueado_perfil;
         
         return (
             <IonPage>
@@ -220,7 +223,11 @@ class ProcedimientoDetalle extends Component {
                     </IonList>
                 </IonContent>
                 <IonFooter>
-                    <IonButton color="favorite" expand="block" onClick={() => this.modificarProcedimiento()}>Modificar Procedimiento</IonButton>
+                    {
+                        usuario_perfil == 4 ?
+                        <IonButton disabled="true" color="favorite" expand="block" onClick={() => this.modificarProcedimiento()}>Modificar Procedimiento</IonButton> :
+                        <IonButton disabled="false" color="favorite" expand="block" onClick={() => this.modificarProcedimiento()}>Modificar Procedimiento</IonButton>
+                    }
                 </IonFooter>
             </IonPage >
         )

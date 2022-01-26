@@ -20,11 +20,9 @@ class CitaPreLista extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            citas: false,
-            clientes: false,
-            procedimientos: false,
-            usuarios: false,
-            logged: true
+            citas_todas: false,
+            citas_hoy: false,
+            citas_manana: false
         }
     }
 
@@ -48,19 +46,30 @@ class CitaPreLista extends Component {
 
     redirigir = (modulo) => {
         switch (modulo) {
-            case 'lista_usuarios':
-                this.setState({ lista_usuarios: true });
+            case 'citas_todas':
+                this.setState({ citas_todas: true });
                 break;
-            case 'crear_usuario':
-                this.setState({ crear_usuario: true });
+            case 'citas_hoy':
+                this.setState({ citas_hoy: true });
+                break;
+            case 'citas_manana':
+                this.setState({ citas_manana: true });
                 break;
         }
     }
 
     render() {
 
-        if (!localStorage.getItem("userData")) {
-            return (<Redirect to={'/login'} />)
+        if (this.state.citas_todas) {
+            return (<Redirect to={'/citas-todas'} />)
+        }
+
+        if (this.state.citas_hoy) {
+            return (<Redirect to={'/citas-hoy'} />)
+        }
+
+        if (this.state.citas_manana) {
+            return (<Redirect to={'/citas-manana'} />)
         }
 
         return (
@@ -78,17 +87,17 @@ class CitaPreLista extends Component {
                     <div>
                         <IonGrid>
                             <IonRow>
-                                <IonCol size="6" onClick={() => this.redirigir('lista_procedimientos')} style={{
+                                <IonCol size="6" onClick={() => this.redirigir('citas_todas')} style={{
                                     height: "140px", borderColor: "#C0C0C0",
                                     borderWidth: "1px", borderStyle: "solid", backgroundSize: "cover"
                                 }}>{/*<IonImg src={listaCitas} style={{ height: "100%" }}></IonImg>*/}TODAS LAS CITAS</IonCol>
 
-                                <IonCol size="6" onClick={() => this.redirigir('crear_procedimiento')} style={{
+                                <IonCol size="6" onClick={() => this.redirigir('citas_hoy')} style={{
                                     height: "140px", borderColor: "#C0C0C0",
                                     borderWidth: "1px", borderStyle: "solid"
                                 }}>{/*<IonImg src={agregarCita} style={{ height: "100%" }}></IonImg>*/}CITAS DE HOY</IonCol>
 
-                                <IonCol size="6" onClick={() => this.redirigir('crear_procedimiento')} style={{
+                                <IonCol size="6" onClick={() => this.redirigir('citas_manana')} style={{
                                     height: "140px", borderColor: "#C0C0C0",
                                     borderWidth: "1px", borderStyle: "solid"
                                 }}>{/*<IonImg src={agregarCita} style={{ height: "100%" }}></IonImg>*/}CITAS DE MAÑANA</IonCol>

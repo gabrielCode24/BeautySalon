@@ -10,11 +10,10 @@ import {
 import {
     arrowBackOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 //import './Home.css';
-import { url, saltingCode, prepararPost } from '../utilities/utilities.js'
-import { MD5 } from '../utilities/crypto'
+import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { connect } from 'react-redux'
@@ -29,6 +28,7 @@ class ClienteDetalle extends Component {
         super(props);
         this.state = {
             url: url(),
+            usuario_logueado: infoUsuario('usuario'),
             cliente: [],
             redireccionar_atras: false,
         }
@@ -69,7 +69,7 @@ class ClienteDetalle extends Component {
         
         var activo = document.getElementById('activo').value;
         var fec_act = "NOW()";
-        var usr_act = "admin";
+        var usr_act = this.state.usuario_logueado;
         
         if (telefono.length > 0 && fecha_nac.length > 0 &&
             identidad.length > 0) {

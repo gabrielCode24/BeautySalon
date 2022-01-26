@@ -4,7 +4,6 @@ import {
   IonCol, IonImg,
   IonHeader, IonToolbar,
   IonTitle, IonButtons, IonBackButton,
-  IonIcon, IonButton
 } from '@ionic/react';
 import {
   arrowBackOutline
@@ -56,10 +55,6 @@ class Citas extends Component {
   }
   
   render() {
-
-    if (!localStorage.getItem("userData")) {
-      return (<Redirect to={'/login'} />)
-    }
 
     if (this.state.pre_lista_citas) {
       return (<Redirect to={'/cita-pre-lista'} />)
