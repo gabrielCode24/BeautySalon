@@ -26,7 +26,11 @@ class UsuarioCrear extends Component {
             usuario_logueado: infoUsuario('usuario'),
             usuarios: false,
             perfil: 1,
-            saltingCode: saltingCode
+            saltingCode: saltingCode,
+            foto_uploaded_name: '',
+            foto_usuario_uploading: false,
+
+            url_guardar_foto: 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr',
         }
     }
 
@@ -66,7 +70,7 @@ class UsuarioCrear extends Component {
         if (nombre.length > 0 && telefono.length && fecha_nac.length > 0 &&
             identidad.length > 0 && direccion.length > 0 && usuario.length > 0 &&
             clave.length > 0) {
-
+            
             //VALIDACIONES
             //Nombre
             if (nombre.length < 7) {
@@ -102,11 +106,9 @@ class UsuarioCrear extends Component {
             if (clave == repetir_clave) {
 
                 let Parameters = '?action=getJSON&get=verificar_usuario_existe&usr=' + usuario;
-                
+
                 clave = MD5(clave + saltingCode);
-                console.log(clave);
-                console.log(saltingCode)
-                console.log(clave)
+
                 fetch(this.state.url + Parameters)
                     .then((res) => res.json())
                     .then((responseJson) => {
@@ -119,42 +121,82 @@ class UsuarioCrear extends Component {
                                 confirmButtonColor: 'blue'
                             });
                         } else {
-                            var valuesUsuario = {
-                                nombre: nombre, telefono: telefono, fecha_nac: fecha_nac, id_rtn: identidad,
-                                direccion: direccion, usuario: usuario, clave: clave, perfil: perfil,
-                                fec_ing: fec_ing, usr_ing: usr_ing
-                            }
 
-                            const requestOptionsUsuario = prepararPost(valuesUsuario, "usuario", "setJsons", "jsonSingle");
+                            let inputFile = document.getElementById('foto-usuario').files[0]; // En la posición 0; es decir, el primer elemento
+                            
+                            if (typeof (inputFile) !== "undefined") {
 
-                            setTimeout(() => {
-                                fetch(this.state.url, requestOptionsUsuario)
-                                    .then((response) => {
-                                        if (response.status === 200) {
-                                            Swal.close();
-                                            
+                                this.setState({
+                                    foto_usuario_uploading: true
+                                });
+
+                                if (inputFile) {
+                                    let formData = new FormData();
+                                    formData.append("archivo", inputFile);
+                                    fetch(this.state.url_guardar_foto + "/guardar.php?foto_tipo=usuario", {
+                                        method: 'POST',
+                                        body: formData,
+                                    }).then(respuesta => respuesta.text())
+                                        .then(nombreArchivo => {
                                             this.setState({
-                                                sending: false
+                                                foto_uploaded_name: nombreArchivo,
+                                                foto_usuario_uploading: false
                                             });
+                                            console.log(nombreArchivo);
 
-                                            Swal.fire({
-                                                title: '¡Éxito!',
-                                                text: '¡Usuario creado exitosamente!',
-                                                icon: 'success',
-                                                confirmButtonText: 'Aceptar',
-                                                confirmButtonColor: '#E0218A'
-                                            });
-                                        } else {
-                                            Swal.fire({
-                                                title: 'Algo falló',
-                                                text: 'Ocurrió un error inesperado, no se pudo crear el usuario, favor comunicarse con el desarrollador.',
-                                                icon: 'error',
-                                                confirmButtonText: 'Aceptar',
-                                                confirmButtonColor: 'red'
-                                            });
-                                        }
-                                    })
-                            }, 500);
+                                            setTimeout(() => {
+
+                                                let foto_uploaded_name = this.state.foto_uploaded_name;
+
+                                                let foto_uploaded_path = this.state.url_guardar_foto + "/archivos_imagenes/fotos_usuarios/" + foto_uploaded_name;
+
+                                                var valuesUsuario = {
+                                                    nombre: nombre, telefono: telefono, fecha_nac: fecha_nac, id_rtn: identidad,
+                                                    direccion: direccion, usuario: usuario, clave: clave, perfil: perfil,
+                                                    foto: foto_uploaded_path, fec_ing: fec_ing, usr_ing: usr_ing
+                                                }
+
+                                                const requestOptionsUsuario = prepararPost(valuesUsuario, "usuario", "setJsons", "jsonSingle");
+
+                                                fetch(this.state.url, requestOptionsUsuario)
+                                                    .then((response) => {
+                                                        if (response.status === 200) {
+                                                            Swal.close();
+
+                                                            this.setState({
+                                                                sending: false
+                                                            });
+
+                                                            Swal.fire({
+                                                                title: '¡Éxito!',
+                                                                text: '¡Usuario ingresado exitosamente!',
+                                                                icon: 'success',
+                                                                confirmButtonText: 'Aceptar',
+                                                                confirmButtonColor: '#E0218A'
+                                                            });
+                                                        } else {
+                                                            Swal.fire({
+                                                                title: 'Algo falló',
+                                                                text: 'Ocurrió un error inesperado, no se pudo registrar al usuario, favor comunicarse con el desarrollador.',
+                                                                icon: 'error',
+                                                                confirmButtonText: 'Aceptar',
+                                                                confirmButtonColor: 'red'
+                                                            });
+                                                        }
+                                                    })
+                                            }, 2000);
+                                        });
+                                    return true;
+                                }
+                            } else {
+                                Swal.fire({
+                                    title: 'Faltan datos',
+                                    text: 'La foto del usuario es obligatoria, favor adjunte la foto del usuario',
+                                    icon: 'warning',
+                                    confirmButtonText: 'Aceptar',
+                                    confirmButtonColor: '#E0218A'
+                                });
+                            }
                         }
                     })
             } else {
@@ -175,8 +217,6 @@ class UsuarioCrear extends Component {
                 confirmButtonColor: '#E0218A'
             });
         }
-
-
     }
 
     render() {
@@ -229,10 +269,17 @@ class UsuarioCrear extends Component {
                         </IonItem>
 
                         <IonItem>
+                            <IonLabel style={{ fontSize: "12px" }}>Seleccionar foto del usuario</IonLabel>
+                        </IonItem>
+                        <IonItem>
+                            <input id="foto-usuario" type="file" accept='image/*'></input>
+                        </IonItem>
+
+                        <IonItem>
                             <IonLabel>Usuario:</IonLabel>
                             <IonInput id="usuario" type="text" placeholder="Usuario" required></IonInput>
                         </IonItem>
-                        
+
                         <IonItem>
                             <IonLabel>Clave:</IonLabel>
                             <IonInput id="clave" type="password" placeholder="Clave" required></IonInput>
