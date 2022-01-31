@@ -363,44 +363,46 @@ class CitaCrear extends Component {
     }
 
     registrarCita = () => {
-        
-        this.setState({
-            imagen_anticipo_uploading: true
-        });
 
-        let inputFile = document.getElementById('imagen-anticipo').files[0]; // En la posición 0; es decir, el primer elemento
+        let cliente = this.state.cliente_id_selected;
+        let procedimiento = this.state.procedimiento_id_selected;
+        let tecnico = this.state.tecnico_id_selected;
+        let vendedor_recepcionista = this.state.vendedor_recepcionista_id_selected;
+        let fecha_cita = this.state.date_selected;
+        let procedimiento_precio_sug = this.state.procedimiento_precio_sug_selected;
 
-        if (typeof (inputFile) !== "undefined") {
-            if (inputFile) {
-                let formData = new FormData();
-                formData.append("archivo", inputFile);
-                fetch(this.state.url_guardar_imagen + "/guardar.php", {
-                    method: 'POST',
-                    body: formData,
-                }).then(respuesta => respuesta.text())
-                    .then(nombreArchivo => {
-                        this.setState({
-                            image_updloaded_name: nombreArchivo,
-                            imagen_anticipo_uploading: false
-                        });
-                        console.log(nombreArchivo);
+        if (cliente != '' && procedimiento != '' && procedimiento_precio_sug != '' && tecnico != '' &&
+            vendedor_recepcionista && '' || fecha_cita.length > 0) {
 
-                        setTimeout(() => {
-                            let cliente = this.state.cliente_id_selected;
-                            let procedimiento = this.state.procedimiento_id_selected;
-                            let tecnico = this.state.tecnico_id_selected;
-                            let vendedor_recepcionista = this.state.vendedor_recepcionista_id_selected;
-                            let fecha_cita = this.state.date_selected;
-                            let procedimiento_precio_sug = this.state.procedimiento_precio_sug_selected;
-                            let image_updloaded_name = this.state.image_updloaded_name;
-                            
-                            var fec_ing = "NOW()";
-                            var usr_ing = this.state.usuario_logueado;
-                            console.log(fecha_cita);
+            let inputFile = document.getElementById('imagen-anticipo').files[0]; // En la posición 0; es decir, el primer elemento
 
-                            if (cliente != '' || procedimiento != '' || procedimiento_precio_sug != '' || tecnico != '' ||
-                                vendedor_recepcionista != '' || fecha_cita != '') {
+            if (typeof (inputFile) !== "undefined") {
 
+                this.setState({
+                    imagen_anticipo_uploading: true
+                });
+
+                if (inputFile) {
+                    let formData = new FormData();
+                    formData.append("archivo", inputFile);
+                    fetch(this.state.url_guardar_imagen + "/guardar.php?foto_tipo=anticipo", {
+                        method: 'POST',
+                        body: formData,
+                    }).then(respuesta => respuesta.text())
+                        .then(nombreArchivo => {
+                            this.setState({
+                                image_updloaded_name: nombreArchivo,
+                                imagen_anticipo_uploading: false
+                            });
+                            console.log(nombreArchivo);
+
+                            setTimeout(() => {
+
+                                let image_updloaded_name = this.state.image_updloaded_name;
+
+                                var fec_ing = "NOW()";
+                                var usr_ing = this.state.usuario_logueado;
+                                
                                 let image_uploaded_path = this.state.url_guardar_imagen + "/archivos_imagenes/" + image_updloaded_name;
 
                                 var valuesCita = {
@@ -437,24 +439,24 @@ class CitaCrear extends Component {
                                             });
                                         }
                                     })
-                            } else {
-                                Swal.fire({
-                                    title: 'Faltan datos',
-                                    text: 'Es necesario seleccionar un valor de cada opción del formulario',
-                                    icon: 'info',
-                                    confirmButtonText: 'Aceptar',
-                                    confirmButtonColor: '#E0218A'
-                                });
-                            }
-                        }, 2000);
-                    });
-                return true;
+                            }, 2000);
+                        });
+                    return true;
+                }
+            } else {
+                Swal.fire({
+                    title: 'Faltan datos',
+                    text: 'La imagen del depósito es obligatoria, favor adjunte la imagen del depósito',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#E0218A'
+                });
             }
         } else {
             Swal.fire({
                 title: 'Faltan datos',
-                text: 'La imagen del depósito es obligatoria, favor adjunte la imagen del depósito',
-                icon: 'warning',
+                text: 'Es necesario seleccionar un valor de cada opción del formulario',
+                icon: 'info',
                 confirmButtonText: 'Aceptar',
                 confirmButtonColor: '#E0218A'
             });
@@ -548,7 +550,7 @@ class CitaCrear extends Component {
                                     <IonInput id="procedimiento_selected_text" type="text" placeholder="Procedimiento"></IonInput>
                                 </IonItem>
                                 <IonItem>
-                                    <IonInput id="procedimiento_selected_precio" type="number" placeholder="Precio">Precio (L):&nbsp;</IonInput>
+                                    <IonInput id="procedimiento_selected_precio" type="number" placeholder="Precio"  >Precio (L):&nbsp;</IonInput>
                                 </IonItem>
                             </IonList>
                         </IonItemGroup>
@@ -607,7 +609,7 @@ class CitaCrear extends Component {
                             </IonList>
                         </IonItemGroup>
                     </IonAccordionGroup>
-                    
+
                     <IonList>
                         <IonItem>
                             <IonLabel style={{ fontSize: "12px" }}>Seleccionar foto de anticipo</IonLabel>
