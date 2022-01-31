@@ -32,6 +32,7 @@ import Usuarios from './pages/Usuarios'
 import UsuarioCrear from './pages/UsuarioCrear'
 import ClienteCrear from './pages/ClienteCrear'
 import ProcediminetoCrear from './pages/ProcedimientoCrear'
+import CitaCrear from './pages/CitaCrear'
 
 import ProcedimientoLista from './pages/ProcedimientoLista'
 import UsuarioLista from './pages/UsuarioLista'
@@ -41,11 +42,12 @@ import CitaPreLista from './pages/CitaPreLista';
 import ProcedimientoDetalle from './pages/ProcedimientoDetalle'
 import UsuarioDetalle from './pages/UsuarioDetalle'
 import ClienteDetalle from './pages/ClienteDetalle'
-import CitaCrear from './pages/CitaCrear'
 
 import CitasTodas from './pages/CitasTodas'
 import CitasHoy from './pages/CitasHoy'
 import CitasManana from './pages/CitasManana'
+import CitaDetalle from './pages/CitaDetalle'
+
 
 
 setupIonicReact();
@@ -109,6 +111,9 @@ function App() {
           </Route>
           <Route exact path="/cliente-detalle">
             <ClienteDetalle />
+          </Route>
+          <Route exact path="/cita-detalle">
+            <CitaDetalle />
           </Route>
           
           <Route exact path="/citas-todas">
