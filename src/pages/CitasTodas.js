@@ -11,9 +11,16 @@ import {
 } from 'ionicons/icons';
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-import { url, formatearFechaLista, prepararPost } from '../utilities/utilities.js'
+import { url, formatearFechaLista } from '../utilities/utilities.js'
 
 import Swal from 'sweetalert2'
+
+import { connect } from 'react-redux'
+import { getCitaData } from '../actions/citaAction'
+
+const mapStateToProps = store => ({
+  cita: store.cita
+});
 
 class CitasTodas extends Component {
   constructor(props) {
@@ -21,7 +28,9 @@ class CitasTodas extends Component {
     this.state = {
       url: url(),
       citas: [],
-      loading_citas: false
+      loading_citas: false,
+      redirigir_a_cita_detalle: false,
+      loading_cita_data: false
     }
   }
 
@@ -85,6 +94,30 @@ class CitasTodas extends Component {
     }
   }
 
+  _getCita = (id) => {
+    this.setState({ loading_cita_data: true });
+
+    let Parameters = '?action=getJSON&get=cita_data&id=' + id;
+    
+    fetch(this.state.url + Parameters)
+      .then((res) => res.json())
+      .then((responseJson) => {
+        console.log(JSON.stringify(responseJson))
+        //Guardamos la lista de clientes que vienen del API en el store de Redux
+        this.props.dispatch(getCitaData(responseJson))
+
+        this.setState({
+          loading_cita_data: false,
+          redirigir_a_cita_detalle: true
+        });
+
+        Swal.close();
+      })
+      .catch((error) => {
+        console.log(error)
+      });
+  }
+
   render() {
 
     if (!localStorage.getItem("userData")) {
@@ -95,6 +128,10 @@ class CitasTodas extends Component {
       return <h1>
         {Swal.showLoading()}
       </h1>;
+    }
+
+    if (this.state.redirigir_a_cita_detalle) {
+      return (<Redirect to={'/cita-detalle'} />)
     }
 
     let citas = this.state.citas;
@@ -112,7 +149,7 @@ class CitasTodas extends Component {
 
         <IonContent>
           <IonGrid style={{ borderRadius: "50% 50% 50% 50%" }}>
-            <IonRow style={{ backgroundColor: "#ffcc33", color: "#FFFFFF", textAlign:"center", fontFamily:"sans-serif" }}>
+            <IonRow style={{ backgroundColor: "#ffcc33", color: "#FFFFFF", textAlign: "center", fontFamily: "sans-serif" }}>
               <IonCol size="2">#CITA</IonCol>
               <IonCol size="2">CLI</IonCol>
               <IonCol size="2">PROC</IonCol>
@@ -123,7 +160,7 @@ class CitasTodas extends Component {
             {
               citas.map((item, i) => {
                 return (
-                  <IonRow key={item.cita_codigo}
+                  <IonRow key={item.cita_codigo} onClick={() => this._getCita(item.cita_codigo)}
                     style={{ backgroundColor: ((i % 2 == 0) ? "#D4D4D4" : "#FFE4E1"), fontFamily: "sans-serif" }} /*onClick={(e) => this.setRedirect(e, item)}*/>
                     <IonCol size="2"> {item.cita_codigo} </IonCol>
                     <IonCol size="2"> {item.cliente_nombre} </IonCol>
@@ -141,4 +178,4 @@ class CitasTodas extends Component {
   }
 }
 
-export default CitasTodas;
+export default connect(mapStateToProps)(CitasTodas);
