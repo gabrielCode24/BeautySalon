@@ -4,7 +4,7 @@ import {
     IonTitle, IonButtons,
     IonButton, IonList, IonItem,
     IonLabel, IonInput,
-    IonBackButton, IonFooter, IonTextarea,
+    IonBackButton, IonFooter, IonImg, IonThumbnail,
     IonSelect, IonSelectOption
 } from '@ionic/react';
 import {
@@ -12,7 +12,7 @@ import {
 } from 'ionicons/icons';
 import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-//import './Home.css';
+
 import { url, saltingCode, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import { MD5 } from '../utilities/crypto'
 import Swal from 'sweetalert2'
@@ -68,11 +68,11 @@ class UsuarioDetalle extends Component {
         var fecha_nac = document.getElementById('fecha_nac').value;
         var identidad = document.getElementById('identidad').value;
         var direccion = document.getElementById('direccion').value;
-        
+
         var activo = document.getElementById('activo').value;
         var fec_act = "NOW()";
         var usr_act = this.state.usuario_logueado;
-
+        
         var clave = document.getElementById('clave').value;
         var clave_hidden = document.getElementById('clave_hidden').value;
 
@@ -82,7 +82,7 @@ class UsuarioDetalle extends Component {
             identidad.length > 0 && direccion.length > 0) {
 
             //VALIDACIONES
-            
+
             //Teléfono
             if (telefono.length < 8) {
                 this.mensajeValidacion("El teléfono debe tener al menos 8 dígitos.");
@@ -100,7 +100,7 @@ class UsuarioDetalle extends Component {
                 this.mensajeValidacion("La dirección debe tener al menos 9 caracteres.");
                 return;
             }
-            
+
             //Si pasó todas las validaciones pasamos al siguiente bloque
             var valuesUsuario = {
                 id: id, telefono: telefono, fecha_nac: fecha_nac, id_rtn: identidad,
@@ -205,10 +205,17 @@ class UsuarioDetalle extends Component {
                         </IonItem>
 
                         <IonItem>
+                            <IonThumbnail slot="start">
+                                <IonImg src={usuario.foto} />
+                            </IonThumbnail>
+                            <IonButton color="favorite">Cambiar foto</IonButton>
+                        </IonItem>
+
+                        <IonItem>
                             <IonLabel>Usuario:</IonLabel>
                             <IonInput id="usuario" value={usuario.usuario} type="text" style={{ color: "gray" }} readonly></IonInput>
                         </IonItem>
-                        
+
                         <IonItem>
                             <IonLabel>Clave:</IonLabel>
                             <IonInput id="clave" type="password" placeholder="••••••••••••••••••"></IonInput>
@@ -257,8 +264,8 @@ class UsuarioDetalle extends Component {
                 <IonFooter>
                     {
                         usuario_perfil == 4 ?
-                        <IonButton disabled="true" color="favorite" expand="block" onClick={() => this.modificarUsuario()}>Modificar Usuario</IonButton> :
-                        <IonButton disabled="false" color="favorite" expand="block" onClick={() => this.modificarUsuario()}>Modificar Usuario</IonButton>
+                            <IonButton disabled="true" color="favorite" expand="block" onClick={() => this.modificarUsuario()}>Modificar Usuario</IonButton> :
+                            <IonButton disabled="false" color="favorite" expand="block" onClick={() => this.modificarUsuario()}>Modificar Usuario</IonButton>
                     }
                 </IonFooter>
             </IonPage >
