@@ -5,7 +5,7 @@ export function infoUsuario(info) {
   if (localStorage.getItem('userData')) {
     var userData = JSON.parse(localStorage.getItem("userData"));
     userData = userData[0][info];
-
+    
     return userData;
   }
   return "X";
