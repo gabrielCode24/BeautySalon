@@ -19,6 +19,7 @@ import procedimientos from '../assets/images/procedimientos.png'
 import usuarios from '../assets/images/usuarios.jpg'
 
 import Swal from 'sweetalert2'
+import { infoUsuario } from '../utilities/utilities.js'
 
 class Home extends Component {
   constructor(props) {
@@ -28,7 +29,8 @@ class Home extends Component {
       clientes: false,
       procedimientos: false,
       usuarios: false,
-      logged: true
+      logged: true,
+      usuario_logueado: infoUsuario('nombre'),
     }
   }
 
@@ -88,7 +90,7 @@ class Home extends Component {
     if (this.state.usuarios) {
       return (<Redirect to={'/usuarios'} />)
     }
-
+    
     return (
       <IonPage>
         <IonContent>
@@ -102,7 +104,8 @@ class Home extends Component {
                   </IonButton>
                 </IonButtons>
 
-                <IonTitle style={{ fontFamily: "sans-serif" }}><b>Eyebrows By: GR</b></IonTitle>
+                {/*<IonTitle style={{ fontFamily: "sans-serif" }}><b>Eyebrows By: GR</b></IonTitle>*/}
+                <IonTitle style={{ fontFamily: "sans-serif", fontSize:"13px" }}><b>Bienvenida(o) { this.state.usuario_logueado }</b></IonTitle>
               </IonToolbar>
             </IonHeader>
             <IonGrid>
