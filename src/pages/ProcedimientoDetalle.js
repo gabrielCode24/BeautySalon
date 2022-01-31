@@ -51,16 +51,6 @@ class ProcedimientoDetalle extends Component {
         });
     }
 
-    mensajeValidacion = (mensaje) => {
-        Swal.fire({
-            title: 'Aviso',
-            text: mensaje,
-            icon: 'info',
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#E0218A'
-        });
-    }
-
     modificarProcedimiento = () => {
         var id = document.getElementById('id').value;
         var nombre = document.getElementById('nombre').value;
