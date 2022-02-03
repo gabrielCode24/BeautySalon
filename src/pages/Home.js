@@ -7,7 +7,7 @@ import {
   IonButton
 } from '@ionic/react';
 import {
-  logOutOutline
+  logOutOutline, cogOutline
 } from 'ionicons/icons';
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
@@ -29,6 +29,7 @@ class Home extends Component {
       clientes: false,
       procedimientos: false,
       usuarios: false,
+      config: false,
       logged: true,
       usuario_logueado: infoUsuario('nombre'),
     }
@@ -47,6 +48,9 @@ class Home extends Component {
         break;
       case 'usuarios':
         this.setState({ usuarios: true });
+        break;
+      case 'config':
+        this.setState({ config: true });
         break;
     }
   }
@@ -74,11 +78,11 @@ class Home extends Component {
     if (!this.state.logged || !localStorage.getItem("userData")) {
       return (<Redirect to={'/login'} />)
     }
-    
+
     if (this.state.citas) {
       return (<Redirect to={'/citas'} />)
     }
-
+    
     if (this.state.clientes) {
       return (<Redirect to={'/clientes'} />)
     }
@@ -90,7 +94,11 @@ class Home extends Component {
     if (this.state.usuarios) {
       return (<Redirect to={'/usuarios'} />)
     }
-    
+
+    if (this.state.config) {
+      return (<Redirect to={'/config'} />)
+    }
+
     return (
       <IonPage>
         <IonContent>
@@ -102,10 +110,13 @@ class Home extends Component {
                   <IonButton onClick={() => this.logout()} title="Cerrar sesión">
                     <IonIcon slot="icon-only" icon={logOutOutline} />
                   </IonButton>
+                  <IonButton onClick={() => this.redirigir('config')} title="Cerrar sesión">
+                    <IonIcon slot="icon-only" icon={cogOutline} />
+                  </IonButton>
                 </IonButtons>
 
                 {/*<IonTitle style={{ fontFamily: "sans-serif" }}><b>Eyebrows By: GR</b></IonTitle>*/}
-                <IonTitle style={{ fontFamily: "sans-serif", fontSize:"13px" }}><b>Bienvenida(o) { this.state.usuario_logueado }</b></IonTitle>
+                <IonTitle style={{ fontFamily: "sans-serif", fontSize: "13px" }}><b>Bienvenida(o) {this.state.usuario_logueado}</b></IonTitle>
               </IonToolbar>
             </IonHeader>
             <IonGrid>

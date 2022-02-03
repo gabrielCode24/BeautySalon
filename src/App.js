@@ -48,7 +48,7 @@ import CitasHoy from './pages/CitasHoy'
 import CitasManana from './pages/CitasManana'
 import CitaDetalle from './pages/CitaDetalle'
 
-
+import Config from './pages/Config'
 
 setupIonicReact();
 
@@ -124,6 +124,10 @@ function App() {
           </Route>
           <Route exact path="/citas-manana">
             <CitasManana />
+          </Route>
+
+          <Route exact path="/config">
+            <Config />
           </Route>
 
           <Route exact path="/">
