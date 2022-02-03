@@ -37,6 +37,7 @@ class CitaCrear extends Component {
             url: url(),
             logged: true,
             usuario_logueado: infoUsuario('usuario'),
+            usuario_perfil: infoUsuario('perfil'),
             clientes: [],
             procedimientos: [],
             vendedores: [],
@@ -62,7 +63,8 @@ class CitaCrear extends Component {
 
             url_guardar_imagen: 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr',
             image_updloaded_name: '',
-            imagen_anticipo_uploading: false
+            imagen_anticipo_uploading: false,
+            sending: false
         }
     }
 
@@ -369,10 +371,10 @@ class CitaCrear extends Component {
         let tecnico = this.state.tecnico_id_selected;
         let vendedor_recepcionista = this.state.vendedor_recepcionista_id_selected;
         let fecha_cita = this.state.date_selected;
-        let procedimiento_precio_sug = this.state.procedimiento_precio_sug_selected;
+        let procedimiento_precio_sug = document.getElementById('procedimiento_selected_precio').value;
 
         if (cliente != '' && procedimiento != '' && procedimiento_precio_sug != '' && tecnico != '' &&
-            vendedor_recepcionista && '' || fecha_cita.length > 0) {
+            vendedor_recepcionista != '' && fecha_cita.length > 0) {
 
             let inputFile = document.getElementById('imagen-anticipo').files[0]; // En la posición 0; es decir, el primer elemento
 
@@ -398,11 +400,13 @@ class CitaCrear extends Component {
 
                             setTimeout(() => {
 
+                                this.setState({ sending: true })
+
                                 let image_updloaded_name = this.state.image_updloaded_name;
 
                                 var fec_ing = "NOW()";
                                 var usr_ing = this.state.usuario_logueado;
-                                
+
                                 let image_uploaded_path = this.state.url_guardar_imagen + "/archivos_imagenes/" + image_updloaded_name;
 
                                 var valuesCita = {
@@ -412,7 +416,7 @@ class CitaCrear extends Component {
                                 }
 
                                 const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
-
+                                
                                 fetch(this.state.url, requestOptionsCita)
                                     .then((response) => {
                                         if (response.status === 200) {
@@ -443,7 +447,100 @@ class CitaCrear extends Component {
                         });
                     return true;
                 }
-            } else {
+            } else { //Si no se adjunta la imagen del anticipo, se pregunta la clave maestra de autorización que el administrador ha establecido previamente
+                Swal.fire({
+                    title: 'Imagen de anticipo no adjuntada, ingrese la clave maestra para registrar cita sin imagen de anticipo',
+                    input: 'text',
+                    inputAttributes: {
+                        autocapitalize: 'off' 
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'OK',
+                    showLoaderOnConfirm: true,
+                    preConfirm: async (valor) => {
+                        return fetch(this.state.url + "?action=getJSON&get=valor_parametro&id=1&valor=" + valor)
+                            .then(response => {
+                                if (!response.ok) {
+                                    //throw new Error(response.statusText)
+                                    alert("Error en la solicitud.")
+                                }
+                                return response.json()
+                            })
+                            .catch(error => {
+                                Swal.showValidationMessage(
+                                    //`Request failed: ${error}`
+                                    alert("Falló la solicitud, error: " + error)
+                                )
+                            })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    let resultado = result.value[0].validated;                    
+
+                    if(resultado == 1){
+
+                        this.setState({ sending: true })
+
+                        setTimeout(() => {
+                                                        
+                            var fec_ing = "NOW()";
+                            var usr_ing = this.state.usuario_logueado;
+    
+                            var valuesCita = {
+                                cliente_id: cliente, proc_id: procedimiento, 
+                                proc_precio_sug: procedimiento_precio_sug,
+                                tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista,
+                                fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
+                            }
+    
+                            const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
+    
+                            fetch(this.state.url, requestOptionsCita)
+                                .then((response) => {
+                                    if (response.status === 200) {
+                                        Swal.close();
+    
+                                        this.setState({
+                                            sending: false
+                                        });
+    
+                                        Swal.fire({
+                                            title: '¡Éxito!',
+                                            text: '¡Cita ingresada exitosamente!',
+                                            icon: 'success',
+                                            confirmButtonText: 'Aceptar',
+                                            confirmButtonColor: '#E0218A'
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            title: 'Algo falló',
+                                            text: 'Ocurrió un error inesperado, no se pudo ingresar la cita, favor comunicarse con el desarrollador.',
+                                            icon: 'error',
+                                            confirmButtonText: 'Aceptar',
+                                            confirmButtonColor: 'red'
+                                        });
+                                    }
+                                })
+                        }, 2000);
+                    } else {
+                        Swal.fire({
+                            title: 'Clave maestra incorrecta',
+                            text: 'La clave maestra ingresada no es correcta',
+                            icon: 'error',
+                            confirmButtonText: 'Aceptar',
+                            confirmButtonColor: '#E0218A'
+                        });
+                    }
+                    
+
+
+
+                    
+                    //if (result.isConfirmed) {
+                        //alert("Datos recuperados correctamente")
+                    //}
+                })
+                /*
                 Swal.fire({
                     title: 'Faltan datos',
                     text: 'La imagen del depósito es obligatoria, favor adjunte la imagen del depósito',
@@ -451,6 +548,7 @@ class CitaCrear extends Component {
                     confirmButtonText: 'Aceptar',
                     confirmButtonColor: '#E0218A'
                 });
+                */
             }
         } else {
             Swal.fire({
@@ -478,10 +576,20 @@ class CitaCrear extends Component {
             </h1>
         }
 
+        if (this.state.sending) {
+            return <h1>
+                {Swal.showLoading()}
+            </h1>
+        }
+
         let clientes = this.state.clientes;
         let procedimientos = this.state.procedimientos;
         let vendedores = this.state.vendedores;
         let tecnicos = this.state.tecnicos;
+
+        let precio_readonly = "";
+
+        this.state.usuario_perfil == 1 ? precio_readonly = "false" : precio_readonly = "true";
 
         return (
             <IonPage>
@@ -519,7 +627,7 @@ class CitaCrear extends Component {
                         <IonItemGroup>
                             <IonList style={{ "display": "none" }} id="cliente_selected">
                                 <IonItem>
-                                    <IonInput id="cliente_selected_text" type="text" placeholder="Cliente">Cliente:&nbsp;</IonInput>
+                                    <IonInput id="cliente_selected_text" type="text" readonly="true" placeholder="Cliente">Cliente:&nbsp;</IonInput>
                                 </IonItem>
                             </IonList>
                         </IonItemGroup>
@@ -547,10 +655,10 @@ class CitaCrear extends Component {
                         <IonItemGroup>
                             <IonList style={{ "display": "none" }} id="procedimiento_selected">
                                 <IonItem>
-                                    <IonInput id="procedimiento_selected_text" type="text" placeholder="Procedimiento"></IonInput>
+                                    <IonInput id="procedimiento_selected_text" readonly="true" type="text" placeholder="Procedimiento"></IonInput>
                                 </IonItem>
                                 <IonItem>
-                                    <IonInput id="procedimiento_selected_precio" type="number" placeholder="Precio"  >Precio (L):&nbsp;</IonInput>
+                                    <IonInput id="procedimiento_selected_precio" readonly={ precio_readonly } type="number" placeholder="Precio"  >Precio (L):&nbsp;</IonInput>
                                 </IonItem>
                             </IonList>
                         </IonItemGroup>
@@ -577,7 +685,7 @@ class CitaCrear extends Component {
                         <IonItemGroup>
                             <IonList style={{ "display": "none" }} id="tecnico_selected">
                                 <IonItem>
-                                    <IonInput id="tecnico_selected_text" type="text" placeholder="Técnico">Técnico:&nbsp;</IonInput>
+                                    <IonInput readonly="true" id="tecnico_selected_text" type="text" placeholder="Técnico">Técnico:&nbsp;</IonInput>
                                 </IonItem>
                             </IonList>
                         </IonItemGroup>
@@ -604,7 +712,7 @@ class CitaCrear extends Component {
                         <IonItemGroup>
                             <IonList style={{ "display": "none" }} id="vendedor_selected">
                                 <IonItem>
-                                    <IonInput id="vendedor_selected_text" type="text" placeholder="Vendedor/Recepcionista"></IonInput>
+                                    <IonInput id="vendedor_selected_text" readonly="true" type="text" placeholder="Vendedor/Recepcionista"></IonInput>
                                 </IonItem>
                             </IonList>
                         </IonItemGroup>
