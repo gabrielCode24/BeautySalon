@@ -98,7 +98,7 @@ class CitasTodas extends Component {
     this.setState({ loading_cita_data: true });
 
     let Parameters = '?action=getJSON&get=cita_data&id=' + id;
-    
+
     fetch(this.state.url + Parameters)
       .then((res) => res.json())
       .then((responseJson) => {
@@ -162,11 +162,15 @@ class CitasTodas extends Component {
                 return (
                   <IonRow key={item.cita_codigo} onClick={() => this._getCita(item.cita_codigo)}
                     style={{ backgroundColor: ((i % 2 == 0) ? "#D4D4D4" : "#FFE4E1"), fontFamily: "sans-serif" }} /*onClick={(e) => this.setRedirect(e, item)}*/>
-                    <IonCol size="2"> {item.cita_codigo} </IonCol>
-                    <IonCol size="2"> {item.cliente_nombre} </IonCol>
-                    <IonCol size="2"> {item.procedimiento_nombre} </IonCol>
-                    <IonCol size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
-                    <IonCol size="2"><IonButton href={item.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon></IonButton></IonCol>
+                    <IonCol style={{ fontSize:"12px" }} size="2"> {item.cita_codigo} </IonCol>
+                    <IonCol style={{ fontSize:"12px" }} size="2"> {item.cliente_nombre} </IonCol>
+                    <IonCol style={{ fontSize:"12px" }} size="2"> {item.procedimiento_nombre} </IonCol>
+                    <IonCol style={{ fontSize:"12px" }} size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
+                    {
+                        item.cita_foto_deposito.length > 0 ?
+                        <IonCol size="2"><IonButton href={item.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon></IonButton></IonCol> :
+                        <IonCol size="2" style={{ fontSize: "10px" }}>Sin imagen de anticipo</IonCol>
+                    }
                   </IonRow>
                 )
               })

@@ -146,7 +146,7 @@ class CitaDetalle extends Component {
         let cita = this.state.cita;
         let precio_disabled = "";
 
-        this.state.usuario_perfil == 4 ? precio_disabled = "false" : precio_disabled = "true";
+        this.state.usuario_perfil == 1 ? precio_disabled = "false" : precio_disabled = "true";
 
         return (
             <IonPage>
@@ -155,7 +155,7 @@ class CitaDetalle extends Component {
                         <IonToolbar>
 
                             <IonButtons slot="start">
-                                <IonBackButton defaultHref="/citas" icon={arrowBackOutline} />
+                                <IonBackButton defaultHref="/cita-pre-lista" icon={arrowBackOutline} />
                             </IonButtons>
 
                             <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>DETALLE CITA</b></IonTitle>
@@ -207,7 +207,11 @@ class CitaDetalle extends Component {
                         
                         <IonItem>
                             <IonLabel>Imagen de Anticipo:</IonLabel>
-                            <IonButton href={cita.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon>Descargar</IonButton>
+                            {
+                                cita.cita_foto_deposito.length > 0 ?
+                                <IonButton href={cita.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon>Descargar</IonButton> :
+                                <span style={{ fontSize:"10px" }}>Sin imagen de depósito</span>
+                            }
                         </IonItem>  
 
                         <IonItem>
