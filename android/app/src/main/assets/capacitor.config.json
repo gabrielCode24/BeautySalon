@@ -1,0 +1,6 @@
+{
+	"appId": "com.beautysalon.app",
+	"appName": "Beauty Salon App",
+	"webDir": "build",
+	"bundledWebRuntime": false
+}

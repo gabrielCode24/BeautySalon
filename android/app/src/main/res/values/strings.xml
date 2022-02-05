@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Beauty Salon App</string>
+    <string name="title_activity_main">Beauty Salon App</string>
+    <string name="package_name">com.beautysalon.app</string>
+    <string name="custom_url_scheme">com.beautysalon.app</string>
+</resources>

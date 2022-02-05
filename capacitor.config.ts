@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'beauty-salon-app',
+  appId: 'com.beautysalon.app',
+  appName: 'Beauty Salon App',
   webDir: 'build',
   bundledWebRuntime: false
 };
