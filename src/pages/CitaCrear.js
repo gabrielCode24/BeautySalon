@@ -387,6 +387,7 @@ class CitaCrear extends Component {
                 if (inputFile) {
                     let formData = new FormData();
                     formData.append("archivo", inputFile);
+                    
                     fetch(this.state.url_guardar_imagen + "/guardar.php?foto_tipo=anticipo", {
                         method: 'POST',
                         body: formData,
@@ -396,11 +397,10 @@ class CitaCrear extends Component {
                                 image_updloaded_name: nombreArchivo,
                                 imagen_anticipo_uploading: false
                             });
-                            console.log(nombreArchivo);
-
+                                                        
+                            this.setState({ sending: true });
+                            
                             setTimeout(() => {
-
-                                this.setState({ sending: true })
 
                                 let image_updloaded_name = this.state.image_updloaded_name;
 
@@ -730,7 +730,7 @@ class CitaCrear extends Component {
                     {/* SELECCIONAR FECHA Y HORA */}
                     <IonButton id="open-modal" expand="full" color="medium">Seleccionar fecha y hora</IonButton>
                     <IonModal trigger="open-modal" style={{ Background: "transparent", paddingTop: "10vh", paddingLeft: "2vh", paddingRight: "2vh", paddingBottom: "35vh" }}>
-                        <IonContent force-overscroll="false" style={{ Background: "#f2f2f7" }}>
+                        <IonContent force-overscroll="false" style={{ Background: "#F2F2F7" }}>
                             <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }} minuteValues="0,30"></IonDatetime>
                         </IonContent>
                     </IonModal>

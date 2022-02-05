@@ -227,7 +227,7 @@ class ClienteDetalle extends Component {
                     </IonList>
                 </IonContent>
                 <IonFooter>
-                    <IonButton color="favorite" expand="block" onClick={() => this.modificarCliente()}>Modificar Cliente</IonButton>
+                    <IonButton color="favorite" expand="block" onClick={() => this.modificarCliente()}>Modificar Cita</IonButton>
                 </IonFooter>
             </IonPage >
         )
