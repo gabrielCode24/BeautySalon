@@ -6,15 +6,14 @@ import {
     IonLabel, IonInput,
     IonBackButton,
     IonFooter, IonAccordion, IonAccordionGroup,
-    IonSearchbar, IonItemGroup, IonDatetime,
-    IonModal
+    IonSearchbar, IonItemGroup, IonDatetime
 } from '@ionic/react';
 import {
     arrowBackOutline
 } from 'ionicons/icons';
 import { Component } from 'react'
 
-//import './Home.css';
+import { Redirect } from 'react-router-dom'
 import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
@@ -64,7 +63,8 @@ class CitaCrear extends Component {
             url_guardar_imagen: 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr',
             image_updloaded_name: '',
             imagen_anticipo_uploading: false,
-            sending: false
+            sending: false,
+            redireccionar_atras: false
         }
     }
 
@@ -355,7 +355,9 @@ class CitaCrear extends Component {
         this.setState({
             show_picker: false,
             fecha_rotulo: "Fecha y hora seleccionadas: " + date + " a las " + hour + " horas"
-        })
+        });
+
+        document.getElementById("fecha_rotulo").style.display = 'block';
     }
 
     showPicker = () => {
@@ -387,7 +389,7 @@ class CitaCrear extends Component {
                 if (inputFile) {
                     let formData = new FormData();
                     formData.append("archivo", inputFile);
-                    
+
                     fetch(this.state.url_guardar_imagen + "/guardar.php?foto_tipo=anticipo", {
                         method: 'POST',
                         body: formData,
@@ -395,10 +397,9 @@ class CitaCrear extends Component {
                         .then(nombreArchivo => {
                             this.setState({
                                 image_updloaded_name: nombreArchivo,
-                                imagen_anticipo_uploading: false
+                                imagen_anticipo_uploading: false,
+                                sending: true
                             });
-                                                        
-                            this.setState({ sending: true });
                             
                             setTimeout(() => {
 
@@ -416,7 +417,7 @@ class CitaCrear extends Component {
                                 }
 
                                 const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
-                                
+
                                 fetch(this.state.url, requestOptionsCita)
                                     .then((response) => {
                                         if (response.status === 200) {
@@ -432,7 +433,11 @@ class CitaCrear extends Component {
                                                 icon: 'success',
                                                 confirmButtonText: 'Aceptar',
                                                 confirmButtonColor: '#E0218A'
-                                            });
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    this.setState({ redireccionar_atras: true });
+                                                }
+                                            })
                                         } else {
                                             Swal.fire({
                                                 title: 'Algo falló',
@@ -452,7 +457,7 @@ class CitaCrear extends Component {
                     title: 'Imagen de anticipo no adjuntada, ingrese la clave maestra para registrar cita sin imagen de anticipo',
                     input: 'text',
                     inputAttributes: {
-                        autocapitalize: 'off' 
+                        autocapitalize: 'off'
                     },
                     showCancelButton: true,
                     confirmButtonText: 'OK',
@@ -475,42 +480,46 @@ class CitaCrear extends Component {
                     },
                     allowOutsideClick: () => !Swal.isLoading()
                 }).then((result) => {
-                    let resultado = result.value[0].validated;                    
+                    let resultado = result.value[0].validated;
 
-                    if(resultado == 1){
-
+                    if (resultado == 1) {
+                        
                         this.setState({ sending: true })
 
                         setTimeout(() => {
-                                                        
+
                             var fec_ing = "NOW()";
                             var usr_ing = this.state.usuario_logueado;
-    
+
                             var valuesCita = {
-                                cliente_id: cliente, proc_id: procedimiento, 
+                                cliente_id: cliente, proc_id: procedimiento,
                                 proc_precio_sug: procedimiento_precio_sug,
                                 tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista,
                                 fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
                             }
-    
+
                             const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
-    
+
                             fetch(this.state.url, requestOptionsCita)
                                 .then((response) => {
                                     if (response.status === 200) {
                                         Swal.close();
-    
+
                                         this.setState({
                                             sending: false
                                         });
-    
+
                                         Swal.fire({
                                             title: '¡Éxito!',
                                             text: '¡Cita ingresada exitosamente!',
                                             icon: 'success',
                                             confirmButtonText: 'Aceptar',
                                             confirmButtonColor: '#E0218A'
-                                        });
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                this.setState({ redireccionar_atras: true });
+                                            }
+                                        })
                                     } else {
                                         Swal.fire({
                                             title: 'Algo falló',
@@ -531,13 +540,13 @@ class CitaCrear extends Component {
                             confirmButtonColor: '#E0218A'
                         });
                     }
-                    
 
 
 
-                    
+
+
                     //if (result.isConfirmed) {
-                        //alert("Datos recuperados correctamente")
+                    //alert("Datos recuperados correctamente")
                     //}
                 })
                 /*
@@ -580,6 +589,10 @@ class CitaCrear extends Component {
             return <h1>
                 {Swal.showLoading()}
             </h1>
+        }
+        
+        if (this.state.redireccionar_atras) {
+            return (<Redirect to={'/citas'} />)
         }
 
         let clientes = this.state.clientes;
@@ -658,7 +671,7 @@ class CitaCrear extends Component {
                                     <IonInput id="procedimiento_selected_text" readonly="true" type="text" placeholder="Procedimiento"></IonInput>
                                 </IonItem>
                                 <IonItem>
-                                    <IonInput id="procedimiento_selected_precio" readonly={ precio_readonly } type="number" placeholder="Precio"  >Precio (L):&nbsp;</IonInput>
+                                    <IonInput id="procedimiento_selected_precio" readonly={precio_readonly} type="number" placeholder="Precio"  >Precio (L):&nbsp;</IonInput>
                                 </IonItem>
                             </IonList>
                         </IonItemGroup>
@@ -718,26 +731,30 @@ class CitaCrear extends Component {
                         </IonItemGroup>
                     </IonAccordionGroup>
 
+                    {/* SELECCIONAR FECHA Y HORA */}
+                    <IonAccordionGroup id="fecha_hora">
+                        <IonAccordion value="fecha_hora">
+                            <IonItem slot="header">
+                                <b><IonLabel>Seleccionar Fecha y Hora:</IonLabel></b>
+                            </IonItem>
+
+                            <IonList slot="content">
+                                <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }} minuteValues="0,30" hourValues="9,10,11,12,13,14,15,16,17,18" hourCycle="h23"></IonDatetime>
+                            </IonList>
+                        </IonAccordion>
+                        
+                        <IonInput id="fecha_rotulo" type="text" style={{ display: "none", left: "5px", right: "5px" }} readonly>{this.state.fecha_rotulo}</IonInput>
+                    </IonAccordionGroup>
+                    <hr size="5px" color="gray" />
                     <IonList>
                         <IonItem>
-                            <IonLabel style={{ fontSize: "12px" }}>Seleccionar foto de anticipo</IonLabel>
+                            <IonLabel style={{ fontSize: "15px" }}>Seleccionar foto de anticipo</IonLabel>
                         </IonItem>
                         <IonItem>
                             <input id="imagen-anticipo" type="file" accept='image/*,.pdf'></input>
                         </IonItem>
                     </IonList>
 
-                    {/* SELECCIONAR FECHA Y HORA */}
-                    <IonButton id="open-modal" expand="full" color="medium">Seleccionar fecha y hora</IonButton>
-                    <IonModal trigger="open-modal" style={{ Background: "transparent", paddingTop: "10vh", paddingLeft: "2vh", paddingRight: "2vh", paddingBottom: "35vh" }}>
-                        <IonContent force-overscroll="false" style={{ Background: "#F2F2F7" }}>
-                            <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }} minuteValues="0,30"></IonDatetime>
-                        </IonContent>
-                    </IonModal>
-
-                    <IonItem>
-                        <IonInput type="text" readonly>{this.state.fecha_rotulo}</IonInput>
-                    </IonItem>
                 </IonContent>
                 <IonFooter>
                     <IonButton color="favorite" expand="block" onClick={() => this.registrarCita()} disabled="false">Registrar Cita</IonButton>

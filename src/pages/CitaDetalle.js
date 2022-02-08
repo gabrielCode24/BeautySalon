@@ -51,96 +51,15 @@ class CitaDetalle extends Component {
             confirmButtonColor: '#E0218A'
         });
     }
-
-    modificarCliente = () => {
-        var id = document.getElementById('id').value;
-        var telefono = document.getElementById('telefono').value;
-        var fecha_nac = document.getElementById('fecha_nac').value;
-        var identidad = document.getElementById('identidad').value;
-        var direccion = document.getElementById('direccion').value;
-
-        var activo = document.getElementById('activo').value;
-        var fec_act = "NOW()";
-        var usr_act = this.state.usuario_logueado;
-
-        if (telefono.length > 0 && fecha_nac.length > 0 &&
-            identidad.length > 0) {
-
-            //VALIDACIONES
-
-            //Teléfono
-            if (telefono.length < 8) {
-                this.mensajeValidacion("El teléfono debe tener al menos 8 dígitos.");
-                return;
-            }
-
-            //Identidad
-            if (identidad.length < 13) {
-                this.mensajeValidacion("La cédula de identidad debe tener al menos 13 caracteres.");
-                return;
-            }
-
-            //Dirección
-            if (direccion.length < 9) {
-                this.mensajeValidacion("La dirección debe tener al menos 9 caracteres.");
-                return;
-            }
-
-            //Si pasó todas las validaciones pasamos al siguiente bloque
-            var valuesCliente = {
-                id: id, telefono: telefono, fecha_nac: fecha_nac, id_rtn: identidad,
-                direccion: direccion, activo: activo, fec_act: fec_act, usr_act: usr_act
-            }
-
-            const requestOptionsCliente = prepararPost(valuesCliente, "update_cliente", "updateJsons", "jsonSingle");
-
-            fetch(this.state.url, requestOptionsCliente)
-                .then((response) => {
-                    if (response.status === 200) {
-                        Swal.close();
-
-                        this.setState({
-                            sending: false
-                        });
-
-                        setTimeout(() => {
-                            this.setState({
-                                redireccionar_atras: true
-                            });
-                        }, 1500);
-
-                        Swal.fire({
-                            title: '¡Éxito!',
-                            text: 'Cita modificada exitosamente!',
-                            icon: 'success',
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Algo falló',
-                            text: 'Ocurrió un error inesperado, no se pudo modificar la información de esta cita, favor comunicarse con el desarrollador.',
-                            icon: 'error',
-                            confirmButtonText: 'Aceptar',
-                            confirmButtonColor: 'red'
-                        });
-                    }
-                })
-        } else {
-            Swal.fire({
-                title: 'Faltan datos',
-                text: 'Los campos Nombre y Precio son obligatorios.',
-                icon: 'info',
-                confirmButtonText: 'Aceptar',
-                confirmButtonColor: '#E0218A'
-            });
-        }
+    
+    modificarCita = () => {
+        
     }
 
     render() {
 
         if (this.state.redireccionar_atras) {
-            return (<Redirect to={'/cita-pre-lista'} />)
+            return (<Redirect to={'/citas-todas'} />)
         }
 
         let cita = this.state.cita;
@@ -155,7 +74,7 @@ class CitaDetalle extends Component {
                         <IonToolbar>
 
                             <IonButtons slot="start">
-                                <IonBackButton defaultHref="/cita-pre-lista" icon={arrowBackOutline} />
+                                <IonBackButton defaultHref="/citas-todas" icon={arrowBackOutline} />
                             </IonButtons>
 
                             <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>DETALLE CITA</b></IonTitle>
@@ -184,7 +103,7 @@ class CitaDetalle extends Component {
                         </IonItem>
 
                         <IonItem>
-                            <IonLabel>Precio:</IonLabel>
+                            <IonLabel>Precio (L):</IonLabel>
                             <IonInput id="precio" disabled={ precio_disabled } value={cita.procedimiento_precio} type="number"></IonInput>
                         </IonItem>
 
@@ -221,7 +140,7 @@ class CitaDetalle extends Component {
                     </IonList>
                 </IonContent>
                 <IonFooter>
-                    <IonButton color="favorite" expand="block" onClick={() => this.modificarCliente()} disabled>Modificar Cliente</IonButton>
+                    <IonButton color="favorite" expand="block" onClick={() => this.modificarCita()} disabled>Modificar Cita</IonButton>
                 </IonFooter>
             </IonPage >
         )

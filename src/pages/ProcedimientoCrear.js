@@ -23,7 +23,8 @@ class ProcedimientoCrear extends Component {
             url: url(),
             logged: true,
             usuario_logueado: infoUsuario('usuario'),
-            usuarios: false
+            usuarios: false,
+            redireccionar_atras: false
         }
     }
 
@@ -74,7 +75,7 @@ class ProcedimientoCrear extends Component {
                 nombre: nombre, descripcion: descripcion, precio_sug: precio,
                 fec_ing: fec_ing, usr_ing: usr_ing
             }
-                    
+
             const requestOptionsProcedimiento = prepararPost(valuesProcedimiento, "procedimiento", "setJsons", "jsonSingle");
 
             fetch(this.state.url, requestOptionsProcedimiento)
@@ -92,6 +93,10 @@ class ProcedimientoCrear extends Component {
                             icon: 'success',
                             confirmButtonText: 'Aceptar',
                             confirmButtonColor: '#E0218A'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.setState({ redireccionar_atras: true });
+                            }
                         });
                     } else {
                         Swal.fire({
@@ -116,12 +121,8 @@ class ProcedimientoCrear extends Component {
 
     render() {
 
-        if (!this.state.logged) {
-            //return (<Redirect to={'/login'} />)
-        }
-
-        if (this.state.facturar) {
-            //return (<Redirect to={'/factura'} />)
+        if (this.state.redireccionar_atras) {
+            return (<Redirect to={'/procedimientos'} />)
         }
 
         return (

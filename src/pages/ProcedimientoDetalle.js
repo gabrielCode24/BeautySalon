@@ -100,21 +100,18 @@ class ProcedimientoDetalle extends Component {
                         this.setState({
                             sending: false
                         });
-
-                        setTimeout(() => {
-                            this.setState({
-                                redireccionar_atras: true
-                            });
-                        }, 1500);
-
+                        
                         Swal.fire({
                             title: '¡Éxito!',
                             text: '¡Procedimiento modificado exitosamente!',
                             icon: 'success',
                             showConfirmButton: false,
-                            //confirmButtonText: 'Aceptar',
-                            //confirmButtonColor: '#E0218A',
-                            timer: 1500
+                            confirmButtonText: 'Aceptar',
+                            confirmButtonColor: '#E0218A'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.setState({ redireccionar_atras: true });
+                            }
                         });
                     } else {
                         Swal.fire({

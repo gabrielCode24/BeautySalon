@@ -94,7 +94,7 @@ class CitasTodas extends Component {
     }
   }
 
-  _getCita = (id) => {
+  _getCita = (e, id) => {
     this.setState({ loading_cita_data: true });
 
     let Parameters = '?action=getJSON&get=cita_data&id=' + id;
@@ -160,16 +160,16 @@ class CitasTodas extends Component {
             {
               citas.map((item, i) => {
                 return (
-                  <IonRow key={item.cita_codigo} onClick={() => this._getCita(item.cita_codigo)}
+                  <IonRow key={item.cita_codigo} 
                     style={{ backgroundColor: ((i % 2 == 0) ? "#D4D4D4" : "#FFE4E1"), fontFamily: "sans-serif" }} /*onClick={(e) => this.setRedirect(e, item)}*/>
-                    <IonCol style={{ fontSize:"12px" }} size="2"> {item.cita_codigo} </IonCol>
-                    <IonCol style={{ fontSize:"12px" }} size="2"> {item.cliente_nombre} </IonCol>
-                    <IonCol style={{ fontSize:"12px" }} size="2"> {item.procedimiento_nombre} </IonCol>
-                    <IonCol style={{ fontSize:"12px" }} size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.cita_codigo} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.cliente_nombre} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.procedimiento_nombre} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
                     {
                         item.cita_foto_deposito.length > 0 ?
                         <IonCol size="2"><IonButton href={item.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon></IonButton></IonCol> :
-                        <IonCol size="2" style={{ fontSize: "10px" }}>Sin imagen de anticipo</IonCol>
+                        <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} size="2" style={{ fontSize: "10px" }}>Sin imagen de anticipo</IonCol>
                     }
                   </IonRow>
                 )

@@ -9,10 +9,12 @@ import {
 import {
     arrowBackOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-import agregarCita from '../assets/images/agregar.JPG'
-import listaCitas from '../assets/images/lista.png'
+import citasHoy from '../assets/images/hoy.png'
+import citasTodas from '../assets/images/todas.png'
+import citasManana from '../assets/images/manana.png'
+import citasCompletadas from '../assets/images/completadas.png'
 
 import Swal from 'sweetalert2'
 
@@ -90,22 +92,22 @@ class CitaPreLista extends Component {
                                 <IonCol size="6" onClick={() => this.redirigir('citas_todas')} style={{
                                     height: "140px", borderColor: "#C0C0C0",
                                     borderWidth: "1px", borderStyle: "solid", backgroundSize: "cover"
-                                }}>{/*<IonImg src={listaCitas} style={{ height: "100%" }}></IonImg>*/}TODAS LAS CITAS</IonCol>
+                                }}>{<IonImg src={citasTodas} style={{ height: "100%" }}></IonImg>}</IonCol>
 
                                 <IonCol size="6" onClick={() => this.redirigir('citas_hoy')} style={{
                                     height: "140px", borderColor: "#C0C0C0",
                                     borderWidth: "1px", borderStyle: "solid"
-                                }}>{/*<IonImg src={agregarCita} style={{ height: "100%" }}></IonImg>*/}CITAS DE HOY</IonCol>
+                                }}>{<IonImg src={citasHoy} style={{ height: "100%" }}></IonImg>}</IonCol>
 
                                 <IonCol size="6" onClick={() => this.redirigir('citas_manana')} style={{
                                     height: "140px", borderColor: "#C0C0C0",
                                     borderWidth: "1px", borderStyle: "solid"
-                                }}>{/*<IonImg src={agregarCita} style={{ height: "100%" }}></IonImg>*/}CITAS DE MAÑANA</IonCol>
+                                }}>{<IonImg src={citasManana} style={{ height: "100%" }}></IonImg>}</IonCol>
 
                                 <IonCol size="6" onClick={() => this.redirigir('crear_procedimiento')} style={{
                                     height: "140px", borderColor: "#C0C0C0",
                                     borderWidth: "1px", borderStyle: "solid"
-                                }}>{/*<IonImg src={agregarCita} style={{ height: "100%" }}></IonImg>*/}CITAS COMPLETADAS</IonCol>
+                                }}>{<IonImg src={citasCompletadas} style={{ height: "100%" }}></IonImg>}</IonCol>
                             </IonRow>
                         </IonGrid>
                     </div>

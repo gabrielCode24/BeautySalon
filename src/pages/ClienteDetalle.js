@@ -12,12 +12,11 @@ import {
 } from 'ionicons/icons';
 import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-//import './Home.css';
+
 import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { connect } from 'react-redux'
-import { setTimeout } from 'timers';
 
 const mapStateToProps = store => ({
     cliente: store.cliente
@@ -37,16 +36,6 @@ class ClienteDetalle extends Component {
     UNSAFE_componentWillMount() {
         this.setState({
             cliente: this.props.cliente.list[0]
-        });
-    }
-
-    mensajeValidacion = (mensaje) => {
-        Swal.fire({
-            title: 'Aviso',
-            text: mensaje,
-            icon: 'info',
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#E0218A'
         });
     }
 
@@ -111,18 +100,16 @@ class ClienteDetalle extends Component {
                             sending: false
                         });
 
-                        setTimeout(() => {
-                            this.setState({
-                                redireccionar_atras: true
-                            });
-                        }, 1500);
-
                         Swal.fire({
                             title: '¡Éxito!',
                             text: 'Información del cliente modificada exitosamente!',
                             icon: 'success',
                             showConfirmButton: false,
-                            timer: 1500
+                            confirmButtonColor: '#E0218A'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.setState({ redireccionar_atras: true });
+                            }
                         });
                     } else {
                         Swal.fire({
@@ -146,7 +133,7 @@ class ClienteDetalle extends Component {
     }
 
     render() {
-
+        
         if (this.state.redireccionar_atras) {
             return (<Redirect to={'/cliente-lista'} />)
         }
@@ -227,7 +214,7 @@ class ClienteDetalle extends Component {
                     </IonList>
                 </IonContent>
                 <IonFooter>
-                    <IonButton color="favorite" expand="block" onClick={() => this.modificarCliente()}>Modificar Cita</IonButton>
+                    <IonButton color="favorite" expand="block" onClick={() => this.modificarCliente()}>Modificar Cliente</IonButton>
                 </IonFooter>
             </IonPage >
         )

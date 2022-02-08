@@ -11,7 +11,8 @@ import {
     arrowBackOutline
 } from 'ionicons/icons';
 import { Component } from 'react'
-//import './Home.css';
+
+import { Redirect } from 'react-router-dom'
 import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
@@ -22,7 +23,8 @@ class ClienteCrear extends Component {
             url: url(),
             logged: true,
             usuario_logueado: infoUsuario('usuario'),
-            usuarios: false
+            usuarios: false,
+            redireccionar_atras: false
         }
     }
 
@@ -102,6 +104,10 @@ class ClienteCrear extends Component {
                             icon: 'success',
                             confirmButtonText: 'Aceptar',
                             confirmButtonColor: '#E0218A'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.setState({ redireccionar_atras: true });
+                            }
                         });
                     } else {
                         Swal.fire({
@@ -126,12 +132,8 @@ class ClienteCrear extends Component {
 
     render() {
 
-        if (!this.state.logged) {
-            //return (<Redirect to={'/login'} />)
-        }
-
-        if (this.state.facturar) {
-            //return (<Redirect to={'/factura'} />)
+        if (this.state.redireccionar_atras) {
+            return (<Redirect to={'/clientes'} />)
         }
 
         return (

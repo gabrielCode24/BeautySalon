@@ -52,16 +52,6 @@ class UsuarioDetalle extends Component {
         });
     }
 
-    mensajeValidacion = (mensaje) => {
-        Swal.fire({
-            title: 'Aviso',
-            text: mensaje,
-            icon: 'info',
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#E0218A'
-        });
-    }
-
     modificarUsuario = () => {
         var id = document.getElementById('id').value;
         var telefono = document.getElementById('telefono').value;

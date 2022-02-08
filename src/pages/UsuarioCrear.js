@@ -31,6 +31,7 @@ class UsuarioCrear extends Component {
             foto_usuario_uploading: false,
 
             url_guardar_foto: 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr',
+            redireccionar_atras: false,
         }
     }
 
@@ -70,7 +71,7 @@ class UsuarioCrear extends Component {
         if (nombre.length > 0 && telefono.length && fecha_nac.length > 0 &&
             identidad.length > 0 && direccion.length > 0 && usuario.length > 0 &&
             clave.length > 0) {
-            
+
             //VALIDACIONES
             //Nombre
             if (nombre.length < 7) {
@@ -123,7 +124,7 @@ class UsuarioCrear extends Component {
                         } else {
 
                             let inputFile = document.getElementById('foto-usuario').files[0]; // En la posición 0; es decir, el primer elemento
-                            
+
                             if (typeof (inputFile) !== "undefined") {
 
                                 this.setState({
@@ -140,7 +141,8 @@ class UsuarioCrear extends Component {
                                         .then(nombreArchivo => {
                                             this.setState({
                                                 foto_uploaded_name: nombreArchivo,
-                                                foto_usuario_uploading: false
+                                                foto_usuario_uploading: false,
+                                                sending: true
                                             });
                                             console.log(nombreArchivo);
 
@@ -166,13 +168,17 @@ class UsuarioCrear extends Component {
                                                             this.setState({
                                                                 sending: false
                                                             });
-
+                                                            
                                                             Swal.fire({
                                                                 title: '¡Éxito!',
                                                                 text: '¡Usuario ingresado exitosamente!',
                                                                 icon: 'success',
                                                                 confirmButtonText: 'Aceptar',
                                                                 confirmButtonColor: '#E0218A'
+                                                            }).then((result) => {
+                                                                if (result.isConfirmed) {
+                                                                    this.setState({ redireccionar_atras: true });
+                                                                }
                                                             });
                                                         } else {
                                                             Swal.fire({
@@ -225,8 +231,14 @@ class UsuarioCrear extends Component {
             return (<Redirect to={'/login'} />)
         }
 
-        if (this.state.facturar) {
-            return (<Redirect to={'/factura'} />)
+        if (this.state.redireccionar_atras) {
+            return (<Redirect to={'/usuarios'} />)
+        }
+
+        if (this.state.sending) {
+            return <h1>
+                {Swal.showLoading()}
+            </h1>
         }
 
         return (
