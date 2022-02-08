@@ -107,19 +107,17 @@ class UsuarioDetalle extends Component {
                         this.setState({
                             sending: false
                         });
-
-                        setTimeout(() => {
-                            this.setState({
-                                redireccionar_atras: true
-                            });
-                        }, 1500);
-
+                        
                         Swal.fire({
                             title: '¡Éxito!',
                             text: 'Información del usuario modificada exitosamente!',
                             icon: 'success',
-                            showConfirmButton: false,
-                            timer: 1500
+                            confirmButtonText: 'Aceptar',
+                            confirmButtonColor: '#E0218A'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.setState({ redireccionar_atras: true });
+                            }
                         });
                     } else {
                         Swal.fire({

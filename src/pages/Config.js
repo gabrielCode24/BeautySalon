@@ -35,7 +35,7 @@ class Config extends Component {
     this.setState({ loading_parametros: true });
 
     let Parameters = '?action=getJSON&get=parametros';
-    
+
     fetch(this.state.url + Parameters)
       .then((res) => res.json())
       .then((responseJson) => {
@@ -122,8 +122,12 @@ class Config extends Component {
               title: '¡Éxito!',
               text: 'Parámetros modificados exitosamente!',
               icon: 'success',
-              showConfirmButton: false,
-              timer: 1500
+              confirmButtonText: 'Aceptar',
+              confirmButtonColor: '#E0218A'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.setState({ redireccionar_atras: true });
+              }
             });
           } else {
             Swal.fire({
@@ -165,9 +169,9 @@ class Config extends Component {
               title: '¡Éxito!',
               text: 'Parámetros modificados exitosamente!',
               icon: 'success',
-              showConfirmButton: false,
-              timer: 1500
-            });
+              confirmButtonText: 'Aceptar',
+              confirmButtonColor: '#E0218A'
+            })
           } else {
             Swal.fire({
               title: 'Algo falló',

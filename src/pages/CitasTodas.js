@@ -39,7 +39,6 @@ class CitasTodas extends Component {
   }
 
   _getCitas = () => {
-
     this.setState({ loading_citas: true })
 
     let Parameters = "?action=getJSON&get=citas&filtro=todas";
@@ -49,13 +48,9 @@ class CitasTodas extends Component {
       .then((res) => res.json())
       .then((responseJson) => {
 
-        //Guardamos las tiendas que vienen del API en el store de Redux
-        //this.props.dispatch(setTiendas(responseJson))
-
         this.setState({
           loading_citas: false,
           citas: responseJson
-          //tiendas: this.props.tiendas.list
         });
         Swal.close();
         console.log(this.state.citas)

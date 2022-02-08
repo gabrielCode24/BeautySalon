@@ -1,19 +1,19 @@
 import {
     IonContent, IonPage,
     IonHeader, IonToolbar,
-    IonTitle, IonButtons, IonIcon,
-    IonButton, IonList, IonItem,
-    IonLabel, IonInput, IonSelect,
+    IonTitle, IonButtons,
+    IonSelectOption, IonSelect, IonButton,
+    IonList, IonItem,
+    IonLabel, IonInput,
     IonBackButton, IonFooter
 } from '@ionic/react';
 import {
     arrowBackOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-//import './Home.css';
+
 import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
-import { MD5 } from '../utilities/crypto'
 import Swal from 'sweetalert2'
 
 class ProcedimientoCrear extends Component {
@@ -24,8 +24,45 @@ class ProcedimientoCrear extends Component {
             logged: true,
             usuario_logueado: infoUsuario('usuario'),
             usuarios: false,
-            redireccionar_atras: false
+            redireccionar_atras: false,
+            loading_tiempo_est: false,
+            tiempos_est: [],
+            tiempo_estimado_selected: 1
         }
+    }
+
+    UNSAFE_componentWillMount() {
+        this._getProcedimientoTiempoEst();
+    }
+
+    _getProcedimientoTiempoEst = () => {
+        this.setState({ loading_tiempo_est: true })
+
+        let Parameters = "?action=getJSON&get=procedimiento_tiempo_est";
+
+        console.log(this.state.url + Parameters)
+        fetch(this.state.url + Parameters)
+            .then((res) => res.json())
+            .then((responseJson) => {
+
+                this.setState({
+                    loading_tiempo_est: false,
+                    tiempos_est: responseJson
+                });
+                Swal.close();
+                console.log(this.state.tiempos_est)
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+    }
+
+    _getTiempoEstimadoSeleccionado = (e) => {
+        let id = e.target.value.id;
+        
+        this.setState({
+            tiempo_estimado_selected: id
+        });
     }
 
     mensajeValidacion = (mensaje) => {
@@ -42,6 +79,12 @@ class ProcedimientoCrear extends Component {
         var nombre = document.getElementById('nombre').value;
         var descripcion = document.getElementById('descripcion').value;
         var precio = document.getElementById('precio').value;
+        var perm_camb_pre_vend = document.getElementById('perm_camb_pre_vend').value;
+        var tiempo_estimado = this.state.tiempo_estimado_selected;
+        
+        if(typeof(perm_camb_pre_vend)){
+            perm_camb_pre_vend = 1;
+        }
 
         var fec_ing = "NOW()";
         var usr_ing = this.state.usuario_logueado;
@@ -73,6 +116,7 @@ class ProcedimientoCrear extends Component {
 
             var valuesProcedimiento = {
                 nombre: nombre, descripcion: descripcion, precio_sug: precio,
+                tiempo_estimado: tiempo_estimado, permitido_cambiar_pre_vendedor: perm_camb_pre_vend,
                 fec_ing: fec_ing, usr_ing: usr_ing
             }
 
@@ -150,8 +194,29 @@ class ProcedimientoCrear extends Component {
                         </IonItem>
 
                         <IonItem>
+                            <IonLabel>Tiempo estimado ejecución:</IonLabel>
+                            <IonSelect onIonChange={(e) => this._getTiempoEstimadoSeleccionado(e)} interface="action-sheet" placeholder="Una hora" cancelText="Cerrar lista">
+                                {
+                                    this.state.tiempos_est.map((item) => {
+                                        return (
+                                            <IonSelectOption value={item} key={item.id}>{item.descripcion}</IonSelectOption>
+                                        )
+                                    })
+                                }
+                            </IonSelect>
+                        </IonItem>
+
+                        <IonItem>
                             <IonLabel>Precio (L):</IonLabel>
                             <IonInput id="precio" type="number" placeholder="Precio (L)" required></IonInput>
+                        </IonItem>
+                        
+                        <IonItem>
+                            <IonLabel style={{ fontSize:"13px" }}>¿Permitido cambiar precio en cita por Vendedor?</IonLabel>
+                            <IonSelect id="perm_camb_pre_vend" okText="Aceptar" placeholder="Sí" cancelText="Cancelar" interface="action-sheet">
+                                <IonSelectOption value="1">Sí</IonSelectOption>
+                                <IonSelectOption value="0">No</IonSelectOption>
+                            </IonSelect>
                         </IonItem>
                     </IonList>
 

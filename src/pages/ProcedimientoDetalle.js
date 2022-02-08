@@ -17,7 +17,6 @@ import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { connect } from 'react-redux'
-import { setTimeout } from 'timers';
 
 const mapStateToProps = store => ({
     procedimiento: store.procedimiento
@@ -31,13 +30,48 @@ class ProcedimientoDetalle extends Component {
             usuario_logueado: infoUsuario('usuario'),
             usuario_logueado_perfil: infoUsuario('perfil'),
             procedimiento: [],
-            redireccionar_atras: false
+            redireccionar_atras: false,
+            loading_tiempo_est: false,
+            tiempos_est: [],
+            tiempo_estimado_selected: ''
         }
     }
 
     UNSAFE_componentWillMount() {
         this.setState({
-            procedimiento: this.props.procedimiento.list[0]
+            procedimiento: this.props.procedimiento.list[0],
+            tiempo_estimado_selected: this.props.procedimiento.list[0].tiempo_estimado
+        });
+        this._getProcedimientoTiempoEst();
+    }
+
+    _getProcedimientoTiempoEst = () => {
+        this.setState({ loading_tiempo_est: true })
+
+        let Parameters = "?action=getJSON&get=procedimiento_tiempo_est";
+
+        console.log(this.state.url + Parameters)
+        fetch(this.state.url + Parameters)
+            .then((res) => res.json())
+            .then((responseJson) => {
+
+                this.setState({
+                    loading_tiempo_est: false,
+                    tiempos_est: responseJson
+                });
+                Swal.close();
+                console.log(this.state.tiempos_est)
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+    }
+
+    _getTiempoEstimadoSeleccionado = (e) => {
+        let id = e.target.value.id;
+
+        this.setState({
+            tiempo_estimado_selected: id
         });
     }
 
@@ -57,6 +91,16 @@ class ProcedimientoDetalle extends Component {
         var descripcion = document.getElementById('descripcion').value;
         var precio = document.getElementById('precio').value;
         var activo = document.getElementById('activo').value;
+        var perm_camb_pre_vend = document.getElementById('perm_camb_pre_vend').value;
+        var tiempo_estimado = this.state.tiempo_estimado_selected;
+
+        /*
+        console.log(nombre);
+        console.log(precio);
+        console.log(activo);
+        console.log(perm_camb_pre_vend);
+        console.log(tiempo_estimado);
+        */
 
         var fec_act = "NOW()";
         var usr_act = this.state.usuario_logueado;
@@ -87,6 +131,7 @@ class ProcedimientoDetalle extends Component {
             //Si pasó todas las validaciones pasamos al siguiente bloque
             var valuesProcedimiento = {
                 id: id, nombre: nombre, descripcion: descripcion, precio_sug: precio, activo: activo,
+                tiempo_estimado: tiempo_estimado, permitido_cambiar_pre_vendedor: perm_camb_pre_vend,
                 fec_act: fec_act, usr_act: usr_act
             }
 
@@ -100,12 +145,11 @@ class ProcedimientoDetalle extends Component {
                         this.setState({
                             sending: false
                         });
-                        
+
                         Swal.fire({
                             title: '¡Éxito!',
                             text: '¡Procedimiento modificado exitosamente!',
                             icon: 'success',
-                            showConfirmButton: false,
                             confirmButtonText: 'Aceptar',
                             confirmButtonColor: '#E0218A'
                         }).then((result) => {
@@ -133,20 +177,15 @@ class ProcedimientoDetalle extends Component {
             });
         }
     }
-    
+
     render() {
-
-        if (!this.state.logged) {
-            //return (<Redirect to={'/login'} />)
-        }
-
         if (this.state.redireccionar_atras) {
             return (<Redirect to={'/procedimiento-lista'} />)
         }
 
         let procedimiento = this.state.procedimiento;
         let usuario_perfil = this.state.usuario_logueado_perfil;
-        
+
         return (
             <IonPage>
                 <IonContent>
@@ -170,14 +209,44 @@ class ProcedimientoDetalle extends Component {
                         </IonItem>
 
                         <IonItem>
-                            <IonLabel>Precio (L):</IonLabel>
-                            <IonInput id="precio" value={procedimiento.precio_sug} type="number" placeholder="Precio (L)" required></IonInput>
-                        </IonItem>
-
-                        <IonItem>
                             <IonLabel>Descripción:</IonLabel>
                             <IonTextarea id="descripcion" value={procedimiento.descripcion} type="textarea" placeholder="Descripción del procedimiento" rows={3} required></IonTextarea>
                         </IonItem>
+
+                        <IonItem>
+                            <IonLabel style={{ fontSize: "13px" }}>Tiempo estimado ejecución:</IonLabel>
+                            <IonSelect onIonChange={(e) => this._getTiempoEstimadoSeleccionado(e)} interface="action-sheet" placeholder={procedimiento.descripcion_tiempo_est} cancelText="Cerrar lista">
+                                {
+                                    this.state.tiempos_est.map((item) => {
+                                        return (
+                                            <IonSelectOption value={item} key={item.id}>{item.descripcion}</IonSelectOption>
+                                        )
+                                    })
+                                }
+                            </IonSelect>
+                        </IonItem>
+
+                        <IonItem>
+                            <IonLabel>Precio (L):</IonLabel>
+                            {
+                                usuario_perfil == 2 && procedimiento.permitido_cambiar_pre_vendedor == 0 ?
+                                    <IonInput id="precio" value={procedimiento.precio_sug} type="number" placeholder="Precio (L) " readonly="true"></IonInput> :
+                                    <IonInput id="precio" value={procedimiento.precio_sug} type="number" placeholder="Precio (L) " readonly="false" required></IonInput>
+
+                            }
+                        </IonItem>
+
+                        {
+                            usuario_perfil != 2 ?
+                                <IonItem>
+                                    <IonLabel style={{ fontSize: "13px" }}>¿Permitido cambiar precio en cita por Vendedor?</IonLabel>
+                                    <IonSelect id="perm_camb_pre_vend" okText="Aceptar" value={procedimiento.permitido_cambiar_pre_vendedor} placeholder={procedimiento.permitido_cambiar_pre_vendedor == 1 ? 'Sí' : 'No'} cancelText="Cancelar" interface="action-sheet">
+                                        <IonSelectOption value="1">Sí</IonSelectOption>
+                                        <IonSelectOption value="0">No</IonSelectOption>
+                                    </IonSelect>
+                                </IonItem> :
+                            ''
+                        }
 
                         <IonItem>
                             <IonLabel>Activo</IonLabel>
@@ -212,8 +281,8 @@ class ProcedimientoDetalle extends Component {
                 <IonFooter>
                     {
                         usuario_perfil == 4 ?
-                        <IonButton disabled="true" color="favorite" expand="block" onClick={() => this.modificarProcedimiento()}>Modificar Procedimiento</IonButton> :
-                        <IonButton disabled="false" color="favorite" expand="block" onClick={() => this.modificarProcedimiento()}>Modificar Procedimiento</IonButton>
+                            <IonButton disabled="true" color="favorite" expand="block" onClick={() => this.modificarProcedimiento()}>Modificar Procedimiento</IonButton> :
+                            <IonButton disabled="false" color="favorite" expand="block" onClick={() => this.modificarProcedimiento()}>Modificar Procedimiento</IonButton>
                     }
                 </IonFooter>
             </IonPage >

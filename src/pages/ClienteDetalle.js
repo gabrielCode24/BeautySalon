@@ -104,7 +104,6 @@ class ClienteDetalle extends Component {
                             title: '¡Éxito!',
                             text: 'Información del cliente modificada exitosamente!',
                             icon: 'success',
-                            showConfirmButton: false,
                             confirmButtonColor: '#E0218A'
                         }).then((result) => {
                             if (result.isConfirmed) {
