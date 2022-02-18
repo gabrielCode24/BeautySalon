@@ -4,11 +4,12 @@ import {
   IonCol, IonImg,
   IonHeader, IonToolbar,
   IonTitle, IonButtons, IonBackButton,
+  IonButton
 } from '@ionic/react';
 import {
   arrowBackOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import agregarCita from '../assets/images/agregar_nueva.JPG'
 import listaCitas from '../assets/images/lista.png'
@@ -21,7 +22,8 @@ class Citas extends Component {
     this.state = {
       pre_lista_citas: false,
       crear_cita: false,
-      logged: true
+      logged: true,
+      itemArray: []
     }
   }
 
@@ -53,7 +55,20 @@ class Citas extends Component {
         break;
     }
   }
-  
+
+  agregarHTML = () => {
+
+    let itemArray = this.state.itemArray;
+
+    console.log(itemArray.length)
+
+    const item = this.state.itemArray;
+    const title = 'Hola';
+    const text = 'Desde función Add';
+    item.push({ title, text })
+    this.setState({ itemArray: item })
+  }
+
   render() {
 
     if (this.state.pre_lista_citas) {
@@ -90,7 +105,19 @@ class Citas extends Component {
                 }}>{<IonImg src={agregarCita} style={{ height: "100%" }}></IonImg>}</IonCol>
               </IonRow>
             </IonGrid>
+
+            {this.state.itemArray.map((item, index) => {
+              return (
+                <div className="box" key={index}>
+                  <div>
+                    <h2>{item.title}</h2>
+                    <p>{item.text}</p>
+                  </div>
+                </div>
+              )
+            })}
           </div>
+          <IonButton onClick={() => this.agregarHTML()}>Agregar botón</IonButton>
         </IonContent>
       </IonPage >
     )

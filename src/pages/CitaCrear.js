@@ -6,7 +6,8 @@ import {
     IonLabel, IonInput,
     IonBackButton,
     IonFooter, IonAccordion, IonAccordionGroup,
-    IonSearchbar, IonItemGroup, IonDatetime
+    IonSearchbar, IonItemGroup, IonDatetime,
+    IonGrid, IonRow, IonCol, IonItemDivider
 } from '@ionic/react';
 import {
     arrowBackOutline
@@ -64,7 +65,9 @@ class CitaCrear extends Component {
             image_updloaded_name: '',
             imagen_anticipo_uploading: false,
             sending: false,
-            redireccionar_atras: false
+            redireccionar_atras: false,
+
+            itemArray: []
         }
     }
 
@@ -73,6 +76,11 @@ class CitaCrear extends Component {
         this._getProcedimientos();
         this._getVendedores();
         this._getTecnicos();
+
+        //Limpiamos la localStorage de técnicos seleccionados
+        if (localStorage.getItem('arrayTecnicos')) {
+            localStorage.removeItem('arrayTecnicos');
+        }
     }
 
     mensajeValidacion = (mensaje) => {
@@ -85,8 +93,10 @@ class CitaCrear extends Component {
         });
     }
 
-    buscarEnLista = (kindOf) => {
+    buscarEnLista = (kindOf, id_element) => {
+        let id = "";
         let text = "";
+
         switch (kindOf) {
             case "cliente":
                 text = document.getElementById('search_cliente').value;
@@ -110,11 +120,51 @@ class CitaCrear extends Component {
                 });
                 break;
             case "tecnico":
-                text = document.getElementById('search_tecnico').value;
+                id = "search_tecnico_" + id_element;
+                text = document.getElementById(id).value;
 
                 this.setState({
                     search_string_tecnico: text
                 });
+
+                if (text === "") {
+                    setTimeout(() => {
+                        let itemArray = this.state.itemArray;
+                        let arrayTecnicosLista = this.state.tecnicos;
+
+                        for (let z = 0; z < arrayTecnicosLista.length; z++) {
+                            for (let y = 0; y < itemArray.length; y++) {
+                                //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
+                                if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista)) {
+                                    document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                                } else {
+                                    document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                }
+                            }
+                        }
+
+                        if (localStorage.getItem('arrayTecnicos')) {
+                            let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                            console.log(arrayTecnicosSeleccionados.length);
+                            for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
+                                for (let y = 0; y < itemArray.length; y++) {
+                                    //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                                    if (this.inArray((arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosSeleccionados)) {
+                                        document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color = '#43D440';
+                                    }
+
+                                    if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                        document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                    }
+                                }
+                            }
+                        }
+
+                    }, 500);
+                }
+
+
+
                 break;
             default:
                 break;
@@ -232,8 +282,89 @@ class CitaCrear extends Component {
             });
     }
 
-    _getTecnico = (item) => {
+    _getTecnico = (item, index, id_element) => {
 
+        let itemArray = this.state.itemArray;
+
+        if (!localStorage.getItem('arrayTecnicos')) {
+            let arrayTecnicos = [];
+
+            arrayTecnicos.push({ id_tecnico: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
+
+            localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+
+            document.getElementById(index + "_" + id_element).style.color = '#43D440';
+
+            console.log(localStorage.getItem('arrayTecnicos'));
+        } else {
+            let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
+
+            for (let i = 0; i < arrayTecnicos.length; i++) {
+                console.log(arrayTecnicos[i].id_tecnico + "_" + id_element);
+                if (arrayTecnicos[i].id_element == id_element) {
+                    if(document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element) !== null){
+                        document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element).style.color = '#000000';
+                    }
+                    arrayTecnicos.splice(i, 1);
+                }
+            }
+
+            arrayTecnicos.push({ id_tecnico: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
+
+            document.getElementById(index + "_" + id_element).style.color = '#43D440';
+
+            localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+
+            setTimeout(() => {
+
+                let arrayTecnicosLista = this.state.tecnicos;
+                //console.log(arrayTecnicosLista);
+                //console.log(itemArray);
+                for (let z = 0; z < arrayTecnicosLista.length; z++) {
+                    for (let y = 0; y < itemArray.length; y++) {
+                        //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
+                        if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista)) {
+                            document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                        }
+                    }
+                }
+                //console.log(itemArray);
+                let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
+                    for (let y = 0; y < itemArray.length; y++) {
+                        console.log(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element));
+                        //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                        if(document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null){
+                            continue;
+                        } else if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                            if(document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)'){
+                                document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                            }
+                        }
+                    }
+                }
+            }, 1000);
+
+
+
+        }
+        document.getElementById('agregar').disabled = "false";
+        return;
+
+        if (localStorage.getItem('arrayTecnicos')) {
+            let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
+
+            for (let i = 0; i < arrayTecnicos.length; i++) {
+                for (let y = 0; y < itemArray.length; y++) {
+                    //Si el elemento tiene letras verdes en el texto, entonces no le aplicamos la propiedad disabled="true"
+                    if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)' && document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled === "true") {
+                        document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                    }
+                }
+            }
+        }
+
+        return;
         this.setState({
             tecnico_id_selected: item.id
         });
@@ -400,7 +531,7 @@ class CitaCrear extends Component {
                                 imagen_anticipo_uploading: false,
                                 sending: true
                             });
-                            
+
                             setTimeout(() => {
 
                                 let image_updloaded_name = this.state.image_updloaded_name;
@@ -483,7 +614,7 @@ class CitaCrear extends Component {
                     let resultado = result.value[0].validated;
 
                     if (resultado == 1) {
-                        
+
                         this.setState({ sending: true })
 
                         setTimeout(() => {
@@ -540,14 +671,6 @@ class CitaCrear extends Component {
                             confirmButtonColor: '#E0218A'
                         });
                     }
-
-
-
-
-
-                    //if (result.isConfirmed) {
-                    //alert("Datos recuperados correctamente")
-                    //}
                 })
                 /*
                 Swal.fire({
@@ -570,6 +693,82 @@ class CitaCrear extends Component {
         }
     }
 
+    agregarSetTecnicoProcedimiento = () => {
+        let itemArray = this.state.itemArray;
+        let itemArraySize = itemArray.length;
+
+        const item = this.state.itemArray;
+        const title = itemArray.length + 1;
+        const text = '';
+        const id_element = itemArraySize + 1;
+        item.push({ title, text, id_element });
+        this.setState({ itemArray: item });
+
+        document.getElementById('agregar').disabled = "true";
+
+        setTimeout(() => {
+            if (localStorage.getItem('arrayTecnicos')) {
+                let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                console.log(arrayTecnicos);
+                for (let i = 0; i < arrayTecnicos.length; i++) {
+                    for (let y = 0; y < itemArray.length; y++) {
+                        //Si el elemento tiene letras verdes en el texto, entonces no le aplicamos la propiedad disabled="true"
+                        if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color === 'rgb(67, 212, 64)') {
+                            continue;
+                        } else {
+                            document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                        }
+                        document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                        console.log(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element));
+                    }
+                }
+            }
+        }, 1000);
+
+    }
+
+    quitarSetTecnicoProcedimiento = () => {
+        let itemArray = this.state.itemArray;
+
+        //Primero eliminamos el último elemento del arreglo, el de los HTML
+        itemArray.pop();
+        this.setState({ itemarray: itemArray });
+        itemArray = this.state.itemArray;
+
+        //Luego comprobamos que exista la localStorage de arrayTecnicos
+        if (localStorage.getItem('arrayTecnicos')) {
+            //Como ya sabemos que existe una localStorage de arrayTecnicos, lo traemos como un arreglo
+            let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
+            let idElementsItemArray = []; //Definimos una variable para meter ahí todos los índices de los elementos HTML, y así saber cuántos elementos hay
+
+            //Metemos en la variable de arreglo cada índice de itemArray
+            for (let i = 0; i < itemArray.length; i++) {
+                idElementsItemArray.push(itemArray[i].id_element);
+            }
+
+            //Verificamos cuáles de los índices id_element de la localStorage arrayTecnicos no hace match con
+            //el arreglo idElementsItemArray para eliminarlo del arreglo arrayTecnicos
+            for (let y = 0; y < arrayTecnicos.length; y++) {
+                if (!this.inArray(arrayTecnicos[y].id_element, idElementsItemArray)) {
+                    arrayTecnicos.splice(y, 1);
+                }
+            }
+            //Finalmente actualizamos la localStorage con el resultado del ciclo anterior
+            localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+        }
+        document.getElementById('agregar').disabled = "false";
+
+        return;
+    }
+
+    inArray = (needle, haystack) => {
+        var length = haystack.length;
+        for (var i = 0; i < length; i++) {
+            if (needle == haystack[i].id_option) return true;
+        }
+        return false;
+    }
+
     render() {
 
         if (this.state.loading_clientes && this.state.loading_procedimientos &&
@@ -590,7 +789,7 @@ class CitaCrear extends Component {
                 {Swal.showLoading()}
             </h1>
         }
-        
+
         if (this.state.redireccionar_atras) {
             return (<Redirect to={'/citas'} />)
         }
@@ -600,9 +799,14 @@ class CitaCrear extends Component {
         let vendedores = this.state.vendedores;
         let tecnicos = this.state.tecnicos;
 
+        let txn = [];
+        for (let w = 0; w < this.state.itemArray.length; w++) {
+            txn[w] = tecnicos;
+        }
+        console.log(txn);
         let precio_readonly = "";
 
-        this.state.usuario_perfil == 1 ? precio_readonly = "false" : precio_readonly = "true";
+        this.state.usuario_perfil === 1 ? precio_readonly = "false" : precio_readonly = "true";
 
         return (
             <IonPage>
@@ -618,9 +822,8 @@ class CitaCrear extends Component {
                         </IonToolbar>
                     </IonHeader>
 
+                    {/* LISTA DE CLIENTES */}
                     <IonAccordionGroup id="clientes">
-
-                        {/* LISTA DE CLIENTES */}
                         <IonAccordion value="clientes">
                             <IonItem slot="header">
                                 <b><IonLabel>Seleccionar Cliente:</IonLabel></b>
@@ -641,64 +844,6 @@ class CitaCrear extends Component {
                             <IonList style={{ "display": "none" }} id="cliente_selected">
                                 <IonItem>
                                     <IonInput id="cliente_selected_text" type="text" readonly="true" placeholder="Cliente">Cliente:&nbsp;</IonInput>
-                                </IonItem>
-                            </IonList>
-                        </IonItemGroup>
-                    </IonAccordionGroup>
-
-                    {/* LISTA DE PROCEDIMIENTOS */}
-                    <IonAccordionGroup id="procedimientos">
-                        <IonAccordion value="procedimientos">
-                            <IonItem slot="header">
-                                <b><IonLabel>Seleccionar Procedimiento:</IonLabel></b>
-                            </IonItem>
-
-                            <IonList slot="content">
-                                <IonSearchbar id="search_procedimiento" onIonChange={(e) => this.buscarEnLista("procedimiento")} showCancelButton="focus" placeholder="Buscar procedimiento"></IonSearchbar>
-                                {
-                                    procedimientos.filter(procedimiento => procedimiento.nombre.includes(this.state.search_string_procedimiento)).map(item => (
-                                        <IonItem key={item.id} onClick={(e) => this._getProcedimiento(item)}>
-                                            {item.id} - {item.nombre}
-                                        </IonItem>
-
-                                    ))
-                                }
-                            </IonList>
-                        </IonAccordion>
-                        <IonItemGroup>
-                            <IonList style={{ "display": "none" }} id="procedimiento_selected">
-                                <IonItem>
-                                    <IonInput id="procedimiento_selected_text" readonly="true" type="text" placeholder="Procedimiento"></IonInput>
-                                </IonItem>
-                                <IonItem>
-                                    <IonInput id="procedimiento_selected_precio" readonly={precio_readonly} type="number" placeholder="Precio"  >Precio (L):&nbsp;</IonInput>
-                                </IonItem>
-                            </IonList>
-                        </IonItemGroup>
-                    </IonAccordionGroup>
-
-                    {/* LISTA DE TÉCNICOS */}
-                    <IonAccordionGroup id="tecnicos">
-                        <IonAccordion value="tecnicos">
-                            <IonItem slot="header">
-                                <b><IonLabel>Seleccionar Técnico:</IonLabel></b>
-                            </IonItem>
-
-                            <IonList slot="content">
-                                <IonSearchbar id="search_tecnico" onIonChange={(e) => this.buscarEnLista("tecnico")} showCancelButton="focus" placeholder="Buscar técnico"></IonSearchbar>
-                                {
-                                    tecnicos.filter(tecnico => tecnico.nombre.includes(this.state.search_string_tecnico)).map(item => (
-                                        <IonItem key={item.id} onClick={(e) => this._getTecnico(item)}>
-                                            {item.id} - {item.nombre}
-                                        </IonItem>
-                                    ))
-                                }
-                            </IonList>
-                        </IonAccordion>
-                        <IonItemGroup>
-                            <IonList style={{ "display": "none" }} id="tecnico_selected">
-                                <IonItem>
-                                    <IonInput readonly="true" id="tecnico_selected_text" type="text" placeholder="Técnico">Técnico:&nbsp;</IonInput>
                                 </IonItem>
                             </IonList>
                         </IonItemGroup>
@@ -731,32 +876,132 @@ class CitaCrear extends Component {
                         </IonItemGroup>
                     </IonAccordionGroup>
 
-                    {/* SELECCIONAR FECHA Y HORA */}
-                    <IonAccordionGroup id="fecha_hora">
-                        <IonAccordion value="fecha_hora">
-                            <IonItem slot="header">
-                                <b><IonLabel>Seleccionar Fecha y Hora:</IonLabel></b>
-                            </IonItem>
 
-                            <IonList slot="content">
-                                <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }} minuteValues="0,30" hourValues="9,10,11,12,13,14,15,16,17,18" hourCycle="h23"></IonDatetime>
-                            </IonList>
-                        </IonAccordion>
-                        
-                        <IonInput id="fecha_rotulo" type="text" style={{ display: "none", left: "5px", right: "5px" }} readonly>{this.state.fecha_rotulo}</IonInput>
-                    </IonAccordionGroup>
-                    <hr size="5px" color="gray" />
+
+
+
+
+
+
+                    { /* SELECCIONABLE DINAMICO */
+                        this.state.itemArray.map((itemx) => {
+                            return (
+
+                                <div id={itemx.id_element}>
+                                    <hr size="5px" color="black" />
+                                    {/* SELECCIONAR FECHA Y HORA */}
+                                    <IonItemDivider>
+                                        <IonLabel>
+                                            <b># {itemx.id_element}</b>
+                                        </IonLabel>
+                                    </IonItemDivider>
+                                    <IonAccordionGroup id="fecha_hora">
+                                        <IonAccordion value="fecha_hora">
+                                            <IonItem slot="header">
+                                                <b><IonLabel>Seleccionar Fecha y Hora:</IonLabel></b>
+                                            </IonItem>
+
+                                            <IonList slot="content">
+                                                <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }} minuteValues="0,30" hourValues="9,10,11,12,13,14,15,16,17,18" hourCycle="h23"></IonDatetime>
+                                            </IonList>
+                                        </IonAccordion>
+
+                                        <IonInput id="fecha_rotulo" type="text" style={{ display: "none", left: "5px", right: "5px" }} readonly>{this.state.fecha_rotulo}</IonInput>
+                                    </IonAccordionGroup>
+
+                                    {/* LISTA DE TÉCNICOS */}
+                                    <IonAccordionGroup id="tecnicos">
+                                        <IonAccordion value="tecnicos">
+                                            <IonItem slot="header">
+                                                <b><IonLabel>Seleccionar Técnico:</IonLabel></b>
+                                            </IonItem>
+
+                                            <IonList slot="content">
+                                                <IonSearchbar id={"search_tecnico_" + itemx.id_element} onIonChange={(e) => this.buscarEnLista("tecnico", itemx.id_element)} showCancelButton="focus" placeholder="Buscar técnico"></IonSearchbar>
+                                                {
+                                                    txn[itemx.id_element - 1].filter(tecnico => tecnico.nombre.includes(this.state.search_string_tecnico)).map(item => (
+                                                        <IonItem id={item.id + "_" + itemx.id_element} key={item.id} onClick={(e) => this._getTecnico(item, item.id, itemx.id_element)} disabled="false">
+                                                            {item.id} - {item.nombre}
+                                                        </IonItem>
+                                                    ))
+                                                }
+                                            </IonList>
+                                        </IonAccordion>
+                                        <IonItemGroup>
+                                            <IonList style={{ "display": "none" }} id="tecnico_selected">
+                                                <IonItem>
+                                                    <IonInput readonly="true" id="tecnico_selected_text" type="text" placeholder="Técnico">Técnico:&nbsp;</IonInput>
+                                                </IonItem>
+                                            </IonList>
+                                        </IonItemGroup>
+                                    </IonAccordionGroup>
+
+                                    {/* LISTA DE PROCEDIMIENTOS */}
+                                    <IonAccordionGroup id="procedimientos">
+                                        <IonAccordion value="procedimientos">
+                                            <IonItem slot="header">
+                                                <b><IonLabel>Seleccionar Procedimiento:</IonLabel></b>
+                                            </IonItem>
+
+                                            <IonList slot="content">
+                                                <IonSearchbar id="search_procedimiento" onIonChange={(e) => this.buscarEnLista("procedimiento")} showCancelButton="focus" placeholder="Buscar procedimiento"></IonSearchbar>
+                                                {
+                                                    procedimientos.filter(procedimiento => procedimiento.nombre.includes(this.state.search_string_procedimiento)).map(item => (
+                                                        <IonItem key={item.id} onClick={(e) => this._getProcedimiento(item)}>
+                                                            {item.id} - {item.nombre}
+                                                        </IonItem>
+
+                                                    ))
+                                                }
+                                            </IonList>
+                                        </IonAccordion>
+                                        <IonItemGroup>
+                                            <IonList style={{ "display": "none" }} id="procedimiento_selected">
+                                                <IonItem>
+                                                    <IonInput id="procedimiento_selected_text" readonly="true" type="text" placeholder="Procedimiento"></IonInput>
+                                                </IonItem>
+                                                <IonItem>
+                                                    <IonInput id="procedimiento_selected_precio" readonly={precio_readonly} type="number" placeholder="Precio">Precio (L):&nbsp;</IonInput>
+                                                </IonItem>
+                                            </IonList>
+                                        </IonItemGroup>
+                                    </IonAccordionGroup>
+                                </div>
+                            )
+                        })}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                </IonContent>
+                <IonFooter>
                     <IonList>
                         <IonItem>
-                            <IonLabel style={{ fontSize: "15px" }}>Seleccionar foto de anticipo</IonLabel>
+                            <IonLabel style={{ fontSize: "12px" }}>Seleccionar foto de anticipo</IonLabel>
                         </IonItem>
                         <IonItem>
                             <input id="imagen-anticipo" type="file" accept='image/*,.pdf'></input>
                         </IonItem>
                     </IonList>
-
-                </IonContent>
-                <IonFooter>
+                    <IonGrid>
+                        <IonRow>
+                            <IonCol size="6"><IonButton color="dark" expand="block" onClick={() => this.agregarSetTecnicoProcedimiento()} id="agregar">Agregar (+)</IonButton></IonCol>
+                            <IonCol size="6"><IonButton color="danger" expand="block" onClick={() => this.quitarSetTecnicoProcedimiento()}>Quitar Último (X)</IonButton></IonCol>
+                        </IonRow>
+                    </IonGrid>
                     <IonButton color="favorite" expand="block" onClick={() => this.registrarCita()} disabled="false">Registrar Cita</IonButton>
                 </IonFooter>
             </IonPage>
