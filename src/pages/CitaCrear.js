@@ -127,24 +127,50 @@ class CitaCrear extends Component {
                     search_string_tecnico: text
                 });
 
+                let itemArray = this.state.itemArray;
+                let arrayTecnicosLista = this.state.tecnicos;
+                let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                let arrayPreDisabledOptions = [];
+
+                // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
+                for (let y = 0; y < arrayTecnicosSeleccionados.length; y++) {
+                    for (let x = 0; x < arrayTecnicosSeleccionados.length; x++) {
+                        arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                    }
+                    if (y + 1 === arrayTecnicosSeleccionados.length) {
+                        break;
+                    }
+                }
+
+                for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
+                    if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
+                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados)) {
+                            setTimeout(() => {
+                                console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de técnicos seleccionados.")
+                                document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
+                            }, 1000)
+                        }
+                    }
+                }
+                //
+
                 if (text === "") {
                     setTimeout(() => {
-                        let itemArray = this.state.itemArray;
-                        let arrayTecnicosLista = this.state.tecnicos;
-
                         for (let z = 0; z < arrayTecnicosLista.length; z++) {
                             for (let y = 0; y < itemArray.length; y++) {
                                 //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
                                 if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista)) {
+                                    console.log("A");
                                     document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                                 } else {
                                     document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                    console.log("B");
                                 }
                             }
                         }
 
                         if (localStorage.getItem('arrayTecnicos')) {
-                            let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                            //let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
                             console.log(arrayTecnicosSeleccionados.length);
                             for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
                                 for (let y = 0; y < itemArray.length; y++) {
@@ -162,8 +188,6 @@ class CitaCrear extends Component {
 
                     }, 500);
                 }
-
-
 
                 break;
             default:
@@ -300,9 +324,8 @@ class CitaCrear extends Component {
             let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
 
             for (let i = 0; i < arrayTecnicos.length; i++) {
-                console.log(arrayTecnicos[i].id_tecnico + "_" + id_element);
                 if (arrayTecnicos[i].id_element == id_element) {
-                    if(document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element) !== null){
+                    if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element) !== null) {
                         document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element).style.color = '#000000';
                     }
                     arrayTecnicos.splice(i, 1);
@@ -332,21 +355,17 @@ class CitaCrear extends Component {
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
                 for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
                     for (let y = 0; y < itemArray.length; y++) {
-                        console.log(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element));
                         //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
-                        if(document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null){
+                        if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null) {
                             continue;
                         } else if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
-                            if(document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)'){
+                            if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
                                 document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
                             }
                         }
                     }
                 }
             }, 1000);
-
-
-
         }
         document.getElementById('agregar').disabled = "false";
         return;
@@ -713,13 +732,15 @@ class CitaCrear extends Component {
                 for (let i = 0; i < arrayTecnicos.length; i++) {
                     for (let y = 0; y < itemArray.length; y++) {
                         //Si el elemento tiene letras verdes en el texto, entonces no le aplicamos la propiedad disabled="true"
-                        if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color === 'rgb(67, 212, 64)') {
-                            continue;
-                        } else {
-                            document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                        if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                            if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color === 'rgb(67, 212, 64)') {
+                                continue;
+                            } else {
+                                document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                            }
+                            document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                            console.log(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element));
                         }
-                        document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
-                        console.log(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element));
                     }
                 }
             }
@@ -803,7 +824,7 @@ class CitaCrear extends Component {
         for (let w = 0; w < this.state.itemArray.length; w++) {
             txn[w] = tecnicos;
         }
-        console.log(txn);
+        //console.log(txn);
         let precio_readonly = "";
 
         this.state.usuario_perfil === 1 ? precio_readonly = "false" : precio_readonly = "true";
@@ -884,10 +905,10 @@ class CitaCrear extends Component {
 
 
                     { /* SELECCIONABLE DINAMICO */
-                        this.state.itemArray.map((itemx) => {
+                        this.state.itemArray.map((itemx, i) => {
                             return (
 
-                                <div id={itemx.id_element}>
+                                <div id={itemx.id_element} key={i}>
                                     <hr size="5px" color="black" />
                                     {/* SELECCIONAR FECHA Y HORA */}
                                     <IonItemDivider>
