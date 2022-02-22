@@ -126,7 +126,7 @@ class CitaCrear extends Component {
                 this.setState({
                     search_string_tecnico: text
                 });
-
+                
                 let itemArray = this.state.itemArray;
                 let arrayTecnicosLista = this.state.tecnicos;
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
