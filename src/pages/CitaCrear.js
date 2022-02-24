@@ -131,7 +131,7 @@ class CitaCrear extends Component {
                 let arrayTecnicosLista = this.state.tecnicos;
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
                 let arrayPreDisabledOptions = [];
-
+                
                 // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
                 for (let y = 0; y < arrayTecnicosSeleccionados.length; y++) {
                     for (let x = 0; x < arrayTecnicosSeleccionados.length; x++) {
@@ -141,14 +141,14 @@ class CitaCrear extends Component {
                         break;
                     }
                 }
-
+                
                 for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
                     if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
-                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados)) {
+                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados, "1")) {
                             setTimeout(() => {
                                 console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de técnicos seleccionados.")
                                 document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
-                            }, 200)
+                            }, 500)
                         }
                     }
                 }
@@ -159,7 +159,7 @@ class CitaCrear extends Component {
                         for (let z = 0; z < arrayTecnicosLista.length; z++) {
                             for (let y = 0; y < itemArray.length; y++) {
                                 //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
-                                if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista)) {
+                                if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
                                     console.log("A");
                                     document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                                 } else {
@@ -175,7 +175,7 @@ class CitaCrear extends Component {
                             for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
                                 for (let y = 0; y < itemArray.length; y++) {
                                     //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
-                                    if (this.inArray((arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosSeleccionados)) {
+                                    if (this.inArray((arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosSeleccionados, "1")) {
                                         document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color = '#43D440';
                                     }
 
@@ -233,7 +233,7 @@ class CitaCrear extends Component {
 
         document.getElementById("search_cliente").value = "";
     }
-    
+
     //PROCEDIMIENTOS
     _getProcedimientos = () => {
         this.setState({ loading_procedimientos: true });
@@ -335,12 +335,12 @@ class CitaCrear extends Component {
                 for (let z = 0; z < arrayTecnicosLista.length; z++) {
                     for (let y = 0; y < itemArray.length; y++) {
                         //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
-                        if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista)) {
+                        if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
                             document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                         }
                     }
                 }
-                
+
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
                 for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
                     for (let y = 0; y < itemArray.length; y++) {
@@ -671,10 +671,8 @@ class CitaCrear extends Component {
         let itemArraySize = itemArray.length;
 
         const item = this.state.itemArray;
-        const title = itemArray.length + 1;
-        const text = '';
         const id_element = itemArraySize + 1;
-        item.push({ title, text, id_element });
+        item.push({ id_element });
         this.setState({ itemArray: item });
 
         document.getElementById('agregar').disabled = "true";
@@ -704,11 +702,15 @@ class CitaCrear extends Component {
 
     quitarSetTecnicoProcedimiento = () => {
         let itemArray = this.state.itemArray;
-
         //Primero eliminamos el último elemento del arreglo, el de los HTML
+
+        console.log("Antes: " + JSON.stringify(itemArray));
+
         itemArray.pop();
-        this.setState({ itemarray: itemArray });
+        this.setState({ itemArray: itemArray });
         itemArray = this.state.itemArray;
+
+        console.log("Después: " + JSON.stringify(itemArray));
 
         //Luego comprobamos que exista la localStorage de arrayTecnicos
         if (localStorage.getItem('arrayTecnicos')) {
@@ -718,30 +720,68 @@ class CitaCrear extends Component {
 
             //Metemos en la variable de arreglo cada índice de itemArray
             for (let i = 0; i < itemArray.length; i++) {
-                idElementsItemArray.push(itemArray[i].id_element);
+                idElementsItemArray.push({ id_element: itemArray[i].id_element });
             }
+
+            console.log("idElementsItemArray: " + JSON.stringify(idElementsItemArray));
 
             //Verificamos cuáles de los índices id_element de la localStorage arrayTecnicos no hace match con
             //el arreglo idElementsItemArray para eliminarlo del arreglo arrayTecnicos
             for (let y = 0; y < arrayTecnicos.length; y++) {
-                if (!this.inArray(arrayTecnicos[y].id_element, idElementsItemArray)) {
-                    arrayTecnicos.splice(y, 1);
+                if (!this.inArray(arrayTecnicos[y + 1].id_element, idElementsItemArray, "2")) {
+                    arrayTecnicos.splice(y + 1, 1);
                 }
             }
             //Finalmente actualizamos la localStorage con el resultado del ciclo anterior
             localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+
+            let arrayPreDisabledOptions = [];
+
+            //Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
+            for (let y = 0; y < arrayTecnicos.length; y++) {
+                for (let x = 0; x < arrayTecnicos.length; x++) {
+                    arrayPreDisabledOptions.push({ item: arrayTecnicos[x].id_tecnico + "_" + parseInt(y + 1) })
+                }
+                if (y + 1 === arrayTecnicos.length) {
+                    break;
+                }
+            }
+
+            for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
+                if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
+                    if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicos, "1")) {
+                        setTimeout(() => {
+                            console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de técnicos seleccionados.")
+                            document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
+                        }, 500)
+                    }
+                }
+            }
+            //
         }
         document.getElementById('agregar').disabled = "false";
 
         return;
     }
 
-    inArray = (needle, haystack) => {
+    inArray = (needle, haystack, type) => {
         var length = haystack.length;
-        for (var i = 0; i < length; i++) {
-            if (needle == haystack[i].id_option) return true;
+        switch (type) {
+            case "1":
+                console.log("Dentro de inArray1");
+                for (var i = 0; i < length; i++) {
+                    if (needle == haystack[i].id_option) return true;
+                }
+                return false;
+            case "2":
+                console.log("Dentro de inArray2");
+                for (var i = 0; i < length; i++) {
+                    if (needle == haystack[i].id_element) return true;
+                }
+                return false;
+            default:
+                break;
         }
-        return false;
     }
 
     render() {
