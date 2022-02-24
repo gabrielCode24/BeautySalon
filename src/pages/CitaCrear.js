@@ -131,7 +131,7 @@ class CitaCrear extends Component {
                 let arrayTecnicosLista = this.state.tecnicos;
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
                 let arrayPreDisabledOptions = [];
-                
+
                 // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
                 for (let y = 0; y < arrayTecnicosSeleccionados.length; y++) {
                     for (let x = 0; x < arrayTecnicosSeleccionados.length; x++) {
@@ -768,13 +768,11 @@ class CitaCrear extends Component {
         var length = haystack.length;
         switch (type) {
             case "1":
-                console.log("Dentro de inArray1");
                 for (var i = 0; i < length; i++) {
                     if (needle == haystack[i].id_option) return true;
                 }
                 return false;
             case "2":
-                console.log("Dentro de inArray2");
                 for (var i = 0; i < length; i++) {
                     if (needle == haystack[i].id_element) return true;
                 }
@@ -1017,7 +1015,7 @@ class CitaCrear extends Component {
                             <IonCol size="6"><IonButton color="danger" expand="block" onClick={() => this.quitarSetTecnicoProcedimiento()}>Quitar Último (X)</IonButton></IonCol>
                         </IonRow>
                     </IonGrid>
-                    <IonButton color="favorite" expand="block" onClick={() => this.registrarCita()} disabled="false">Registrar Cita</IonButton>
+                    <IonButton color="favorite" expand="block" onClick={() => this.registrarCita()} disabled="true">Registrar Cita</IonButton>
                 </IonFooter>
             </IonPage>
         )
