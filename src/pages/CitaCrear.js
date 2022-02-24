@@ -126,7 +126,7 @@ class CitaCrear extends Component {
                 this.setState({
                     search_string_tecnico: text
                 });
-                
+
                 let itemArray = this.state.itemArray;
                 let arrayTecnicosLista = this.state.tecnicos;
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
@@ -148,7 +148,7 @@ class CitaCrear extends Component {
                             setTimeout(() => {
                                 console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de técnicos seleccionados.")
                                 document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
-                            }, 1000)
+                            }, 200)
                         }
                     }
                 }
@@ -225,10 +225,6 @@ class CitaCrear extends Component {
             cliente_id_selected: item.id
         });
 
-        setTimeout(() => {
-            console.log("El id del cliente seleccionado es el: " + this.state.cliente_id_selected + " , correspondiente a: " + item.nombre);
-        }, 1000);
-
         document.getElementById('cliente_selected').style.display = "block";
         document.getElementById('cliente_selected_text').value = item.nombre;
 
@@ -237,7 +233,7 @@ class CitaCrear extends Component {
 
         document.getElementById("search_cliente").value = "";
     }
-
+    
     //PROCEDIMIENTOS
     _getProcedimientos = () => {
         this.setState({ loading_procedimientos: true });
@@ -269,11 +265,6 @@ class CitaCrear extends Component {
             procedimiento_id_selected: item.id,
             procedimiento_precio_sug_selected: item.precio_sug
         });
-
-        setTimeout(() => {
-            console.log("El id del procedimiento seleccionado es el: " + this.state.procedimiento_id_selected + " , correspondiente a: " + item.nombre);
-            console.log("El precio del procedimiento seleccionado es: L " + this.state.procedimiento_precio_sug_selected + " , correspondiente a: " + item.nombre);
-        }, 1000);
 
         document.getElementById('procedimiento_selected').style.display = "block";
         document.getElementById('procedimiento_selected_text').value = item.nombre;
@@ -341,8 +332,6 @@ class CitaCrear extends Component {
             setTimeout(() => {
 
                 let arrayTecnicosLista = this.state.tecnicos;
-                //console.log(arrayTecnicosLista);
-                //console.log(itemArray);
                 for (let z = 0; z < arrayTecnicosLista.length; z++) {
                     for (let y = 0; y < itemArray.length; y++) {
                         //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
@@ -351,7 +340,7 @@ class CitaCrear extends Component {
                         }
                     }
                 }
-                //console.log(itemArray);
+                
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
                 for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
                     for (let y = 0; y < itemArray.length; y++) {
@@ -368,37 +357,6 @@ class CitaCrear extends Component {
             }, 1000);
         }
         document.getElementById('agregar').disabled = "false";
-        return;
-
-        if (localStorage.getItem('arrayTecnicos')) {
-            let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
-
-            for (let i = 0; i < arrayTecnicos.length; i++) {
-                for (let y = 0; y < itemArray.length; y++) {
-                    //Si el elemento tiene letras verdes en el texto, entonces no le aplicamos la propiedad disabled="true"
-                    if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)' && document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled === "true") {
-                        document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
-                    }
-                }
-            }
-        }
-
-        return;
-        this.setState({
-            tecnico_id_selected: item.id
-        });
-
-        setTimeout(() => {
-            console.log("El id del técnico seleccionado es el: " + this.state.tecnico_id_selected + " , correspondiente a: " + item.nombre);
-        }, 1000);
-
-        document.getElementById('tecnico_selected').style.display = "block";
-        document.getElementById('tecnico_selected_text').value = item.nombre;
-
-        const stateAccordion = document.getElementById('tecnicos');
-        stateAccordion.value = undefined;
-
-        document.getElementById("search_tecnico").value = "";
     }
 
     //VENDEDORES
@@ -427,10 +385,6 @@ class CitaCrear extends Component {
         this.setState({
             vendedor_recepcionista_id_selected: item.id
         });
-
-        setTimeout(() => {
-            console.log("El id del vendedor/recepcionista seleccionado es el: " + this.state.vendedor_recepcionista_id_selected + " , correspondiente a: " + item.nombre);
-        }, 1000);
 
         document.getElementById('vendedor_selected').style.display = "block";
         document.getElementById('vendedor_selected_text').value = item.nombre + " - (" + item.perfil + ")";
