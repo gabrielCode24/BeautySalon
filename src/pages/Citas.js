@@ -56,19 +56,6 @@ class Citas extends Component {
     }
   }
 
-  agregarHTML = () => {
-
-    let itemArray = this.state.itemArray;
-
-    console.log(itemArray.length)
-
-    const item = this.state.itemArray;
-    const title = 'Hola';
-    const text = 'Desde función Add';
-    item.push({ title, text })
-    this.setState({ itemArray: item })
-  }
-
   render() {
 
     if (this.state.pre_lista_citas) {
@@ -91,7 +78,6 @@ class Citas extends Component {
         </IonHeader>
 
         <IonContent>
-          <div>
             <IonGrid>
               <IonRow>
                 <IonCol size="6" onClick={() => this.redirigir('pre_lista_citas')} style={{
@@ -105,19 +91,6 @@ class Citas extends Component {
                 }}>{<IonImg src={agregarCita} style={{ height: "100%" }}></IonImg>}</IonCol>
               </IonRow>
             </IonGrid>
-
-            {this.state.itemArray.map((item, index) => {
-              return (
-                <div className="box" key={index}>
-                  <div>
-                    <h2>{item.title}</h2>
-                    <p>{item.text}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          <IonButton onClick={() => this.agregarHTML()}>Agregar botón</IonButton>
         </IonContent>
       </IonPage >
     )
