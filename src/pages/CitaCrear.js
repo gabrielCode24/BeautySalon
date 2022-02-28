@@ -81,6 +81,11 @@ class CitaCrear extends Component {
         if (localStorage.getItem('arrayTecnicos')) {
             localStorage.removeItem('arrayTecnicos');
         }
+
+        //Limpiamos la localStorage de procedimientos seleccionados
+        if (localStorage.getItem('arrayProcedimientos')) {
+            localStorage.removeItem('arrayProcedimientos');
+        }
     }
 
     mensajeValidacion = (mensaje) => {
@@ -96,6 +101,8 @@ class CitaCrear extends Component {
     buscarEnLista = (kindOf, id_element) => {
         let id = "";
         let text = "";
+        let itemArray = this.state.itemArray;
+        let arrayPreDisabledOptions = [];
 
         switch (kindOf) {
             case "cliente":
@@ -106,11 +113,69 @@ class CitaCrear extends Component {
                 });
                 break;
             case "procedimiento":
-                text = document.getElementById('search_procedimiento').value;
+                id = "search_procedimiento_" + id_element;
+                text = document.getElementById(id).value;
 
                 this.setState({
                     search_string_procedimiento: text
                 });
+
+                let arrayProcedimientosLista = this.state.tecnicos;
+                let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
+                for (let y = 0; y < arrayProcedimientosSeleccionados.length; y++) {
+                    for (let x = 0; x < arrayProcedimientosSeleccionados.length; x++) {
+                        arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                    }
+                    if (y + 1 === arrayProcedimientosSeleccionados.length) {
+                        break;
+                    }
+                }
+
+                for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
+                    if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
+                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayProcedimientosSeleccionados, "1")) {
+                            setTimeout(() => {
+                                console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de procedimientos seleccionados.")
+                                document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
+                            }, 500)
+                        }
+                    }
+                }
+                //
+
+                if (text === "") {
+                    setTimeout(() => {
+                        for (let z = 0; z < arrayProcedimientosLista.length; z++) {
+                            for (let y = 0; y < itemArray.length; y++) {
+                                //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
+                                if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
+                                    document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                                } else {
+                                    document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                }
+                            }
+                        }
+
+                        if (localStorage.getItem('arrayProcedimientos')) {
+                            for (let i = 0; i < arrayProcedimientosSeleccionados.length; i++) {
+                                for (let y = 0; y < itemArray.length; y++) {
+                                    //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                                    if (this.inArray((arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosSeleccionados, "1")) {
+                                        document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).style.color = '#43D440';
+                                    }
+
+                                    if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                        document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                    }
+                                }
+                            }
+                        }
+
+                    }, 500);
+                }
+
                 break;
             case "vendedor":
                 text = document.getElementById('search_vendedor').value;
@@ -127,10 +192,8 @@ class CitaCrear extends Component {
                     search_string_tecnico: text
                 });
 
-                let itemArray = this.state.itemArray;
                 let arrayTecnicosLista = this.state.tecnicos;
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
-                let arrayPreDisabledOptions = [];
 
                 // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
                 for (let y = 0; y < arrayTecnicosSeleccionados.length; y++) {
@@ -141,12 +204,11 @@ class CitaCrear extends Component {
                         break;
                     }
                 }
-                
+
                 for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
                     if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
                         if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados, "1")) {
                             setTimeout(() => {
-                                console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de técnicos seleccionados.")
                                 document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
                             }, 500)
                         }
@@ -160,18 +222,14 @@ class CitaCrear extends Component {
                             for (let y = 0; y < itemArray.length; y++) {
                                 //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
                                 if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
-                                    console.log("A");
                                     document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                                 } else {
                                     document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
-                                    console.log("B");
                                 }
                             }
                         }
 
                         if (localStorage.getItem('arrayTecnicos')) {
-                            //let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
-                            console.log(arrayTecnicosSeleccionados.length);
                             for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
                                 for (let y = 0; y < itemArray.length; y++) {
                                     //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
@@ -259,21 +317,67 @@ class CitaCrear extends Component {
             });
     }
 
-    _getProcedimiento = (item) => {
+    _getProcedimiento = (item, index, id_element) => {
+        let itemArray = this.state.itemArray;
 
-        this.setState({
-            procedimiento_id_selected: item.id,
-            procedimiento_precio_sug_selected: item.precio_sug
-        });
+        if (!localStorage.getItem('arrayProcedimientos')) {
+            let arrayProcedimientos = [];
 
-        document.getElementById('procedimiento_selected').style.display = "block";
-        document.getElementById('procedimiento_selected_text').value = item.nombre;
-        document.getElementById('procedimiento_selected_precio').value = item.precio_sug;
+            arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
 
-        const stateAccordion = document.getElementById('procedimientos');
-        stateAccordion.value = undefined;
+            localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
 
-        document.getElementById("search_procedimiento").value = "";
+            document.getElementById(index + "_" + id_element).style.color = '#43D440';
+        } else {
+            let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+            //Si al tocar un procedimiento éste ya estaba en el arreglo, lo eliminamos del arreglo y lo pintamos
+            //en negro, si no estaba entonces simplemente lo agregamos al arreglo y lo pintamos en verde
+            if (this.inArray(index + "_" + id_element, arrayProcedimientos, "1")) {
+                for (let k = 0; k < arrayProcedimientos.length; k++) {
+                    if (arrayProcedimientos[k].id_option === index + "_" + id_element) {
+                        arrayProcedimientos.splice(k, 1);
+                        localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
+                    }
+                }
+
+                document.getElementById(index + "_" + id_element).style.color = '#000000';
+            } else {
+                arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
+                localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
+                document.getElementById(index + "_" + id_element).style.color = '#43D440';
+            }
+            //
+
+            setTimeout(() => {
+                let arrayProcedimientosLista = this.state.procedimientos;
+
+                for (let z = 0; z < arrayProcedimientosLista.length; z++) {
+                    for (let y = 0; y < itemArray.length; y++) {
+                        //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
+                        if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
+                            document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                        }
+                    }
+                }
+
+                let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+                for (let i = 0; i < arrayProcedimientosSeleccionados.length; i++) {
+                    for (let y = 0; y < itemArray.length; y++) {
+                        //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                        if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)) === null) {
+                            continue;
+                        } else if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)) !== null) {
+
+                            if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                            }
+                        }
+                    }
+                }
+            }, 1000);
+        }
+        document.getElementById('agregar').disabled = "false";
     }
 
     //TÉCNICOS
@@ -309,8 +413,6 @@ class CitaCrear extends Component {
             localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
 
             document.getElementById(index + "_" + id_element).style.color = '#43D440';
-
-            console.log(localStorage.getItem('arrayTecnicos'));
         } else {
             let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
 
@@ -680,7 +782,6 @@ class CitaCrear extends Component {
         setTimeout(() => {
             if (localStorage.getItem('arrayTecnicos')) {
                 let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
-                console.log(arrayTecnicos);
                 for (let i = 0; i < arrayTecnicos.length; i++) {
                     for (let y = 0; y < itemArray.length; y++) {
                         //Si el elemento tiene letras verdes en el texto, entonces no le aplicamos la propiedad disabled="true"
@@ -691,7 +792,24 @@ class CitaCrear extends Component {
                                 document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                             }
                             document.getElementById(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
-                            console.log(arrayTecnicos[i].id_tecnico + "_" + parseInt(itemArray[y].id_element));
+                        }
+                    }
+                }
+            }
+
+            if (localStorage.getItem('arrayProcedimientos')) {
+                let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                for (let i = 0; i < arrayProcedimientos.length; i++) {
+                    for (let y = 0; y < itemArray.length; y++) {
+                        //Si el elemento tiene letras verdes en el texto, entonces no le aplicamos la propiedad disabled="true"
+                        if (document.getElementById(arrayProcedimientos[i].id_proc + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                            if (document.getElementById(arrayProcedimientos[i].id_proc + "_" + parseInt(itemArray[y].id_element)).style.color === 'rgb(67, 212, 64)') {
+                                continue;
+                            } else {
+                                document.getElementById(arrayProcedimientos[i].id_proc + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                            }
+                            document.getElementById(arrayProcedimientos[i].id_proc + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
                         }
                     }
                 }
@@ -703,78 +821,130 @@ class CitaCrear extends Component {
     quitarSetTecnicoProcedimiento = () => {
         let itemArray = this.state.itemArray;
         //Primero eliminamos el último elemento del arreglo, el de los HTML
-
-        console.log("Antes: " + JSON.stringify(itemArray));
-
         itemArray.pop();
         this.setState({ itemArray: itemArray });
         itemArray = this.state.itemArray;
-
-        console.log("Después: " + JSON.stringify(itemArray));
 
         //Luego comprobamos que exista la localStorage de arrayTecnicos
         if (localStorage.getItem('arrayTecnicos')) {
             //Como ya sabemos que existe una localStorage de arrayTecnicos, lo traemos como un arreglo
             let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
             let idElementsItemArray = []; //Definimos una variable para meter ahí todos los índices de los elementos HTML, y así saber cuántos elementos hay
-
+            
             //Metemos en la variable de arreglo cada índice de itemArray
             for (let i = 0; i < itemArray.length; i++) {
                 idElementsItemArray.push({ id_element: itemArray[i].id_element });
             }
 
-            console.log("idElementsItemArray: " + JSON.stringify(idElementsItemArray));
-
-            //Verificamos cuáles de los índices id_element de la localStorage arrayTecnicos no hace match con
-            //el arreglo idElementsItemArray para eliminarlo del arreglo arrayTecnicos
-            for (let y = 0; y < arrayTecnicos.length; y++) {
-                if (!this.inArray(arrayTecnicos[y + 1].id_element, idElementsItemArray, "2")) {
-                    arrayTecnicos.splice(y + 1, 1);
-                }
-            }
-            //Finalmente actualizamos la localStorage con el resultado del ciclo anterior
-            localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
-
-            let arrayPreDisabledOptions = [];
-
-            //Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
-            for (let y = 0; y < arrayTecnicos.length; y++) {
-                for (let x = 0; x < arrayTecnicos.length; x++) {
-                    arrayPreDisabledOptions.push({ item: arrayTecnicos[x].id_tecnico + "_" + parseInt(y + 1) })
-                }
-                if (y + 1 === arrayTecnicos.length) {
-                    break;
-                }
-            }
-
-            for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
-                if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
-                    if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicos, "1")) {
-                        setTimeout(() => {
-                            console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de técnicos seleccionados.")
-                            document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
-                        }, 500)
+            if (idElementsItemArray.length > 0) {
+                //Verificamos cuáles de los índices id_element de la localStorage arrayTecnicos no hace match con
+                //el arreglo idElementsItemArray para eliminarlo del arreglo arrayTecnicos
+                for (let y = 0; y < arrayTecnicos.length; y++) {
+                    if (!this.inArray(arrayTecnicos[y + 1].id_element, idElementsItemArray, "2")) {
+                        arrayTecnicos.splice(y + 1, 1);
                     }
                 }
+                //Finalmente actualizamos la localStorage con el resultado del ciclo anterior
+                localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+
+                let arrayPreDisabledOptions = [];
+
+                //Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
+                for (let y = 0; y < arrayTecnicos.length; y++) {
+                    for (let x = 0; x < arrayTecnicos.length; x++) {
+                        arrayPreDisabledOptions.push({ item: arrayTecnicos[x].id_tecnico + "_" + parseInt(y + 1) })
+                    }
+                    if (y + 1 === arrayTecnicos.length) {
+                        break;
+                    }
+                }
+
+                for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
+                    if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
+                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicos, "1")) {
+                            setTimeout(() => {
+                                document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
+                            }, 500)
+                        }
+                    }
+                }
+            } else {
+                localStorage.removeItem('arrayTecnicos')
             }
             //
         }
-        document.getElementById('agregar').disabled = "false";
 
-        return;
+        ///////////////////////////////////////////////////////////////////////////PROCEDIMIENTOS////////////////////
+
+        //Si ya no hay elements (set de Técnico - Procedimiento), eliminamos la localStorage de Procedimientos
+        if (itemArray.length === 0) {
+            localStorage.removeItem('arrayProcedimientos');
+            return;
+        }
+
+        //Comprobamos que exista la localStorage de arrayProcedimientos
+        if (localStorage.getItem('arrayProcedimientos')) {
+            //Como ya sabemos que existe una localStorage de arrayProcedimientos, lo traemos como un arreglo
+            let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+            //Metemos en la variable de arreglo cada id_option eliminado del último element
+            let arrElementosQuitados = [];
+            for (let i = 0; i < itemArray.length; i++) {
+                for (let xy = 0; xy < arrayProcedimientos.length; xy++) {
+                    if (!this.inArray(arrayProcedimientos[xy].id_element, itemArray, "2")) {
+                        arrElementosQuitados.push(({ id_proc: arrayProcedimientos[xy].id_proc, id_option: arrayProcedimientos[xy].id_option }));
+                    }
+                }
+            }
+
+            //Creamos una variable auxiliar, en la cual vamos a almacenar los id_option que NO estén en el
+            //arreglo arrElementosQuitados, es decir, los id_option que no se han eliminado por el usuario
+            let arrAuxProcedimientos = [];
+            for (let q = 0; q < arrayProcedimientos.length; q++) {
+                if (!this.inArray(arrayProcedimientos[q].id_option, arrElementosQuitados, "1")) {
+                    arrAuxProcedimientos.push({ id_proc: arrayProcedimientos[q].id_proc, id_element: arrayProcedimientos[q].id_element, id_option: arrayProcedimientos[q].id_option })
+                }
+            }
+            //Sobrescribimos la localStorage de Procedimientos con la variable auxiliar resultante del for anterior
+            localStorage.setItem('arrayProcedimientos', JSON.stringify(arrAuxProcedimientos));
+
+            //Para actualizar la vista de procedimientos, sin importa cuantos elements haya
+            setTimeout(() => {
+                let arr = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                for (let r = 0; r < arrElementosQuitados.length; r++) {
+                    if (!this.inArray(arrElementosQuitados[r].id_option, arr, "1")) {
+                        setTimeout(() => {
+                            for (let m = 0; m < itemArray.length + 1; m++) {
+                                document.getElementById(arrElementosQuitados[r].id_proc + "_" + arr[m].id_element).disabled = false;
+                            }
+                        }, 500)
+                    }
+                }
+
+                /*if (localStorage.getItem('arrayProcedimientos').length < localStorage.getItem('arrayTecnicos')) {
+                    document.getElementById('agregar').disabled = "false";
+                } else if (localStorage.getItem('arrayProcedimientos').length >= localStorage.getItem('arrayTecnicos')) {
+                    document.getElementById('agregar').disabled = "true";
+                }*/
+
+            }, 250)
+        }
+        document.getElementById('agregar').disabled = "true";
     }
 
     inArray = (needle, haystack, type) => {
         var length = haystack.length;
+
         switch (type) {
             case "1":
                 for (var i = 0; i < length; i++) {
-                    if (needle == haystack[i].id_option) return true;
+                    if (needle === haystack[i].id_option) return true;
                 }
                 return false;
             case "2":
                 for (var i = 0; i < length; i++) {
-                    if (needle == haystack[i].id_element) return true;
+                    if (needle === haystack[i].id_element) return true;
                 }
                 return false;
             default:
@@ -816,7 +986,12 @@ class CitaCrear extends Component {
         for (let w = 0; w < this.state.itemArray.length; w++) {
             txn[w] = tecnicos;
         }
-        //console.log(txn);
+
+        let pxn = [];
+        for (let p = 0; p < this.state.itemArray.length; p++) {
+            pxn[p] = procedimientos;
+        }
+        
         let precio_readonly = "";
 
         this.state.usuario_perfil === 1 ? precio_readonly = "false" : precio_readonly = "true";
@@ -957,11 +1132,11 @@ class CitaCrear extends Component {
                                             </IonItem>
 
                                             <IonList slot="content">
-                                                <IonSearchbar id="search_procedimiento" onIonChange={(e) => this.buscarEnLista("procedimiento")} showCancelButton="focus" placeholder="Buscar procedimiento"></IonSearchbar>
+                                                <IonSearchbar id={"search_procedimiento_" + itemx.id_element} onIonChange={(e) => this.buscarEnLista("procedimiento", itemx.id_element)} showCancelButton="focus" placeholder="Buscar procedimiento"></IonSearchbar>
                                                 {
-                                                    procedimientos.filter(procedimiento => procedimiento.nombre.includes(this.state.search_string_procedimiento)).map(item => (
-                                                        <IonItem key={item.id} onClick={(e) => this._getProcedimiento(item)}>
-                                                            {item.id} - {item.nombre}
+                                                    pxn[itemx.id_element - 1].filter(procedimiento => procedimiento.nombre.includes(this.state.search_string_procedimiento)).map(item => (
+                                                        <IonItem id={item.id + "_" + itemx.id_element} key={item.id} onClick={(e) => this._getProcedimiento(item, item.id, itemx.id_element)}>
+                                                            {item.id} - {item.nombre} - {"(" + item.tiempo_estimado + ")"}
                                                         </IonItem>
 
                                                     ))
