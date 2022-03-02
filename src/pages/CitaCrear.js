@@ -124,22 +124,24 @@ class CitaCrear extends Component {
                 let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
                 // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
-                for (let y = 0; y < arrayProcedimientosSeleccionados.length; y++) {
-                    for (let x = 0; x < arrayProcedimientosSeleccionados.length; x++) {
-                        arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                if (localStorage.getItem('arrayProcedimientos')) {
+                    for (let y = 0; y < arrayProcedimientosSeleccionados.length; y++) {
+                        for (let x = 0; x < arrayProcedimientosSeleccionados.length; x++) {
+                            arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                        }
+                        if (y + 1 === arrayProcedimientosSeleccionados.length) {
+                            break;
+                        }
                     }
-                    if (y + 1 === arrayProcedimientosSeleccionados.length) {
-                        break;
-                    }
-                }
 
-                for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
-                    if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
-                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayProcedimientosSeleccionados, "1")) {
-                            setTimeout(() => {
-                                console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de procedimientos seleccionados.")
-                                document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
-                            }, 500)
+                    for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
+                        if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
+                            if (!this.inArray(arrayPreDisabledOptions[r].item, arrayProcedimientosSeleccionados, "1")) {
+                                setTimeout(() => {
+                                    console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de procedimientos seleccionados.")
+                                    document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
+                                }, 500)
+                            }
                         }
                     }
                 }
@@ -150,11 +152,14 @@ class CitaCrear extends Component {
                         for (let z = 0; z < arrayProcedimientosLista.length; z++) {
                             for (let y = 0; y < itemArray.length; y++) {
                                 //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
-                                if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
-                                    document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
-                                } else {
-                                    document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
-                                }
+
+                                if(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null){
+                                    if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
+                                        document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                                    } else {
+                                        document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                    }
+                                }                                
                             }
                         }
 
@@ -196,21 +201,24 @@ class CitaCrear extends Component {
                 let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
 
                 // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
-                for (let y = 0; y < arrayTecnicosSeleccionados.length; y++) {
-                    for (let x = 0; x < arrayTecnicosSeleccionados.length; x++) {
-                        arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
-                    }
-                    if (y + 1 === arrayTecnicosSeleccionados.length) {
-                        break;
-                    }
-                }
 
-                for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
-                    if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
-                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados, "1")) {
-                            setTimeout(() => {
-                                document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
-                            }, 500)
+                if (localStorage.getItem('arrayTecnicos')) {
+                    for (let y = 0; y < arrayTecnicosSeleccionados.length; y++) {
+                        for (let x = 0; x < arrayTecnicosSeleccionados.length; x++) {
+                            arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                        }
+                        if (y + 1 === arrayTecnicosSeleccionados.length) {
+                            break;
+                        }
+                    }
+
+                    for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
+                        if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
+                            if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados, "1")) {
+                                setTimeout(() => {
+                                    document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
+                                }, 500)
+                            }
                         }
                     }
                 }
@@ -340,7 +348,6 @@ class CitaCrear extends Component {
                         localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
                     }
                 }
-
                 document.getElementById(index + "_" + id_element).style.color = '#000000';
             } else {
                 arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
@@ -437,8 +444,10 @@ class CitaCrear extends Component {
                 for (let z = 0; z < arrayTecnicosLista.length; z++) {
                     for (let y = 0; y < itemArray.length; y++) {
                         //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
-                        if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
-                            document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                        if (document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                            if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
+                                document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                            }
                         }
                     }
                 }
@@ -830,7 +839,7 @@ class CitaCrear extends Component {
             //Como ya sabemos que existe una localStorage de arrayTecnicos, lo traemos como un arreglo
             let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
             let idElementsItemArray = []; //Definimos una variable para meter ahí todos los índices de los elementos HTML, y así saber cuántos elementos hay
-            
+
             //Metemos en la variable de arreglo cada índice de itemArray
             for (let i = 0; i < itemArray.length; i++) {
                 idElementsItemArray.push({ id_element: itemArray[i].id_element });
@@ -991,7 +1000,7 @@ class CitaCrear extends Component {
         for (let p = 0; p < this.state.itemArray.length; p++) {
             pxn[p] = procedimientos;
         }
-        
+
         let precio_readonly = "";
 
         this.state.usuario_perfil === 1 ? precio_readonly = "false" : precio_readonly = "true";
