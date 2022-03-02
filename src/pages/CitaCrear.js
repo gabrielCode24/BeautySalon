@@ -120,7 +120,7 @@ class CitaCrear extends Component {
                     search_string_procedimiento: text
                 });
 
-                let arrayProcedimientosLista = this.state.tecnicos;
+                let arrayProcedimientosLista = this.state.procedimientos;
                 let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
                 // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
