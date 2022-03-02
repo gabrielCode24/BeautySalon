@@ -125,9 +125,15 @@ class CitaCrear extends Component {
 
                 // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
                 if (localStorage.getItem('arrayProcedimientos')) {
+                    
                     for (let y = 0; y < arrayProcedimientosSeleccionados.length; y++) {
                         for (let x = 0; x < arrayProcedimientosSeleccionados.length; x++) {
-                            arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                            if(arrayProcedimientosSeleccionados.length === itemArray.length){
+                                arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_proc + "_" + parseInt(y + 1) })
+                            } else if (itemArray.length > arrayProcedimientosSeleccionados.length){
+                                arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_proc + "_" + parseInt(y + 1) })
+                                arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_proc + "_" + parseInt(y + 2) })
+                            }
                         }
                         if (y + 1 === arrayProcedimientosSeleccionados.length) {
                             break;
@@ -205,13 +211,20 @@ class CitaCrear extends Component {
                 if (localStorage.getItem('arrayTecnicos')) {
                     for (let y = 0; y < arrayTecnicosSeleccionados.length; y++) {
                         for (let x = 0; x < arrayTecnicosSeleccionados.length; x++) {
-                            arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                            if(arrayTecnicosSeleccionados.length === itemArray.length){
+                                arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                            } else if (itemArray.length > arrayTecnicosSeleccionados.length){
+                                arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
+                                arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 2) })
+                            }
                         }
                         if (y + 1 === arrayTecnicosSeleccionados.length) {
                             break;
                         }
                     }
-
+                    
+                    console.log("arrayTecnicosSeleccionados: " + arrayTecnicosSeleccionados.length)
+                    console.log("itemArray: " + itemArray.length)
                     for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
                         if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
                             if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados, "1")) {
