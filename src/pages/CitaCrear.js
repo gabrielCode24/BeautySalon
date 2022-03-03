@@ -125,12 +125,12 @@ class CitaCrear extends Component {
 
                 // Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
                 if (localStorage.getItem('arrayProcedimientos')) {
-                    
+
                     for (let y = 0; y < arrayProcedimientosSeleccionados.length; y++) {
                         for (let x = 0; x < arrayProcedimientosSeleccionados.length; x++) {
-                            if(arrayProcedimientosSeleccionados.length === itemArray.length){
+                            if (arrayProcedimientosSeleccionados.length === itemArray.length) {
                                 arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_proc + "_" + parseInt(y + 1) })
-                            } else if (itemArray.length > arrayProcedimientosSeleccionados.length){
+                            } else if (itemArray.length > arrayProcedimientosSeleccionados.length) {
                                 arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_proc + "_" + parseInt(y + 1) })
                                 arrayPreDisabledOptions.push({ item: arrayProcedimientosSeleccionados[x].id_proc + "_" + parseInt(y + 2) })
                             }
@@ -144,7 +144,6 @@ class CitaCrear extends Component {
                         if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
                             if (!this.inArray(arrayPreDisabledOptions[r].item, arrayProcedimientosSeleccionados, "1")) {
                                 setTimeout(() => {
-                                    console.log(arrayPreDisabledOptions[r].item + " no está en el arreglo de procedimientos seleccionados.")
                                     document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
                                 }, 500)
                             }
@@ -159,13 +158,13 @@ class CitaCrear extends Component {
                             for (let y = 0; y < itemArray.length; y++) {
                                 //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
 
-                                if(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null){
+                                if (document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null) {
                                     if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
                                         document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                                     } else {
                                         document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
                                     }
-                                }                                
+                                }
                             }
                         }
 
@@ -211,9 +210,9 @@ class CitaCrear extends Component {
                 if (localStorage.getItem('arrayTecnicos')) {
                     for (let y = 0; y < arrayTecnicosSeleccionados.length; y++) {
                         for (let x = 0; x < arrayTecnicosSeleccionados.length; x++) {
-                            if(arrayTecnicosSeleccionados.length === itemArray.length){
+                            if (arrayTecnicosSeleccionados.length === itemArray.length) {
                                 arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
-                            } else if (itemArray.length > arrayTecnicosSeleccionados.length){
+                            } else if (itemArray.length > arrayTecnicosSeleccionados.length) {
                                 arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 1) })
                                 arrayPreDisabledOptions.push({ item: arrayTecnicosSeleccionados[x].id_tecnico + "_" + parseInt(y + 2) })
                             }
@@ -222,7 +221,7 @@ class CitaCrear extends Component {
                             break;
                         }
                     }
-                    
+
                     console.log("arrayTecnicosSeleccionados: " + arrayTecnicosSeleccionados.length)
                     console.log("itemArray: " + itemArray.length)
                     for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
@@ -349,6 +348,12 @@ class CitaCrear extends Component {
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
 
             document.getElementById(index + "_" + id_element).style.color = '#43D440';
+            
+            if (localStorage.getItem('arrayTecnicos')) {
+                this.enableDisableBotonAgregarSetDeElements();
+            } else {
+                document.getElementById('agregar').disabled = true;
+            }
         } else {
             let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
@@ -395,9 +400,9 @@ class CitaCrear extends Component {
                         }
                     }
                 }
+                this.enableDisableBotonAgregarSetDeElements();
             }, 1000);
         }
-        document.getElementById('agregar').disabled = "false";
     }
 
     //TÉCNICOS
@@ -433,6 +438,12 @@ class CitaCrear extends Component {
             localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
 
             document.getElementById(index + "_" + id_element).style.color = '#43D440';
+
+            if (localStorage.getItem('arrayProcedimientos')) {
+                this.enableDisableBotonAgregarSetDeElements();
+            } else {
+                document.getElementById('agregar').disabled = true;
+            }
         } else {
             let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
 
@@ -478,9 +489,10 @@ class CitaCrear extends Component {
                         }
                     }
                 }
+                this.enableDisableBotonAgregarSetDeElements();
+
             }, 1000);
         }
-        document.getElementById('agregar').disabled = "false";
     }
 
     //VENDEDORES
@@ -930,29 +942,37 @@ class CitaCrear extends Component {
             //Sobrescribimos la localStorage de Procedimientos con la variable auxiliar resultante del for anterior
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrAuxProcedimientos));
 
-            //Para actualizar la vista de procedimientos, sin importa cuantos elements haya
-            setTimeout(() => {
-                let arr = JSON.parse(localStorage.getItem('arrayProcedimientos'));
-
-                for (let r = 0; r < arrElementosQuitados.length; r++) {
-                    if (!this.inArray(arrElementosQuitados[r].id_option, arr, "1")) {
-                        setTimeout(() => {
-                            for (let m = 0; m < itemArray.length + 1; m++) {
-                                document.getElementById(arrElementosQuitados[r].id_proc + "_" + arr[m].id_element).disabled = false;
-                            }
-                        }, 500)
+            let arrayProcedimientosLista = this.state.procedimientos;
+            
+            for (let z = 0; z < arrayProcedimientosLista.length; z++) {
+                for (let y = 0; y < itemArray.length; y++) {
+                    //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
+                    if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
+                        document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                     }
                 }
+            }     
 
-                /*if (localStorage.getItem('arrayProcedimientos').length < localStorage.getItem('arrayTecnicos')) {
-                    document.getElementById('agregar').disabled = "false";
-                } else if (localStorage.getItem('arrayProcedimientos').length >= localStorage.getItem('arrayTecnicos')) {
-                    document.getElementById('agregar').disabled = "true";
-                }*/
-
+            /*
+            //Para actualizar la vista de procedimientos, sin importar cuantos elements haya
+            setTimeout(() => {
+                let arr = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+                
+                for (let r = 0; r < arrElementosQuitados.length; r++) {
+                    if (document.getElementById(arrElementosQuitados[r].id_option) !== null) {
+                        if (!this.inArray(arrElementosQuitados[r].id_option, arr, "1")) {
+                            setTimeout(() => {
+                                for (let m = 0; m < itemArray.length + 1; m++) {
+                                    console.log(arrElementosQuitados[r].id_proc + "_" + arr[m].id_element)
+                                    document.getElementById(arrElementosQuitados[r].id_proc + "_" + arr[m].id_element).disabled = false;
+                                }
+                            }, 500)
+                        }
+                    }
+                }
             }, 250)
+        */
         }
-        document.getElementById('agregar').disabled = "true";
     }
 
     inArray = (needle, haystack, type) => {
@@ -968,9 +988,52 @@ class CitaCrear extends Component {
                 for (var i = 0; i < length; i++) {
                     if (needle === haystack[i].id_element) return true;
                 }
+            case "3":
+                for (var i = 0; i < length; i++) {
+                    if (needle === haystack[i]) return true;
+                }
                 return false;
             default:
                 break;
+        }
+    }
+
+    //Función para vigilar que antes de agregar un nuevo set de Técnico - Procedimiento(s), el último set
+    //tenga al menos una pareja de 1 Técnico - 1 Procedimiento
+    enableDisableBotonAgregarSetDeElements() {
+        let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+        let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+        let procedimientosElements = []; //Aquí se guardará la información de procedimiento de 1 set
+        let tecnicosElements = []; //Aquí se guardará la información de técnico de 1 set
+
+        //Revisamos que haya al menos 1 procedimiento en 1 set, si ya estaba agregado, evitamos duplicar el dato
+        //Lo que necesitamos es saber si ya se ha elegido al menos un procedimiento del set
+        for (let k = 0; k < arrayProcedimientosSeleccionados.length; k++) {
+            if (!this.inArray(arrayProcedimientosSeleccionados[k].id_element, procedimientosElements, "3")) {
+                procedimientosElements.push(arrayProcedimientosSeleccionados[k].id_element);
+            }
+        }
+        console.log("PROCEDIMIENTOS CHECK: " + procedimientosElements);
+
+        //Revisamos que haya al menos 1 técnico en 1 set, si ya estaba agregado, evitamos duplicar el dato
+        for (let k = 0; k < arrayTecnicosSeleccionados.length; k++) {
+            if (!this.inArray(arrayTecnicosSeleccionados[k].id_element, tecnicosElements, "3")) {
+                tecnicosElements.push(arrayTecnicosSeleccionados[k].id_element);
+            }
+        }
+        console.log("TECNICOS CHECK: " + tecnicosElements);
+
+        //Si los arreglos tienen igual longitud quiere decir que al menos cada técnico tiene un procedimiento
+        //seleccionado o viceversa, un procedimiento tiene un técnico en ese set,
+        //entonces habilitamos el botón de Agregar (+)
+        if (tecnicosElements.length === procedimientosElements.length) {
+            console.log("===")
+            document.getElementById('agregar').disabled = "false";
+        } else { //Caso contrario, el último set está disparejo, es decir, no tiene un técnico - proceimiento
+                 //o viceversa, deshabilitamos el botón de Agregar (+)
+            console.log("!===")
+            document.getElementById('agregar').disabled = "true";
         }
     }
 
