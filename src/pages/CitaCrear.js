@@ -348,7 +348,7 @@ class CitaCrear extends Component {
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
 
             document.getElementById(index + "_" + id_element).style.color = '#43D440';
-            
+
             if (localStorage.getItem('arrayTecnicos')) {
                 this.enableDisableBotonAgregarSetDeElements();
             } else {
@@ -883,7 +883,7 @@ class CitaCrear extends Component {
 
                 let arrayPreDisabledOptions = [];
 
-                //Mecánica para marcar los elementos deshabilitados cuando se busca en el área de searching
+                //Mecánica para marcar los elementos deshabilitados cuando se elimina un set
                 for (let y = 0; y < arrayTecnicos.length; y++) {
                     for (let x = 0; x < arrayTecnicos.length; x++) {
                         arrayPreDisabledOptions.push({ item: arrayTecnicos[x].id_tecnico + "_" + parseInt(y + 1) })
@@ -943,15 +943,31 @@ class CitaCrear extends Component {
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrAuxProcedimientos));
 
             let arrayProcedimientosLista = this.state.procedimientos;
-            
+            //console.log(arrAuxProcedimientos)
             for (let z = 0; z < arrayProcedimientosLista.length; z++) {
                 for (let y = 0; y < itemArray.length; y++) {
                     //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
                     if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
+                        //console.log(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element))
                         document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                     }
                 }
-            }     
+            }
+
+            setTimeout(() => {
+                let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                for (let i = 0; i < itemArray.length; i++) {
+                    for (let k = 0; k < arrayProcedimientos.length; k++) {
+                        if (document.getElementById(arrayProcedimientos[k].id_proc + "_" + itemArray[i].id_element) !== null) {
+                            if (!this.inArray(arrayProcedimientos[k].id_proc + "_" + itemArray[i].id_element, arrayProcedimientos, "1")) {
+                                console.log(arrayProcedimientos[k].id_proc + "_" + itemArray[i].id_element);
+                                document.getElementById((arrayProcedimientos[k].id_proc + "_" + itemArray[i].id_element)).disabled = 'true'
+                            }
+                        }
+                    }
+                }
+            }, 1000)
 
             /*
             //Para actualizar la vista de procedimientos, sin importar cuantos elements haya
@@ -1010,16 +1026,21 @@ class CitaCrear extends Component {
         //Revisamos que haya al menos 1 procedimiento en 1 set, si ya estaba agregado, evitamos duplicar el dato
         //Lo que necesitamos es saber si ya se ha elegido al menos un procedimiento del set
         for (let k = 0; k < arrayProcedimientosSeleccionados.length; k++) {
-            if (!this.inArray(arrayProcedimientosSeleccionados[k].id_element, procedimientosElements, "3")) {
-                procedimientosElements.push(arrayProcedimientosSeleccionados[k].id_element);
+            if (document.getElementById(arrayProcedimientosSeleccionados[k].id_element) !== null) {
+                if (!this.inArray(arrayProcedimientosSeleccionados[k].id_element, procedimientosElements, "3")) {
+                    procedimientosElements.push(arrayProcedimientosSeleccionados[k].id_element);
+                }
             }
         }
         console.log("PROCEDIMIENTOS CHECK: " + procedimientosElements);
 
         //Revisamos que haya al menos 1 técnico en 1 set, si ya estaba agregado, evitamos duplicar el dato
         for (let k = 0; k < arrayTecnicosSeleccionados.length; k++) {
-            if (!this.inArray(arrayTecnicosSeleccionados[k].id_element, tecnicosElements, "3")) {
-                tecnicosElements.push(arrayTecnicosSeleccionados[k].id_element);
+
+            if (document.getElementById(arrayTecnicosSeleccionados[k].id_element) !== null) {
+                if (!this.inArray(arrayTecnicosSeleccionados[k].id_element, tecnicosElements, "3")) {
+                    tecnicosElements.push(arrayTecnicosSeleccionados[k].id_element);
+                }
             }
         }
         console.log("TECNICOS CHECK: " + tecnicosElements);
@@ -1031,7 +1052,7 @@ class CitaCrear extends Component {
             console.log("===")
             document.getElementById('agregar').disabled = "false";
         } else { //Caso contrario, el último set está disparejo, es decir, no tiene un técnico - proceimiento
-                 //o viceversa, deshabilitamos el botón de Agregar (+)
+            //o viceversa, deshabilitamos el botón de Agregar (+)
             console.log("!===")
             document.getElementById('agregar').disabled = "true";
         }
