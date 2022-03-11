@@ -125,3 +125,22 @@ export function formatearFechaLista(dateParam) {
 
   return fecha_cita;
 }
+
+//Suma una determinada cantidad de minutos a una DateTime
+export function addTimeToDatetime(fecha_cita, minutes) {
+  var date = new Date(fecha_cita);
+  date.setHours(date.getHours(), date.getMinutes() + parseInt(minutes), 0, 0);
+
+  return date;
+}
+
+//Convierte a una DateTime a un formato "YYYY-MM-DD hh:mm"
+export function convert(str) {
+  var date = new Date(str);
+  var month = ("0" + (date.getMonth() + 1)).slice(-2);
+  var day = ("0" + date.getDate()).slice(-2);
+  var hour = ("0" + date.getHours()).slice(-2);
+  var minute = ("0" + date.getMinutes()).slice(-2);
+
+  return [date.getFullYear(), month, day].join("-") + " " + hour + ":" + minute;
+}

@@ -15,7 +15,7 @@ import {
 import { Component } from 'react'
 
 import { Redirect } from 'react-router-dom'
-import { url, prepararPost, infoUsuario } from '../utilities/utilities.js'
+import { url, prepararPost, infoUsuario, addTimeToDatetime, convert } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { getClientes } from '../actions/clientesAction'
@@ -67,7 +67,10 @@ class CitaCrear extends Component {
             sending: false,
             redireccionar_atras: false,
 
-            itemArray: []
+            itemArray: [],
+            hora_actual: '',
+            total_minutos: 0
+
         }
     }
 
@@ -75,7 +78,7 @@ class CitaCrear extends Component {
         this._getClientes();
         this._getProcedimientos();
         this._getVendedores();
-        this._getTecnicos();
+        //this._getTecnicos();
 
         //Limpiamos la localStorage de técnicos seleccionados
         if (localStorage.getItem('arrayTecnicos')) {
@@ -310,6 +313,7 @@ class CitaCrear extends Component {
         stateAccordion.value = undefined;
 
         document.getElementById("search_cliente").value = "";
+        document.getElementById("cliente_selected_text").style.color = '#43D440';
     }
 
     //PROCEDIMIENTOS
@@ -343,7 +347,7 @@ class CitaCrear extends Component {
         if (!localStorage.getItem('arrayProcedimientos')) {
             let arrayProcedimientos = [];
 
-            arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
+            arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, minutos: item.minutos });
 
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
 
@@ -354,6 +358,25 @@ class CitaCrear extends Component {
             } else {
                 document.getElementById('agregar').disabled = true;
             }
+
+            //Sumatoria de minutos de la cita actual en función de los procedimientos seleccionados
+            let arrayProcedimientosMinutos = [];
+            let totalMinutos = 0;
+
+            arrayProcedimientosMinutos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+            for (let i = 0; i < arrayProcedimientosMinutos.length; i++) {
+                totalMinutos += parseInt(arrayProcedimientosMinutos[i].minutos);
+            }
+            this.setState({ total_minutos: totalMinutos });
+
+            let fecha_cita_time_added = addTimeToDatetime("2000-01-01 " + this.state.hora_actual, totalMinutos); // Fecha Wildcard para hacer el cálculo de horas
+            fecha_cita_time_added = convert(fecha_cita_time_added);
+
+            this.setState({ hora_actual: fecha_cita_time_added });
+
+            setTimeout(() => {
+                console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
+            }, 1000);
         } else {
             let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
@@ -368,7 +391,7 @@ class CitaCrear extends Component {
                 }
                 document.getElementById(index + "_" + id_element).style.color = '#000000';
             } else {
-                arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
+                arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, minutos: item.minutos });
                 localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
                 document.getElementById(index + "_" + id_element).style.color = '#43D440';
             }
@@ -400,7 +423,29 @@ class CitaCrear extends Component {
                         }
                     }
                 }
-                this.enableDisableBotonAgregarSetDeElements();
+                if (localStorage.getItem('arrayTecnicos')) {
+                    this.enableDisableBotonAgregarSetDeElements();
+                }
+
+                //Sumatoria de minutos de la cita actual en función de los procedimientos seleccionados
+                let arrayProcedimientosMinutos = [];
+                let totalMinutos = 0;
+
+                arrayProcedimientosMinutos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+                for (let i = 0; i < arrayProcedimientosMinutos.length; i++) {
+                    totalMinutos += parseInt(arrayProcedimientosMinutos[i].minutos);
+                }
+                this.setState({ total_minutos: totalMinutos });
+
+                let fecha_cita_time_added = addTimeToDatetime(this.state.fecha_cita_selected, totalMinutos);
+                fecha_cita_time_added = convert(fecha_cita_time_added);
+
+                this.setState({ hora_actual: fecha_cita_time_added });
+
+                setTimeout(() => {
+                    console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
+                }, 1000);
+
             }, 1000);
         }
     }
@@ -409,7 +454,12 @@ class CitaCrear extends Component {
     _getTecnicos = () => {
         this.setState({ loading_tecnicos: true });
 
-        let Parameters = '?action=getJSON&get=tecnicos_lista';
+        let fecha_cita = this.state.date_selected;
+
+        //let Parameters = '?action=getJSON&get=tecnicos_lista';
+        let Parameters = '?action=getJSON&get=tecnicos_lista&datetime=' + fecha_cita;
+
+        console.log(this.state.url + Parameters);
 
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
@@ -427,6 +477,50 @@ class CitaCrear extends Component {
     }
 
     _getTecnico = (item, index, id_element) => {
+
+        console.log(this.state.hora_actual)
+        /*
+        let fecha_cita = this.state.date_selected;
+        //let fecha_cita_time_added = addTimeToDatetime(fecha_cita, 30)
+        //fecha_cita_time_added = convert(fecha_cita_time_added);
+
+        let hora_actual = new Date(fecha_cita);
+
+        if (hora_actual.getHours() < 10 && hora_actual.getMinutes() < 10) {
+            this.setState({ hora_actual: "0" + hora_actual.getHours() + ":" + "0" + hora_actual.getMinutes() });
+        } else if (hora_actual.getHours() < 10) {
+            this.setState({ hora_actual: "0" + hora_actual.getHours() + ":" + hora_actual.getMinutes() });
+        } else if (hora_actual.getMinutes() < 10) {
+            this.setState({ hora_actual: hora_actual.getHours() + ":" + "0" + hora_actual.getMinutes() });
+        } else {
+            this.setState({ hora_actual: hora_actual.getHours() + ":" + hora_actual.getMinutes() });
+        }
+
+        setTimeout(() => {
+            console.log(this.state.hora_actual);
+        }, 1000)
+        */
+
+        //
+        /*let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + fecha_cita_time_added;
+
+        console.log(this.state.url + Parameters)
+        fetch(this.state.url + Parameters)
+            .then((res) => res.json())
+            .then((responseJson) => {
+
+                this.setState({
+                    loading_tiempo_est: false,
+                    tiempos_est: responseJson
+                });
+                Swal.close();
+                console.log(this.state.tiempos_est)
+            })
+            .catch((error) => {
+                console.log(error)
+            });*/
+        //
+
 
         let itemArray = this.state.itemArray;
 
@@ -489,7 +583,10 @@ class CitaCrear extends Component {
                         }
                     }
                 }
-                this.enableDisableBotonAgregarSetDeElements();
+
+                if (localStorage.getItem('arrayProcedimientos')) {
+                    this.enableDisableBotonAgregarSetDeElements();
+                }
 
             }, 1000);
         }
@@ -529,11 +626,11 @@ class CitaCrear extends Component {
         stateAccordion.value = undefined;
 
         document.getElementById("search_vendedor").value = "";
+        document.getElementById("vendedor_selected_text").style.color = '#43D440';
     }
 
     dateChanged = (event) => {
         let datetime = event.detail.value;
-
         const dateFromIonDatetime = datetime;
         const formattedString = format(parseISO(dateFromIonDatetime), 'yyyy-MM-dd hh:mm:ss a');
         const formattedStringDate = format(parseISO(dateFromIonDatetime), 'yyyy-MM-dd');
@@ -598,6 +695,8 @@ class CitaCrear extends Component {
         });
 
         document.getElementById("fecha_rotulo").style.display = 'block';
+
+        this._getTecnicos();
     }
 
     showPicker = () => {
@@ -813,6 +912,22 @@ class CitaCrear extends Component {
 
         document.getElementById('agregar').disabled = "true";
 
+        let fecha_cita = this.state.date_selected;
+        //let fecha_cita_time_added = addTimeToDatetime(fecha_cita, 30)
+        //fecha_cita_time_added = convert(fecha_cita_time_added);
+
+        let hora_actual = new Date(fecha_cita);
+
+        if (hora_actual.getHours() < 10 && hora_actual.getMinutes() < 10) {
+            this.setState({ hora_actual: "0" + hora_actual.getHours() + ":" + "0" + hora_actual.getMinutes() });
+        } else if (hora_actual.getHours() < 10) {
+            this.setState({ hora_actual: "0" + hora_actual.getHours() + ":" + hora_actual.getMinutes() });
+        } else if (hora_actual.getMinutes() < 10) {
+            this.setState({ hora_actual: hora_actual.getHours() + ":" + "0" + hora_actual.getMinutes() });
+        } else {
+            this.setState({ hora_actual: hora_actual.getHours() + ":" + hora_actual.getMinutes() });
+        }
+
         setTimeout(() => {
             if (localStorage.getItem('arrayTecnicos')) {
                 let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
@@ -936,7 +1051,7 @@ class CitaCrear extends Component {
             let arrAuxProcedimientos = [];
             for (let q = 0; q < arrayProcedimientos.length; q++) {
                 if (!this.inArray(arrayProcedimientos[q].id_option, arrElementosQuitados, "1")) {
-                    arrAuxProcedimientos.push({ id_proc: arrayProcedimientos[q].id_proc, id_element: arrayProcedimientos[q].id_element, id_option: arrayProcedimientos[q].id_option })
+                    arrAuxProcedimientos.push({ id_proc: arrayProcedimientos[q].id_proc, id_element: arrayProcedimientos[q].id_element, id_option: arrayProcedimientos[q].id_option, minutos: arrayProcedimientos[q].minutos })
                 }
             }
             //Sobrescribimos la localStorage de Procedimientos con la variable auxiliar resultante del for anterior
@@ -1017,33 +1132,39 @@ class CitaCrear extends Component {
     //Función para vigilar que antes de agregar un nuevo set de Técnico - Procedimiento(s), el último set
     //tenga al menos una pareja de 1 Técnico - 1 Procedimiento
     enableDisableBotonAgregarSetDeElements() {
-        let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
-        let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
-
         let procedimientosElements = []; //Aquí se guardará la información de procedimiento de 1 set
         let tecnicosElements = []; //Aquí se guardará la información de técnico de 1 set
 
-        //Revisamos que haya al menos 1 procedimiento en 1 set, si ya estaba agregado, evitamos duplicar el dato
-        //Lo que necesitamos es saber si ya se ha elegido al menos un procedimiento del set
-        for (let k = 0; k < arrayProcedimientosSeleccionados.length; k++) {
-            if (document.getElementById(arrayProcedimientosSeleccionados[k].id_element) !== null) {
-                if (!this.inArray(arrayProcedimientosSeleccionados[k].id_element, procedimientosElements, "3")) {
-                    procedimientosElements.push(arrayProcedimientosSeleccionados[k].id_element);
+        if (localStorage.getItem('arrayTecnicos')) {
+            let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+            //Revisamos que haya al menos 1 procedimiento en 1 set, si ya estaba agregado, evitamos duplicar el dato
+            //Lo que necesitamos es saber si ya se ha elegido al menos un procedimiento del set
+            for (let k = 0; k < arrayProcedimientosSeleccionados.length; k++) {
+                if (document.getElementById(arrayProcedimientosSeleccionados[k].id_element) !== null) {
+                    if (!this.inArray(arrayProcedimientosSeleccionados[k].id_element, procedimientosElements, "3")) {
+                        procedimientosElements.push(arrayProcedimientosSeleccionados[k].id_element);
+                    }
                 }
             }
+            console.log("PROCEDIMIENTOS CHECK: " + procedimientosElements);
         }
-        console.log("PROCEDIMIENTOS CHECK: " + procedimientosElements);
 
-        //Revisamos que haya al menos 1 técnico en 1 set, si ya estaba agregado, evitamos duplicar el dato
-        for (let k = 0; k < arrayTecnicosSeleccionados.length; k++) {
+        if (localStorage.getItem('arrayTecnicos')) {
+            let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
 
-            if (document.getElementById(arrayTecnicosSeleccionados[k].id_element) !== null) {
-                if (!this.inArray(arrayTecnicosSeleccionados[k].id_element, tecnicosElements, "3")) {
-                    tecnicosElements.push(arrayTecnicosSeleccionados[k].id_element);
+            //Revisamos que haya al menos 1 técnico en 1 set, si ya estaba agregado, evitamos duplicar el dato
+            for (let k = 0; k < arrayTecnicosSeleccionados.length; k++) {
+
+                if (document.getElementById(arrayTecnicosSeleccionados[k].id_element) !== null) {
+                    if (!this.inArray(arrayTecnicosSeleccionados[k].id_element, tecnicosElements, "3")) {
+                        tecnicosElements.push(arrayTecnicosSeleccionados[k].id_element);
+                    }
                 }
             }
+            console.log("TECNICOS CHECK: " + tecnicosElements);
         }
-        console.log("TECNICOS CHECK: " + tecnicosElements);
+
 
         //Si los arreglos tienen igual longitud quiere decir que al menos cada técnico tiene un procedimiento
         //seleccionado o viceversa, un procedimiento tiene un técnico en ese set,
@@ -1170,7 +1291,19 @@ class CitaCrear extends Component {
                         </IonItemGroup>
                     </IonAccordionGroup>
 
+                    <IonAccordionGroup id="fecha_hora">
+                        <IonAccordion value="fecha_hora">
+                            <IonItem slot="header">
+                                <b><IonLabel>Seleccionar Fecha y Hora:</IonLabel></b>
+                            </IonItem>
 
+                            <IonList slot="content">
+                                <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }} minuteValues="0,30" hourValues="9,10,11,12,13,14,15,16,17,18" hourCycle="h23"></IonDatetime>
+                            </IonList>
+                        </IonAccordion>
+
+                        <IonInput id="fecha_rotulo" type="text" style={{ display: "none", left: "5px", right: "5px" }} readonly>{this.state.fecha_rotulo}</IonInput>
+                    </IonAccordionGroup>
 
 
 
@@ -1186,49 +1319,9 @@ class CitaCrear extends Component {
                                     {/* SELECCIONAR FECHA Y HORA */}
                                     <IonItemDivider>
                                         <IonLabel>
-                                            <b># {itemx.id_element}</b>
+                                            <b># {itemx.id_element} | Hora Actual: <b><span style={{ "fontSize": "20px", "color":"black" }}>{ this.state.hora_actual.length > 5 ? this.state.hora_actual.substring(11) : this.state.hora_actual }</span></b></b>
                                         </IonLabel>
                                     </IonItemDivider>
-                                    <IonAccordionGroup id="fecha_hora">
-                                        <IonAccordion value="fecha_hora">
-                                            <IonItem slot="header">
-                                                <b><IonLabel>Seleccionar Fecha y Hora:</IonLabel></b>
-                                            </IonItem>
-
-                                            <IonList slot="content">
-                                                <IonDatetime size="cover" showDefaultButtons="true" onIonChange={(e) => this.dateChanged(e)} doneText="Seleccionar fecha" cancelText="Cancelar" style={{ borderRadius: "8px 8px 8px 8px" }} minuteValues="0,30" hourValues="9,10,11,12,13,14,15,16,17,18" hourCycle="h23"></IonDatetime>
-                                            </IonList>
-                                        </IonAccordion>
-
-                                        <IonInput id="fecha_rotulo" type="text" style={{ display: "none", left: "5px", right: "5px" }} readonly>{this.state.fecha_rotulo}</IonInput>
-                                    </IonAccordionGroup>
-
-                                    {/* LISTA DE TÉCNICOS */}
-                                    <IonAccordionGroup id="tecnicos">
-                                        <IonAccordion value="tecnicos">
-                                            <IonItem slot="header">
-                                                <b><IonLabel>Seleccionar Técnico:</IonLabel></b>
-                                            </IonItem>
-
-                                            <IonList slot="content">
-                                                <IonSearchbar id={"search_tecnico_" + itemx.id_element} onIonChange={(e) => this.buscarEnLista("tecnico", itemx.id_element)} showCancelButton="focus" placeholder="Buscar técnico"></IonSearchbar>
-                                                {
-                                                    txn[itemx.id_element - 1].filter(tecnico => tecnico.nombre.includes(this.state.search_string_tecnico)).map(item => (
-                                                        <IonItem id={item.id + "_" + itemx.id_element} key={item.id} onClick={(e) => this._getTecnico(item, item.id, itemx.id_element)} disabled="false">
-                                                            {item.id} - {item.nombre}
-                                                        </IonItem>
-                                                    ))
-                                                }
-                                            </IonList>
-                                        </IonAccordion>
-                                        <IonItemGroup>
-                                            <IonList style={{ "display": "none" }} id="tecnico_selected">
-                                                <IonItem>
-                                                    <IonInput readonly="true" id="tecnico_selected_text" type="text" placeholder="Técnico">Técnico:&nbsp;</IonInput>
-                                                </IonItem>
-                                            </IonList>
-                                        </IonItemGroup>
-                                    </IonAccordionGroup>
 
                                     {/* LISTA DE PROCEDIMIENTOS */}
                                     <IonAccordionGroup id="procedimientos">
@@ -1256,6 +1349,42 @@ class CitaCrear extends Component {
                                                 </IonItem>
                                                 <IonItem>
                                                     <IonInput id="procedimiento_selected_precio" readonly={precio_readonly} type="number" placeholder="Precio">Precio (L):&nbsp;</IonInput>
+                                                </IonItem>
+                                            </IonList>
+                                        </IonItemGroup>
+                                    </IonAccordionGroup>
+
+                                    {/* LISTA DE TÉCNICOS */}
+                                    <IonAccordionGroup id="tecnicos">
+                                        <IonAccordion value="tecnicos">
+                                            <IonItem slot="header">
+                                                <b><IonLabel>Seleccionar Técnico:</IonLabel></b>
+                                            </IonItem>
+
+                                            <IonList slot="content">
+                                                <IonSearchbar id={"search_tecnico_" + itemx.id_element} onIonChange={(e) => this.buscarEnLista("tecnico", itemx.id_element)} showCancelButton="focus" placeholder="Buscar técnico"></IonSearchbar>
+                                                {
+
+                                                    txn[itemx.id_element - 1].filter(tecnico => tecnico.nombre.includes(this.state.search_string_tecnico)).map(item => (
+
+                                                        item.h_desde !== "-" ?
+
+                                                            <IonItem id={item.id + "_" + itemx.id_element} key={item.id} onClick={(e) => this._getTecnico(item, item.id, itemx.id_element)} disabled="false">
+                                                                {item.id} - {item.nombre} <span>&nbsp;</span> <span style={{ "color": "red" }}> (Ocupado: {item.h_desde} - {item.h_hasta})</span>
+                                                            </IonItem> :
+
+                                                            <IonItem id={item.id + "_" + itemx.id_element} key={item.id} onClick={(e) => this._getTecnico(item, item.id, itemx.id_element)} disabled="false">
+                                                                {item.id} - {item.nombre} (Disponible)
+                                                            </IonItem>
+
+                                                    ))
+                                                }
+                                            </IonList>
+                                        </IonAccordion>
+                                        <IonItemGroup>
+                                            <IonList style={{ "display": "none" }} id="tecnico_selected">
+                                                <IonItem>
+                                                    <IonInput readonly="true" id="tecnico_selected_text" type="text" placeholder="Técnico">Técnico:&nbsp;</IonInput>
                                                 </IonItem>
                                             </IonList>
                                         </IonItemGroup>
