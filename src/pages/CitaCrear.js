@@ -69,8 +69,8 @@ class CitaCrear extends Component {
 
             itemArray: [],
             hora_actual: '',
-            total_minutos: 0
-
+            total_minutos: 0,
+            tiempo_estimado_proc_actual: 0
         }
     }
 
@@ -224,9 +224,7 @@ class CitaCrear extends Component {
                             break;
                         }
                     }
-
-                    console.log("arrayTecnicosSeleccionados: " + arrayTecnicosSeleccionados.length)
-                    console.log("itemArray: " + itemArray.length)
+                    
                     for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
                         if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
                             if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados, "1")) {
@@ -347,6 +345,9 @@ class CitaCrear extends Component {
         if (!localStorage.getItem('arrayProcedimientos')) {
             let arrayProcedimientos = [];
 
+            console.log(item.minutos);
+            this.setState({ tiempo_estimado_proc_actual: item.minutos });
+
             arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, minutos: item.minutos });
 
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
@@ -378,6 +379,8 @@ class CitaCrear extends Component {
                 console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
             }, 1000);
         } else {
+            console.log(item.minutos);
+            this.setState({ tiempo_estimado_proc_actual: item.minutos });
             let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
             //Si al tocar un procedimiento éste ya estaba en el arreglo, lo eliminamos del arreglo y lo pintamos
@@ -458,9 +461,7 @@ class CitaCrear extends Component {
 
         //let Parameters = '?action=getJSON&get=tecnicos_lista';
         let Parameters = '?action=getJSON&get=tecnicos_lista&datetime=' + fecha_cita;
-
-        console.log(this.state.url + Parameters);
-
+        
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -478,118 +479,96 @@ class CitaCrear extends Component {
 
     _getTecnico = (item, index, id_element) => {
 
-        console.log(this.state.hora_actual)
-        /*
-        let fecha_cita = this.state.date_selected;
-        //let fecha_cita_time_added = addTimeToDatetime(fecha_cita, 30)
-        //fecha_cita_time_added = convert(fecha_cita_time_added);
-
-        let hora_actual = new Date(fecha_cita);
-
-        if (hora_actual.getHours() < 10 && hora_actual.getMinutes() < 10) {
-            this.setState({ hora_actual: "0" + hora_actual.getHours() + ":" + "0" + hora_actual.getMinutes() });
-        } else if (hora_actual.getHours() < 10) {
-            this.setState({ hora_actual: "0" + hora_actual.getHours() + ":" + hora_actual.getMinutes() });
-        } else if (hora_actual.getMinutes() < 10) {
-            this.setState({ hora_actual: hora_actual.getHours() + ":" + "0" + hora_actual.getMinutes() });
-        } else {
-            this.setState({ hora_actual: hora_actual.getHours() + ":" + hora_actual.getMinutes() });
-        }
-
-        setTimeout(() => {
-            console.log(this.state.hora_actual);
-        }, 1000)
-        */
-
-        //
-        /*let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + fecha_cita_time_added;
-
-        console.log(this.state.url + Parameters)
+        let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + this.state.hora_actual + "&minutos=" + this.state.tiempo_estimado_proc_actual;
+        
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
 
-                this.setState({
-                    loading_tiempo_est: false,
-                    tiempos_est: responseJson
-                });
-                Swal.close();
-                console.log(this.state.tiempos_est)
+                // Si el técnico está disponible en ese rango de horas, regresa un 1, si no regresa un 0
+                if (responseJson[0].disponible == 1) {
+                    let itemArray = this.state.itemArray;
+
+                    if (!localStorage.getItem('arrayTecnicos')) {
+                        let arrayTecnicos = [];
+
+                        arrayTecnicos.push({ id_tecnico: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
+
+                        localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+
+                        document.getElementById(index + "_" + id_element).style.color = '#43D440';
+
+                        if (localStorage.getItem('arrayProcedimientos')) {
+                            this.enableDisableBotonAgregarSetDeElements();
+                        } else {
+                            document.getElementById('agregar').disabled = true;
+                        }
+                    } else {
+                        let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
+
+                        for (let i = 0; i < arrayTecnicos.length; i++) {
+                            if (arrayTecnicos[i].id_element == id_element) {
+                                if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element) !== null) {
+                                    document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element).style.color = '#000000';
+                                }
+                                arrayTecnicos.splice(i, 1);
+                            }
+                        }
+
+                        arrayTecnicos.push({ id_tecnico: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
+
+                        document.getElementById(index + "_" + id_element).style.color = '#43D440';
+
+                        localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+
+                        setTimeout(() => {
+
+                            let arrayTecnicosLista = this.state.tecnicos;
+                            for (let z = 0; z < arrayTecnicosLista.length; z++) {
+                                for (let y = 0; y < itemArray.length; y++) {
+                                    //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
+                                    if (document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                                        if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
+                                            document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                                        }
+                                    }
+                                }
+                            }
+
+                            let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                            for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
+                                for (let y = 0; y < itemArray.length; y++) {
+                                    //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                                    if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null) {
+                                        continue;
+                                    } else if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                                        if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                            document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (localStorage.getItem('arrayProcedimientos')) {
+                                this.enableDisableBotonAgregarSetDeElements();
+                            }
+
+                        }, 1000);
+                    }
+
+                } else {
+                    Swal.fire({
+                        title: 'Técnico no disponible',
+                        text: 'Este técnico no está disponible para la selección actual de procedimientos de esta cita.',
+                        icon: 'warning',
+                        confirmButtonText: 'Aceptar',
+                        confirmButtonColor: '#E0218A'
+                    });
+                }
             })
             .catch((error) => {
                 console.log(error)
-            });*/
-        //
-
-
-        let itemArray = this.state.itemArray;
-
-        if (!localStorage.getItem('arrayTecnicos')) {
-            let arrayTecnicos = [];
-
-            arrayTecnicos.push({ id_tecnico: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
-
-            localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
-
-            document.getElementById(index + "_" + id_element).style.color = '#43D440';
-
-            if (localStorage.getItem('arrayProcedimientos')) {
-                this.enableDisableBotonAgregarSetDeElements();
-            } else {
-                document.getElementById('agregar').disabled = true;
-            }
-        } else {
-            let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
-
-            for (let i = 0; i < arrayTecnicos.length; i++) {
-                if (arrayTecnicos[i].id_element == id_element) {
-                    if (document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element) !== null) {
-                        document.getElementById(arrayTecnicos[i].id_tecnico + "_" + id_element).style.color = '#000000';
-                    }
-                    arrayTecnicos.splice(i, 1);
-                }
-            }
-
-            arrayTecnicos.push({ id_tecnico: item.id, id_element: id_element, id_option: item.id + "_" + id_element });
-
-            document.getElementById(index + "_" + id_element).style.color = '#43D440';
-
-            localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
-
-            setTimeout(() => {
-
-                let arrayTecnicosLista = this.state.tecnicos;
-                for (let z = 0; z < arrayTecnicosLista.length; z++) {
-                    for (let y = 0; y < itemArray.length; y++) {
-                        //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
-                        if (document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null) {
-                            if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
-                                document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
-                            }
-                        }
-                    }
-                }
-
-                let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
-                for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
-                    for (let y = 0; y < itemArray.length; y++) {
-                        //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
-                        if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null) {
-                            continue;
-                        } else if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
-                            if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
-                                document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
-                            }
-                        }
-                    }
-                }
-
-                if (localStorage.getItem('arrayProcedimientos')) {
-                    this.enableDisableBotonAgregarSetDeElements();
-                }
-
-            }, 1000);
-        }
+            });
     }
 
     //VENDEDORES
@@ -1058,12 +1037,11 @@ class CitaCrear extends Component {
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrAuxProcedimientos));
 
             let arrayProcedimientosLista = this.state.procedimientos;
-            //console.log(arrAuxProcedimientos)
+            
             for (let z = 0; z < arrayProcedimientosLista.length; z++) {
                 for (let y = 0; y < itemArray.length; y++) {
                     //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
                     if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
-                        //console.log(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element))
                         document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                     }
                 }
@@ -1076,7 +1054,6 @@ class CitaCrear extends Component {
                     for (let k = 0; k < arrayProcedimientos.length; k++) {
                         if (document.getElementById(arrayProcedimientos[k].id_proc + "_" + itemArray[i].id_element) !== null) {
                             if (!this.inArray(arrayProcedimientos[k].id_proc + "_" + itemArray[i].id_element, arrayProcedimientos, "1")) {
-                                console.log(arrayProcedimientos[k].id_proc + "_" + itemArray[i].id_element);
                                 document.getElementById((arrayProcedimientos[k].id_proc + "_" + itemArray[i].id_element)).disabled = 'true'
                             }
                         }
@@ -1319,7 +1296,7 @@ class CitaCrear extends Component {
                                     {/* SELECCIONAR FECHA Y HORA */}
                                     <IonItemDivider>
                                         <IonLabel>
-                                            <b># {itemx.id_element} | Hora Actual: <b><span style={{ "fontSize": "20px", "color":"black" }}>{ this.state.hora_actual.length > 5 ? this.state.hora_actual.substring(11) : this.state.hora_actual }</span></b></b>
+                                            <b># {itemx.id_element} | Hora Actual: <b><span style={{ "fontSize": "20px", "color": "black" }}>{this.state.hora_actual.length > 5 ? this.state.hora_actual.substring(11) : this.state.hora_actual}</span></b></b>
                                         </IonLabel>
                                     </IonItemDivider>
 
@@ -1355,7 +1332,7 @@ class CitaCrear extends Component {
                                     </IonAccordionGroup>
 
                                     {/* LISTA DE TÉCNICOS */}
-                                    <IonAccordionGroup id="tecnicos">
+                                    <IonAccordionGroup id="tecnicos"  >
                                         <IonAccordion value="tecnicos">
                                             <IonItem slot="header">
                                                 <b><IonLabel>Seleccionar Técnico:</IonLabel></b>
