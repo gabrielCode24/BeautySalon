@@ -224,7 +224,7 @@ class CitaCrear extends Component {
                             break;
                         }
                     }
-                    
+
                     for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
                         if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
                             if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicosSeleccionados, "1")) {
@@ -272,6 +272,7 @@ class CitaCrear extends Component {
             default:
                 break;
         }
+        this.deshabilitarSetsAnteriores();
     }
 
     //CLIENTES
@@ -361,23 +362,26 @@ class CitaCrear extends Component {
             }
 
             //Sumatoria de minutos de la cita actual en función de los procedimientos seleccionados
-            let arrayProcedimientosMinutos = [];
-            let totalMinutos = 0;
+            // let arrayProcedimientosMinutos = [];
+            // let totalMinutos = 0;
 
-            arrayProcedimientosMinutos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
-            for (let i = 0; i < arrayProcedimientosMinutos.length; i++) {
-                totalMinutos += parseInt(arrayProcedimientosMinutos[i].minutos);
-            }
-            this.setState({ total_minutos: totalMinutos });
+            // arrayProcedimientosMinutos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+            // for (let i = 0; i < arrayProcedimientosMinutos.length; i++) {
+            //     totalMinutos += parseInt(arrayProcedimientosMinutos[i].minutos);
+            // }
+            // this.setState({ total_minutos: totalMinutos });
 
-            let fecha_cita_time_added = addTimeToDatetime("2000-01-01 " + this.state.hora_actual, totalMinutos); // Fecha Wildcard para hacer el cálculo de horas
-            fecha_cita_time_added = convert(fecha_cita_time_added);
+            // let fecha_cita_time_added = addTimeToDatetime("2000-01-01 " + this.state.hora_actual, totalMinutos); // Fecha Wildcard para hacer el cálculo de horas
+            // fecha_cita_time_added = convert(fecha_cita_time_added);
 
-            this.setState({ hora_actual: fecha_cita_time_added });
+            // this.setState({ hora_actual: fecha_cita_time_added });
 
-            setTimeout(() => {
-                console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
-            }, 1000);
+            // setTimeout(() => {
+            //     console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
+            // }, 1000);
+
+            this.calcularMinutosAcumulatorios(1000);
+
         } else {
             console.log(item.minutos);
             this.setState({ tiempo_estimado_proc_actual: item.minutos });
@@ -430,27 +434,13 @@ class CitaCrear extends Component {
                     this.enableDisableBotonAgregarSetDeElements();
                 }
 
-                //Sumatoria de minutos de la cita actual en función de los procedimientos seleccionados
-                let arrayProcedimientosMinutos = [];
-                let totalMinutos = 0;
-
-                arrayProcedimientosMinutos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
-                for (let i = 0; i < arrayProcedimientosMinutos.length; i++) {
-                    totalMinutos += parseInt(arrayProcedimientosMinutos[i].minutos);
-                }
-                this.setState({ total_minutos: totalMinutos });
-
-                let fecha_cita_time_added = addTimeToDatetime(this.state.fecha_cita_selected, totalMinutos);
-                fecha_cita_time_added = convert(fecha_cita_time_added);
-
-                this.setState({ hora_actual: fecha_cita_time_added });
-
-                setTimeout(() => {
-                    console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
-                }, 1000);
+                //Calculamos los minutos acumulatorios en función de los procedimientos que van seleccionados
+                this.calcularMinutosAcumulatorios(1000);
 
             }, 1000);
         }
+
+        this.deshabilitarSetsAnteriores();
     }
 
     //TÉCNICOS
@@ -461,7 +451,7 @@ class CitaCrear extends Component {
 
         //let Parameters = '?action=getJSON&get=tecnicos_lista';
         let Parameters = '?action=getJSON&get=tecnicos_lista&datetime=' + fecha_cita;
-        
+
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -479,8 +469,22 @@ class CitaCrear extends Component {
 
     _getTecnico = (item, index, id_element) => {
 
-        let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + this.state.hora_actual + "&minutos=" + this.state.tiempo_estimado_proc_actual;
+        let fecha_completa_actualizada = this.state.fecha_cita_selected.substring(0, 10) + this.state.hora_actual.substring(10)
+        let minutosAcumuladosSet = 0;
+
+        if (localStorage.getItem('arrayProcedimientos')) {
+            let arrayP = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+            for (let i = 0; i < arrayP.length; i++) {
+                if (arrayP[i].id_element === id_element) {
+                    minutosAcumuladosSet += parseInt(arrayP[i].minutos);
+                }
+            }
+        }
         
+        let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + fecha_completa_actualizada + "&minutos=0&minutos_desde=" + minutosAcumuladosSet; //+ this.state.tiempo_estimado_proc_actual;
+        console.log(this.state.url + Parameters);
+
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -569,6 +573,8 @@ class CitaCrear extends Component {
             .catch((error) => {
                 console.log(error)
             });
+
+        this.deshabilitarSetsAnteriores();
     }
 
     //VENDEDORES
@@ -880,7 +886,7 @@ class CitaCrear extends Component {
         }
     }
 
-    agregarSetTecnicoProcedimiento = () => {
+    armarSetTecnicoProcedimiento = () => {
         let itemArray = this.state.itemArray;
         let itemArraySize = itemArray.length;
 
@@ -892,9 +898,6 @@ class CitaCrear extends Component {
         document.getElementById('agregar').disabled = "true";
 
         let fecha_cita = this.state.date_selected;
-        //let fecha_cita_time_added = addTimeToDatetime(fecha_cita, 30)
-        //fecha_cita_time_added = convert(fecha_cita_time_added);
-
         let hora_actual = new Date(fecha_cita);
 
         if (hora_actual.getHours() < 10 && hora_actual.getMinutes() < 10) {
@@ -944,6 +947,52 @@ class CitaCrear extends Component {
             }
         }, 1000);
 
+        this.calcularMinutosAcumulatorios(1000);
+    }
+
+    agregarSetTecnicoProcedimiento = () => {
+
+        if (localStorage.getItem('arrayProcedimientos') && localStorage.getItem('arrayTecnicos')) {
+            if (localStorage.getItem('arrayProcedimientos').length > 0 && localStorage.getItem('arrayTecnicos').length > 0) {
+                Swal.fire({
+                    title: 'Agregar nuevo set',
+                    text: "Si agrega un nuevo set de Técnico - Procedimientos ya no será posible modificar el set anterior, ¿está seguro(a) que desea continuar?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'No',
+                    confirmButtonText: 'Sí',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        let itemArray = this.state.itemArray;
+
+                        setTimeout(() => {
+                            console.log(itemArray);
+
+                            for (let i = 0; i < itemArray.length - 1; i++) {
+                                for (let x = 0; x < this.state.procedimientos.length; x++) {
+                                    console.log(this.state.procedimientos[x].id + "_" + itemArray[i].id_element);
+                                    document.getElementById(this.state.procedimientos[x].id + "_" + itemArray[i].id_element).disabled = true;
+                                }
+                            }
+
+                            for (let i = 0; i < itemArray.length - 1; i++) {
+                                for (let x = 0; x < this.state.tecnicos.length; x++) {
+                                    console.log(this.state.tecnicos[x].id + "_" + itemArray[i].id_element);
+                                    document.getElementById(this.state.tecnicos[x].id + "_" + itemArray[i].id_element).disabled = true;
+                                }
+                            }
+                        }, 1000);
+
+                        this.armarSetTecnicoProcedimiento(1000);
+                    }
+                })
+            }
+        } else {
+            this.armarSetTecnicoProcedimiento();
+        }
     }
 
     quitarSetTecnicoProcedimiento = () => {
@@ -968,8 +1017,10 @@ class CitaCrear extends Component {
                 //Verificamos cuáles de los índices id_element de la localStorage arrayTecnicos no hace match con
                 //el arreglo idElementsItemArray para eliminarlo del arreglo arrayTecnicos
                 for (let y = 0; y < arrayTecnicos.length; y++) {
-                    if (!this.inArray(arrayTecnicos[y + 1].id_element, idElementsItemArray, "2")) {
-                        arrayTecnicos.splice(y + 1, 1);
+                    if (arrayTecnicos[y + 1].id_element !== null || arrayTecnicos[y + 1].id_element !== undefined) {
+                        if (!this.inArray(arrayTecnicos[y + 1].id_element, idElementsItemArray, "2")) {
+                            arrayTecnicos.splice(y + 1, 1);
+                        }
                     }
                 }
                 //Finalmente actualizamos la localStorage con el resultado del ciclo anterior
@@ -1037,7 +1088,7 @@ class CitaCrear extends Component {
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrAuxProcedimientos));
 
             let arrayProcedimientosLista = this.state.procedimientos;
-            
+
             for (let z = 0; z < arrayProcedimientosLista.length; z++) {
                 for (let y = 0; y < itemArray.length; y++) {
                     //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
@@ -1060,27 +1111,10 @@ class CitaCrear extends Component {
                     }
                 }
             }, 1000)
-
-            /*
-            //Para actualizar la vista de procedimientos, sin importar cuantos elements haya
-            setTimeout(() => {
-                let arr = JSON.parse(localStorage.getItem('arrayProcedimientos'));
-                
-                for (let r = 0; r < arrElementosQuitados.length; r++) {
-                    if (document.getElementById(arrElementosQuitados[r].id_option) !== null) {
-                        if (!this.inArray(arrElementosQuitados[r].id_option, arr, "1")) {
-                            setTimeout(() => {
-                                for (let m = 0; m < itemArray.length + 1; m++) {
-                                    console.log(arrElementosQuitados[r].id_proc + "_" + arr[m].id_element)
-                                    document.getElementById(arrElementosQuitados[r].id_proc + "_" + arr[m].id_element).disabled = false;
-                                }
-                            }, 500)
-                        }
-                    }
-                }
-            }, 250)
-        */
         }
+
+        //Calculamos los minutos acumulatorios en función de los procedimientos que van seleccionados
+        this.calcularMinutosAcumulatorios(200);
     }
 
     inArray = (needle, haystack, type) => {
@@ -1153,6 +1187,58 @@ class CitaCrear extends Component {
             //o viceversa, deshabilitamos el botón de Agregar (+)
             console.log("!===")
             document.getElementById('agregar').disabled = "true";
+        }
+
+        this.deshabilitarSetsAnteriores();
+    }
+
+    deshabilitarSetsAnteriores = () => {
+        setTimeout(() => {
+
+            let itemArray = this.state.itemArray;
+
+            console.log(itemArray);
+
+            for (let i = 0; i < itemArray.length - 1; i++) {
+                for (let x = 0; x < this.state.procedimientos.length; x++) {
+                    if (document.getElementById(this.state.procedimientos[x].id + "_" + itemArray[i].id_element) !== null) {
+                        console.log(this.state.procedimientos[x].id + "_" + itemArray[i].id_element);
+                        document.getElementById(this.state.procedimientos[x].id + "_" + itemArray[i].id_element).disabled = true;
+                    }
+                }
+            }
+
+            for (let i = 0; i < itemArray.length - 1; i++) {
+                for (let x = 0; x < this.state.tecnicos.length; x++) {
+                    if (document.getElementById(this.state.tecnicos[x].id + "_" + itemArray[i].id_element) !== null) {
+                        console.log(this.state.tecnicos[x].id + "_" + itemArray[i].id_element);
+                        document.getElementById(this.state.tecnicos[x].id + "_" + itemArray[i].id_element).disabled = true;
+                    }
+                }
+            }
+        }, 400);
+    }
+
+    //Sumatoria de minutos de la cita actual en función de los procedimientos seleccionados
+    calcularMinutosAcumulatorios = (milisegundos) => {
+        if (localStorage.getItem("arrayProcedimientos")) {
+            let arrayProcedimientosMinutos = [];
+            let totalMinutos = 0;
+
+            arrayProcedimientosMinutos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+            for (let i = 0; i < arrayProcedimientosMinutos.length; i++) {
+                totalMinutos += parseInt(arrayProcedimientosMinutos[i].minutos);
+            }
+            this.setState({ total_minutos: totalMinutos });
+
+            let fecha_cita_time_added = addTimeToDatetime(this.state.fecha_cita_selected, totalMinutos);
+            fecha_cita_time_added = convert(fecha_cita_time_added);
+
+            this.setState({ hora_actual: fecha_cita_time_added });
+
+            setTimeout(() => {
+                console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
+            }, milisegundos);
         }
     }
 
