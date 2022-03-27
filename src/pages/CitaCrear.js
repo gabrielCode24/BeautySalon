@@ -12,10 +12,10 @@ import {
 import {
     arrowBackOutline
 } from 'ionicons/icons';
-import { Component } from 'react'
+import React, { Component } from 'react'
 
 import { Redirect } from 'react-router-dom'
-import { url, prepararPost, infoUsuario, addTimeToDatetime, convert } from '../utilities/utilities.js'
+import { url, prepararPost, infoUsuario, addTimeToDatetime, substractTimeToDatetime, convert } from '../utilities/utilities.js'
 import Swal from 'sweetalert2'
 
 import { getClientes } from '../actions/clientesAction'
@@ -73,6 +73,20 @@ class CitaCrear extends Component {
             tiempo_estimado_proc_actual: 0
         }
     }
+
+
+    // shouldComponentUpdate(nextProps, nextState) {
+
+    //     console.log(this.state.tiempo_estimado_proc_actual + " - " + nextState.tiempo_estimado_proc_actual)
+
+    //     if (this.state.tiempo_estimado_proc_actual != nextState.tiempo_estimado_proc_actual) {
+    //         return false;
+    //     } else if (this.state.tiempo_estimado_proc_actual != nextState.tiempo_estimado_proc_actual) {
+    //         return false;
+    //     }
+    //     return true;
+    // }
+
 
     UNSAFE_componentWillMount() {
         this._getClientes();
@@ -154,6 +168,7 @@ class CitaCrear extends Component {
                     }
                 }
                 //
+                this.deshabilitarSetsAnteriores();
 
                 if (text === "") {
                     setTimeout(() => {
@@ -185,8 +200,8 @@ class CitaCrear extends Component {
                                 }
                             }
                         }
-
-                    }, 500);
+                        this.deshabilitarSetsAnteriores();
+                    }, 300);
                 }
 
                 break;
@@ -236,6 +251,7 @@ class CitaCrear extends Component {
                     }
                 }
                 //
+                this.deshabilitarSetsAnteriores();
 
                 if (text === "") {
                     setTimeout(() => {
@@ -264,15 +280,15 @@ class CitaCrear extends Component {
                                 }
                             }
                         }
-
-                    }, 500);
+                        this.deshabilitarSetsAnteriores();
+                    }, 300);
                 }
 
                 break;
             default:
                 break;
         }
-        this.deshabilitarSetsAnteriores();
+        //this.deshabilitarSetsAnteriores();
     }
 
     //CLIENTES
@@ -361,27 +377,7 @@ class CitaCrear extends Component {
                 document.getElementById('agregar').disabled = true;
             }
 
-            //Sumatoria de minutos de la cita actual en función de los procedimientos seleccionados
-            // let arrayProcedimientosMinutos = [];
-            // let totalMinutos = 0;
-
-            // arrayProcedimientosMinutos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
-            // for (let i = 0; i < arrayProcedimientosMinutos.length; i++) {
-            //     totalMinutos += parseInt(arrayProcedimientosMinutos[i].minutos);
-            // }
-            // this.setState({ total_minutos: totalMinutos });
-
-            // let fecha_cita_time_added = addTimeToDatetime("2000-01-01 " + this.state.hora_actual, totalMinutos); // Fecha Wildcard para hacer el cálculo de horas
-            // fecha_cita_time_added = convert(fecha_cita_time_added);
-
-            // this.setState({ hora_actual: fecha_cita_time_added });
-
-            // setTimeout(() => {
-            //     console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
-            // }, 1000);
-
             this.calcularMinutosAcumulatorios(1000);
-
         } else {
             console.log(item.minutos);
             this.setState({ tiempo_estimado_proc_actual: item.minutos });
@@ -431,13 +427,46 @@ class CitaCrear extends Component {
                     }
                 }
                 if (localStorage.getItem('arrayTecnicos')) {
-                    this.enableDisableBotonAgregarSetDeElements();
+
+                    //
+                    setTimeout(() => {
+                        let arrayTecnicosLista = this.state.tecnicos;
+                        for (let z = 0; z < arrayTecnicosLista.length; z++) {
+                            for (let y = 0; y < itemArray.length; y++) {
+                                //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
+                                if (document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                                    if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
+                                        document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                                    }
+                                }
+                            }
+                        }
+
+                        let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                        for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
+                            for (let y = 0; y < itemArray.length; y++) {
+                                //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                                if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null) {
+                                    continue;
+                                } else if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                                    if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                        document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                    }
+                                }
+                            }
+                        }
+
+                        this.enableDisableBotonAgregarSetDeElements();
+                    }, 100)
+                    //
+
+                    //this.enableDisableBotonAgregarSetDeElements();
                 }
 
                 //Calculamos los minutos acumulatorios en función de los procedimientos que van seleccionados
                 this.calcularMinutosAcumulatorios(1000);
 
-            }, 1000);
+            }, 500);
         }
 
         this.deshabilitarSetsAnteriores();
@@ -451,7 +480,7 @@ class CitaCrear extends Component {
 
         //let Parameters = '?action=getJSON&get=tecnicos_lista';
         let Parameters = '?action=getJSON&get=tecnicos_lista&datetime=' + fecha_cita;
-
+        console.log(this.state.url + Parameters)
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -460,6 +489,7 @@ class CitaCrear extends Component {
                     loading_tecnicos: false,
                     tecnicos: responseJson
                 });
+                
                 Swal.close();
             })
             .catch((error) => {
@@ -472,6 +502,7 @@ class CitaCrear extends Component {
         let fecha_completa_actualizada = this.state.fecha_cita_selected.substring(0, 10) + this.state.hora_actual.substring(10)
         let minutosAcumuladosSet = 0;
 
+        //Traemos el tiempo acumulado (minutos) por procedimientos del técnico que se ha seleccionado actualmente
         if (localStorage.getItem('arrayProcedimientos')) {
             let arrayP = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
@@ -481,7 +512,8 @@ class CitaCrear extends Component {
                 }
             }
         }
-        
+
+        //Comprobamos la disponibilidad del técnico en función del tiempo actual en la cita
         let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + fecha_completa_actualizada + "&minutos=0&minutos_desde=" + minutosAcumuladosSet; //+ this.state.tiempo_estimado_proc_actual;
         console.log(this.state.url + Parameters);
 
@@ -563,7 +595,7 @@ class CitaCrear extends Component {
                 } else {
                     Swal.fire({
                         title: 'Técnico no disponible',
-                        text: 'Este técnico no está disponible para la selección actual de procedimientos de esta cita.',
+                        text: 'Este técnico no está disponible para la selección actual de procedimientos de esta cita, verifique también que el tiempo no sobrepase la hora de cierre del negocio.',
                         icon: 'warning',
                         confirmButtonText: 'Aceptar',
                         confirmButtonColor: '#E0218A'
@@ -672,6 +704,7 @@ class CitaCrear extends Component {
 
         setTimeout(() => {
             console.log("Fecha y hora seleccionada para la cita: " + dateAndTimeOfAppointment);
+            document.getElementById('agregar').disabled = "false"; //Habilitar botón Agregar
         }, 1000);
 
         this.setState({
@@ -693,140 +726,80 @@ class CitaCrear extends Component {
     registrarCita = () => {
 
         let cliente = this.state.cliente_id_selected;
-        let procedimiento = this.state.procedimiento_id_selected;
-        let tecnico = this.state.tecnico_id_selected;
+        //let procedimiento = this.state.procedimiento_id_selected;
+        //let tecnico = this.state.tecnico_id_selected;
         let vendedor_recepcionista = this.state.vendedor_recepcionista_id_selected;
         let fecha_cita = this.state.date_selected;
+
         let procedimiento_precio_sug = document.getElementById('procedimiento_selected_precio').value;
 
-        if (cliente != '' && procedimiento != '' && procedimiento_precio_sug != '' && tecnico != '' &&
-            vendedor_recepcionista != '' && fecha_cita.length > 0) {
+        let tecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
+        let procedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
-            let inputFile = document.getElementById('imagen-anticipo').files[0]; // En la posición 0; es decir, el primer elemento
+        let valuesCita = {};
 
-            if (typeof (inputFile) !== "undefined") {
+        /*
+        let valuesCita = {
+            cliente_id: cliente,
+            fecha: fecha_cita,
+            vend_recep_id: vendedor_recepcionista,
+            deposito_foto: '',
+            terminos_y_cond_fotos: '',
+            fec_ing: "GETDATE()",
+            usr_ing: this.state.usuario_logueado
+        }
+        */
 
-                this.setState({
-                    imagen_anticipo_uploading: true
-                });
+        /*if (cliente != '' && procedimiento != '' && procedimiento_precio_sug != '' && tecnico != '' &&
+            vendedor_recepcionista != '' && fecha_cita.length > 0) {*/
 
-                if (inputFile) {
-                    let formData = new FormData();
-                    formData.append("archivo", inputFile);
+        let inputFile = document.getElementById('imagen-anticipo').files[0]; // En la posición 0; es decir, el primer elemento
 
-                    fetch(this.state.url_guardar_imagen + "/guardar.php?foto_tipo=anticipo", {
-                        method: 'POST',
-                        body: formData,
-                    }).then(respuesta => respuesta.text())
-                        .then(nombreArchivo => {
-                            this.setState({
-                                image_updloaded_name: nombreArchivo,
-                                imagen_anticipo_uploading: false,
-                                sending: true
-                            });
+        if (typeof (inputFile) !== "undefined") {
 
-                            setTimeout(() => {
+            this.setState({
+                imagen_anticipo_uploading: true
+            });
 
-                                let image_updloaded_name = this.state.image_updloaded_name;
+            if (inputFile) {
+                let formData = new FormData();
+                formData.append("archivo", inputFile);
 
-                                var fec_ing = "NOW()";
-                                var usr_ing = this.state.usuario_logueado;
-
-                                let image_uploaded_path = this.state.url_guardar_imagen + "/archivos_imagenes/" + image_updloaded_name;
-
-                                var valuesCita = {
-                                    cliente_id: cliente, proc_id: procedimiento, proc_precio_sug: procedimiento_precio_sug,
-                                    tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista,
-                                    deposito_foto: image_uploaded_path, fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
-                                }
-
-                                const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
-
-                                fetch(this.state.url, requestOptionsCita)
-                                    .then((response) => {
-                                        if (response.status === 200) {
-                                            Swal.close();
-
-                                            this.setState({
-                                                sending: false
-                                            });
-
-                                            Swal.fire({
-                                                title: '¡Éxito!',
-                                                text: '¡Cita ingresada exitosamente!',
-                                                icon: 'success',
-                                                confirmButtonText: 'Aceptar',
-                                                confirmButtonColor: '#E0218A'
-                                            }).then((result) => {
-                                                if (result.isConfirmed) {
-                                                    this.setState({ redireccionar_atras: true });
-                                                }
-                                            })
-                                        } else {
-                                            Swal.fire({
-                                                title: 'Algo falló',
-                                                text: 'Ocurrió un error inesperado, no se pudo ingresar la cita, favor comunicarse con el desarrollador.',
-                                                icon: 'error',
-                                                confirmButtonText: 'Aceptar',
-                                                confirmButtonColor: 'red'
-                                            });
-                                        }
-                                    })
-                            }, 2000);
+                fetch(this.state.url_guardar_imagen + "/guardar.php?foto_tipo=anticipo", {
+                    method: 'POST',
+                    body: formData,
+                }).then(respuesta => respuesta.text())
+                    .then(nombreArchivo => {
+                        this.setState({
+                            image_updloaded_name: nombreArchivo,
+                            imagen_anticipo_uploading: false,
+                            sending: true
                         });
-                    return true;
-                }
-            } else { //Si no se adjunta la imagen del anticipo, se pregunta la clave maestra de autorización que el administrador ha establecido previamente
-                Swal.fire({
-                    title: 'Imagen de anticipo no adjuntada, ingrese la clave maestra para registrar cita sin imagen de anticipo',
-                    input: 'text',
-                    inputAttributes: {
-                        autocapitalize: 'off'
-                    },
-                    showCancelButton: true,
-                    confirmButtonText: 'OK',
-                    showLoaderOnConfirm: true,
-                    preConfirm: async (valor) => {
-                        return fetch(this.state.url + "?action=getJSON&get=valor_parametro&id=1&valor=" + valor)
-                            .then(response => {
-                                if (!response.ok) {
-                                    //throw new Error(response.statusText)
-                                    alert("Error en la solicitud.")
-                                }
-                                return response.json()
-                            })
-                            .catch(error => {
-                                Swal.showValidationMessage(
-                                    //`Request failed: ${error}`
-                                    alert("Falló la solicitud, error: " + error)
-                                )
-                            })
-                    },
-                    allowOutsideClick: () => !Swal.isLoading()
-                }).then((result) => {
-                    let resultado = result.value[0].validated;
-
-                    if (resultado == 1) {
-
-                        this.setState({ sending: true })
 
                         setTimeout(() => {
+
+                            let image_updloaded_name = this.state.image_updloaded_name;
 
                             var fec_ing = "NOW()";
                             var usr_ing = this.state.usuario_logueado;
 
+                            let image_uploaded_path = this.state.url_guardar_imagen + "/archivos_imagenes/" + image_updloaded_name;
+
+                            /*
                             var valuesCita = {
-                                cliente_id: cliente, proc_id: procedimiento,
-                                proc_precio_sug: procedimiento_precio_sug,
+                                cliente_id: cliente, proc_id: procedimiento, proc_precio_sug: procedimiento_precio_sug,
                                 tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista,
-                                fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
+                                deposito_foto: image_uploaded_path, fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
                             }
+                            */
 
-                            const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
+                            const requestOptionsCitax = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
 
-                            fetch(this.state.url, requestOptionsCita)
+                            fetch(this.state.url, requestOptionsCitax)
                                 .then((response) => {
                                     if (response.status === 200) {
+
+                                        /*
                                         Swal.close();
 
                                         this.setState({
@@ -844,6 +817,8 @@ class CitaCrear extends Component {
                                                 this.setState({ redireccionar_atras: true });
                                             }
                                         })
+                                        */
+
                                     } else {
                                         Swal.fire({
                                             title: 'Algo falló',
@@ -855,27 +830,196 @@ class CitaCrear extends Component {
                                     }
                                 })
                         }, 2000);
-                    } else {
-                        Swal.fire({
-                            title: 'Clave maestra incorrecta',
-                            text: 'La clave maestra ingresada no es correcta',
-                            icon: 'error',
-                            confirmButtonText: 'Aceptar',
-                            confirmButtonColor: '#E0218A'
-                        });
-                    }
-                })
-                /*
-                Swal.fire({
-                    title: 'Faltan datos',
-                    text: 'La imagen del depósito es obligatoria, favor adjunte la imagen del depósito',
-                    icon: 'warning',
-                    confirmButtonText: 'Aceptar',
-                    confirmButtonColor: '#E0218A'
-                });
-                */
+                    });
+                return true;
             }
-        } else {
+        } else { //Si no se adjunta la imagen del anticipo, se pregunta la clave maestra de autorización que el administrador ha establecido previamente
+            Swal.fire({
+                title: 'Imagen de anticipo no adjuntada, ingrese la clave maestra para registrar cita sin imagen de anticipo',
+                input: 'text',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'OK',
+                showLoaderOnConfirm: true,
+                preConfirm: async (valor) => {
+                    return fetch(this.state.url + "?action=getJSON&get=valor_parametro&id=1&valor=" + valor)
+                        .then(response => {
+                            if (!response.ok) {
+                                //throw new Error(response.statusText)
+                                alert("Error en la solicitud.")
+                            }
+                            return response.json()
+                        })
+                        .catch(error => {
+                            Swal.showValidationMessage(
+                                //`Request failed: ${error}`
+                                alert("Falló la solicitud, error: " + error)
+                            )
+                        })
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                let resultado = result.value[0].validated;
+
+                if (resultado == 1) {
+
+                    this.setState({ sending: true })
+
+                    setTimeout(() => {
+
+                        //var fec_ing = "NOW()";
+                        //var usr_ing = this.state.usuario_logueado;
+
+                        /*
+                        var valuesCita = {
+                            cliente_id: cliente, proc_id: procedimiento,
+                            proc_precio_sug: procedimiento_precio_sug,
+                            tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista,
+                            fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
+                        }
+                        */
+                        valuesCita = {
+                            cliente_id: cliente,
+                            fecha: fecha_cita,
+                            vend_recep_id: vendedor_recepcionista,
+                            deposito_foto: '',
+                            terminos_y_cond_foto: '',
+                            fec_ing: "NOW()",
+                            usr_ing: this.state.usuario_logueado
+                        }
+
+                        //CITA ENCABEZADO
+                        const requestOptionsCita = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
+
+                        fetch(this.state.url, requestOptionsCita)
+                            .then((response) => {
+                                if (response.status === 200) {
+
+                                    //TRAER EL ID MAXIMO DE CITA, ES DECIR, EL QUE SE ACABA DE INSERTAR
+                                    //PARA DÁRSELO AL DETALLE DE ESTA CITA
+                                    let ParametersMaxIdCita = '?action=getJSON&get=max_id_cita';
+
+                                    fetch(this.state.url + ParametersMaxIdCita)
+                                        .then((res) => res.json())
+                                        .then((response) => {
+
+                                            let arrayCitaDetalle = [];
+                                            let hora_primera_cita = this.state.date_selected;
+                                            let hora_ultima_cita = this.state.hora_actual;
+
+                                            //ARMAMOS EL SET DE PROCEDIMIENTOS DEL TECNICO EN ESTA CITA
+                                            for (let i = 0; i < tecnicos.length; i++) {
+                                                for (let j = 0; j < procedimientos.length; j++) {
+                                                    if (procedimientos[j].id_element === (i + 1)) {
+                                                        if (j === 0) {
+                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, hora: hora_primera_cita });
+                                                        } else if (j + 1 === procedimientos.length) {
+                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, hora: convert(substractTimeToDatetime(hora_ultima_cita, procedimientos[j].minutos)) });
+                                                        } else {
+                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, hora: convert(substractTimeToDatetime(hora_ultima_cita, procedimientos[j].minutos)) });
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            console.log(arrayCitaDetalle);
+                                            
+                                            setTimeout(() => {
+                                                const requestOptionsCitaDetalle = prepararPost(arrayCitaDetalle, "cita_detalle", "setJsons", "jsonArray");
+
+                                                fetch(this.state.url, requestOptionsCitaDetalle)
+                                                    .then((response) => {
+                                                        if (response.status === 200) {
+                                                            Swal.close();
+
+                                                            this.setState({
+                                                                sending: false
+                                                            });
+
+                                                            Swal.fire({
+                                                                title: '¡Éxito!',
+                                                                text: 'Cita agendada correctamente',
+                                                                icon: 'success',
+                                                                confirmButtonColor: '#E0218A'
+                                                            })
+                                                            /*.then((result) => {
+                                                                if (result.isConfirmed) {
+                                                                    this.setState({ redireccionar_atras: true });
+                                                                }
+                                                            });*/
+                                                        } else {
+                                                            Swal.fire({
+                                                                title: 'Algo falló',
+                                                                text: 'Ocurrió un error inesperado.',
+                                                                icon: 'error',
+                                                                confirmButtonText: 'Aceptar',
+                                                                confirmButtonColor: 'red'
+                                                            });
+                                                        }
+                                                    })
+                                            }, 2000)
+
+                                            //console.log(arrayCita);
+
+                                        })
+                                        .catch((error) => {
+                                            console.log(error)
+                                        });
+
+                                    /*
+                                    Swal.close();
+
+                                    this.setState({
+                                        sending: false
+                                    });
+
+                                    Swal.fire({
+                                        title: '¡Éxito!',
+                                        text: '¡Cita ingresada exitosamente!',
+                                        icon: 'success',
+                                        confirmButtonText: 'Aceptar',
+                                        confirmButtonColor: '#E0218A'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            this.setState({ redireccionar_atras: true });
+                                        }
+                                    })
+                                    */
+
+                                } else {
+                                    Swal.fire({
+                                        title: 'Algo falló',
+                                        text: 'Ocurrió un error inesperado, no se pudo ingresar la cita, favor comunicarse con el desarrollador.',
+                                        icon: 'error',
+                                        confirmButtonText: 'Aceptar',
+                                        confirmButtonColor: 'red'
+                                    });
+                                }
+                            })
+                    }, 2000);
+                } else {
+                    Swal.fire({
+                        title: 'Clave maestra incorrecta',
+                        text: 'La clave maestra ingresada no es correcta',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar',
+                        confirmButtonColor: '#E0218A'
+                    });
+                }
+            })
+
+            // Swal.fire({
+            //     title: 'Faltan datos',
+            //     text: 'La imagen del depósito es obligatoria, favor adjunte la imagen del depósito',
+            //     icon: 'warning',
+            //     confirmButtonText: 'Aceptar',
+            //     confirmButtonColor: '#E0218A'
+            // });
+
+        }
+        /*} else {
             Swal.fire({
                 title: 'Faltan datos',
                 text: 'Es necesario seleccionar un valor de cada opción del formulario',
@@ -883,7 +1027,7 @@ class CitaCrear extends Component {
                 confirmButtonText: 'Aceptar',
                 confirmButtonColor: '#E0218A'
             });
-        }
+        }*/
     }
 
     armarSetTecnicoProcedimiento = () => {
@@ -1183,10 +1327,12 @@ class CitaCrear extends Component {
         if (tecnicosElements.length === procedimientosElements.length) {
             console.log("===")
             document.getElementById('agregar').disabled = "false";
+            document.getElementById('registrar_cita').disabled = "false";
         } else { //Caso contrario, el último set está disparejo, es decir, no tiene un técnico - proceimiento
             //o viceversa, deshabilitamos el botón de Agregar (+)
             console.log("!===")
             document.getElementById('agregar').disabled = "true";
+            document.getElementById('registrar_cita').disabled = "true";
         }
 
         this.deshabilitarSetsAnteriores();
@@ -1208,11 +1354,11 @@ class CitaCrear extends Component {
                 }
             }
 
-            for (let i = 0; i < itemArray.length - 1; i++) {
-                for (let x = 0; x < this.state.tecnicos.length; x++) {
-                    if (document.getElementById(this.state.tecnicos[x].id + "_" + itemArray[i].id_element) !== null) {
-                        console.log(this.state.tecnicos[x].id + "_" + itemArray[i].id_element);
-                        document.getElementById(this.state.tecnicos[x].id + "_" + itemArray[i].id_element).disabled = true;
+            for (let y = 0; y < itemArray.length - 1; y++) {
+                for (let z = 0; z < this.state.tecnicos.length; z++) {
+                    if (document.getElementById(this.state.tecnicos[z].id + "_" + itemArray[y].id_element) !== null) {
+                        console.log(this.state.tecnicos[z].id + "_" + itemArray[y].id_element);
+                        document.getElementById(this.state.tecnicos[z].id + "_" + itemArray[y].id_element).disabled = true;
                     }
                 }
             }
@@ -1243,6 +1389,12 @@ class CitaCrear extends Component {
     }
 
     render() {
+
+        if (this.state.cliente_id_selected != '' && this.state.vendedor_recepcionista_id_selected != '') {
+            if (document.getElementById('fecha_hora') !== null) {
+                document.getElementById('fecha_hora').style.display = "block";
+            }
+        }
 
         if (this.state.loading_clientes && this.state.loading_procedimientos &&
             this.state.loading_tecnicos && this.state.loading_vendedores) {
@@ -1354,7 +1506,7 @@ class CitaCrear extends Component {
                         </IonItemGroup>
                     </IonAccordionGroup>
 
-                    <IonAccordionGroup id="fecha_hora">
+                    <IonAccordionGroup id="fecha_hora" style={{ display: "none" }}>
                         <IonAccordion value="fecha_hora">
                             <IonItem slot="header">
                                 <b><IonLabel>Seleccionar Fecha y Hora:</IonLabel></b>
@@ -1484,11 +1636,11 @@ class CitaCrear extends Component {
                     </IonList>
                     <IonGrid>
                         <IonRow>
-                            <IonCol size="6"><IonButton color="dark" expand="block" onClick={() => this.agregarSetTecnicoProcedimiento()} id="agregar">Agregar (+)</IonButton></IonCol>
+                            <IonCol size="6"><IonButton color="dark" expand="block" onClick={() => this.agregarSetTecnicoProcedimiento()} id="agregar" disabled="true">Agregar (+)</IonButton></IonCol>
                             <IonCol size="6"><IonButton color="danger" expand="block" onClick={() => this.quitarSetTecnicoProcedimiento()}>Quitar Último (X)</IonButton></IonCol>
                         </IonRow>
                     </IonGrid>
-                    <IonButton color="favorite" expand="block" onClick={() => this.registrarCita()} disabled="true">Registrar Cita</IonButton>
+                    <IonButton color="favorite" expand="block" onClick={() => this.registrarCita()} disabled="true" id="registrar_cita">Registrar Cita</IonButton>
                 </IonFooter>
             </IonPage>
         )

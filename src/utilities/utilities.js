@@ -71,6 +71,7 @@ export function prepararPost(values, set, action = "setJsons", structure = "json
       body: formBody
     };
 
+    console.log(requestOptions);
     return requestOptions;
 
   }
@@ -130,6 +131,14 @@ export function formatearFechaLista(dateParam) {
 export function addTimeToDatetime(fecha_cita, minutes) {
   var date = new Date(fecha_cita);
   date.setHours(date.getHours(), date.getMinutes() + parseInt(minutes), 0, 0);
+
+  return date;
+}
+
+//Resta una determinada cantidad de minutos a una DateTime
+export function substractTimeToDatetime(fecha_cita, minutes) {
+  var date = new Date(fecha_cita);
+  date.setHours(date.getHours(), date.getMinutes() - parseInt(minutes), 0, 0);
 
   return date;
 }
