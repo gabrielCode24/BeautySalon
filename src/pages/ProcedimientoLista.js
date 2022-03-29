@@ -34,7 +34,7 @@ class ProcedimientoLista extends Component {
             procedimientos: [],
             procedimiento: [],
             search_string: "",
-            redirigir_a_procedimiento_detalle: false
+            redirigir_a_procedimiento_detalle: false,
         }
     }
 
@@ -45,7 +45,7 @@ class ProcedimientoLista extends Component {
     _getProcedimientos = () => {
         this.setState({ loading_procedimientos: true });
 
-        let Parameters = '?action=getJSON&get=procedimientos_lista';
+        let Parameters = '?action=getJSON&get=procedimientos_lista&param=0';
 
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
@@ -88,7 +88,6 @@ class ProcedimientoLista extends Component {
         this.setState({ loading_procedimiento_data: true });
 
         let Parameters = '?action=getJSON&get=procedimiento_data&id=' + id;
-
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -141,7 +140,7 @@ class ProcedimientoLista extends Component {
                     <IonList>
                         {
                             procedimientos.filter(procedimiento => procedimiento.nombre.includes(this.state.search_string)).map(item => (
-                                <IonItem key={item.id} onClick={(e) => this._getProcedimiento(item.id)}>
+                                <IonItem key={item.id} onClick={(e) => this._getProcedimiento(item.id.substring(1))}>
                                     {item.id} - {item.nombre}
                                 </IonItem>
                             ))
