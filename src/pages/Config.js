@@ -247,6 +247,7 @@ class Config extends Component {
                         <IonInput disabled type="text" value={item.usr_act}></IonInput>
                       </IonItem>
                       <IonInput type="hidden" value={item.id} id={"id_" + item.id}></IonInput>
+                      <IonLabel style={{ paddingLeft: "10px", fontSize:"12px" }}><b>Versión 1.0.0</b></IonLabel>
                     </div>
                   )
                 })
