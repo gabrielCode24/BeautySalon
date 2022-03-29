@@ -74,20 +74,6 @@ class CitaCrear extends Component {
         }
     }
 
-
-    // shouldComponentUpdate(nextProps, nextState) {
-
-    //     console.log(this.state.tiempo_estimado_proc_actual + " - " + nextState.tiempo_estimado_proc_actual)
-
-    //     if (this.state.tiempo_estimado_proc_actual != nextState.tiempo_estimado_proc_actual) {
-    //         return false;
-    //     } else if (this.state.tiempo_estimado_proc_actual != nextState.tiempo_estimado_proc_actual) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
-
-
     UNSAFE_componentWillMount() {
         this._getClientes();
         this._getProcedimientos();
@@ -560,11 +546,11 @@ class CitaCrear extends Component {
                                             }
                                         }
                                     }
-                                    
-                                        localStorage.setItem('tecnicoSeleccionadoSetActual', 0);
-                                        localStorage.setItem('tecnicoSeleccionadoSetActualIdElement', null);
-                                        document.getElementById('agregar').disabled = true;                                    
-                                        document.getElementById('registrar_cita').disabled = true;
+
+                                    localStorage.setItem('tecnicoSeleccionadoSetActual', 0);
+                                    localStorage.setItem('tecnicoSeleccionadoSetActualIdElement', null);
+                                    document.getElementById('agregar').disabled = true;
+                                    document.getElementById('registrar_cita').disabled = true;
                                     /*if(arrayTecnicos.length == 0){
                                         localStorage.removeItem('arrayTecnicos');
                                     }*/
@@ -973,21 +959,6 @@ class CitaCrear extends Component {
 
         let valuesCita = {};
 
-        /*
-        let valuesCita = {
-            cliente_id: cliente,
-            fecha: fecha_cita,
-            vend_recep_id: vendedor_recepcionista,
-            deposito_foto: '',
-            terminos_y_cond_fotos: '',
-            fec_ing: "GETDATE()",
-            usr_ing: this.state.usuario_logueado
-        }
-        */
-
-        /*if (cliente != '' && procedimiento != '' && procedimiento_precio_sug != '' && tecnico != '' &&
-            vendedor_recepcionista != '' && fecha_cita.length > 0) {*/
-
         let inputFile = document.getElementById('imagen-anticipo').files[0]; // En la posición 0; es decir, el primer elemento
 
         if (typeof (inputFile) !== "undefined") { // CUANDO SE ADJUNTA LA IMAGEN DE ANTICIPO
@@ -1019,14 +990,6 @@ class CitaCrear extends Component {
                             var usr_ing = this.state.usuario_logueado;
 
                             let image_uploaded_path = this.state.url_guardar_imagen + "/archivos_imagenes/" + image_updloaded_name;
-
-                            /*
-                            var valuesCita = {
-                                cliente_id: cliente, proc_id: procedimiento, proc_precio_sug: procedimiento_precio_sug,
-                                tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista,
-                                deposito_foto: image_uploaded_path, fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
-                            }
-                            */
 
                             valuesCita = {
                                 cliente_id: cliente,
@@ -1273,27 +1236,9 @@ class CitaCrear extends Component {
                     });
                 }
             })
-
-            // Swal.fire({
-            //     title: 'Faltan datos',
-            //     text: 'La imagen del depósito es obligatoria, favor adjunte la imagen del depósito',
-            //     icon: 'warning',
-            //     confirmButtonText: 'Aceptar',
-            //     confirmButtonColor: '#E0218A'
-            // });
-
         }
-        /*} else {
-            Swal.fire({
-                title: 'Faltan datos',
-                text: 'Es necesario seleccionar un valor de cada opción del formulario',
-                icon: 'info',
-                confirmButtonText: 'Aceptar',
-                confirmButtonColor: '#E0218A'
-            });
-        }*/
     }
-
+    
     armarSetTecnicoProcedimiento = () => {
         let itemArray = this.state.itemArray;
         let itemArraySize = itemArray.length;
