@@ -92,7 +92,7 @@ class CitaCrear extends Component {
         this._getClientes();
         this._getProcedimientos();
         this._getVendedores();
-        //this._getTecnicos();
+
 
         //Limpiamos la localStorage de técnicos seleccionados
         if (localStorage.getItem('arrayTecnicos')) {
@@ -102,6 +102,19 @@ class CitaCrear extends Component {
         //Limpiamos la localStorage de procedimientos seleccionados
         if (localStorage.getItem('arrayProcedimientos')) {
             localStorage.removeItem('arrayProcedimientos');
+        }
+
+        //Eliminamos variables de parámetros
+        if (localStorage.getItem('numeroProcedimientosSetActual')) {
+            localStorage.removeItem('numeroProcedimientosSetActual');
+        }
+
+        if (localStorage.getItem('tecnicoSeleccionadoSetActual')) {
+            localStorage.removeItem('tecnicoSeleccionadoSetActual');
+        }
+
+        if (localStorage.getItem('tecnicoSeleccionadoSetActualIdElement')) {
+            localStorage.removeItem('tecnicoSeleccionadoSetActualIdElement');
         }
     }
 
@@ -335,7 +348,7 @@ class CitaCrear extends Component {
     _getProcedimientos = () => {
         this.setState({ loading_procedimientos: true });
 
-        let Parameters = '?action=getJSON&get=procedimientos_lista';
+        let Parameters = '?action=getJSON&get=procedimientos_lista&param=1';
 
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
@@ -358,6 +371,7 @@ class CitaCrear extends Component {
 
     _getProcedimiento = (item, index, id_element) => {
         let itemArray = this.state.itemArray;
+        let tecnicosElements = [];
 
         if (!localStorage.getItem('arrayProcedimientos')) {
             let arrayProcedimientos = [];
@@ -365,7 +379,7 @@ class CitaCrear extends Component {
             console.log(item.minutos);
             this.setState({ tiempo_estimado_proc_actual: item.minutos });
 
-            arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, minutos: item.minutos });
+            arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, precio_sug: item.precio_sug, minutos: item.minutos });
 
             localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
 
@@ -377,96 +391,300 @@ class CitaCrear extends Component {
                 document.getElementById('agregar').disabled = true;
             }
 
+            //Marcamos tecnicosElements con 1 porque ya hay al menos 1 procedimiento seleccionado
+            if (localStorage.getItem('arrayProcedimientos')) {
+                let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                //Revisamos que haya al menos 1 técnico en 1 set, si ya estaba agregado, evitamos duplicar el dato
+                for (let k = 0; k < arrayProcedimientosSeleccionados.length; k++) {
+                    if (document.getElementById(arrayProcedimientosSeleccionados[k].id_element) !== null) {
+                        if (!this.inArray(arrayProcedimientosSeleccionados[k].id_element, tecnicosElements, "3")) {
+                            tecnicosElements.push(arrayProcedimientosSeleccionados[k].id_element);
+                        }
+                    }
+                }
+                console.log("TECNICOS CHECKX: " + tecnicosElements.length);
+                console.log("ITEM ARRAY LENGTH: " + itemArray.length);
+
+                setTimeout(() => {
+                    if (tecnicosElements.length === itemArray.length) {
+                        document.getElementById("tecnicos_" + itemArray.length).disabled = false;
+                    } else {
+                        document.getElementById("tecnicos_" + itemArray.length).disabled = true;
+                    }
+                }, 500);
+            }
+
             this.calcularMinutosAcumulatorios(1000);
         } else {
-            console.log(item.minutos);
-            this.setState({ tiempo_estimado_proc_actual: item.minutos });
-            let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
-            //Si al tocar un procedimiento éste ya estaba en el arreglo, lo eliminamos del arreglo y lo pintamos
-            //en negro, si no estaba entonces simplemente lo agregamos al arreglo y lo pintamos en verde
-            if (this.inArray(index + "_" + id_element, arrayProcedimientos, "1")) {
-                for (let k = 0; k < arrayProcedimientos.length; k++) {
-                    if (arrayProcedimientos[k].id_option === index + "_" + id_element) {
-                        arrayProcedimientos.splice(k, 1);
-                        localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
+            if (localStorage.getItem("tecnicoSeleccionadoSetActual") == 1
+                && localStorage.getItem("numeroProcedimientosSetActual") > 0) {
+                console.log("ENTRÓ");
+                Swal.fire({
+                    title: 'Técnico ya elegido, el tiempo ya estaba calculado',
+                    text: "Ya ha elegido un técnico para este set, si modifica los procedimientos tendrá que volver a seleccionar a un técnico, ¿está seguro(a) que desea continuar?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'No',
+                    confirmButtonText: 'Sí',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.setState({ tiempo_estimado_proc_actual: item.minutos });
+                        let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                        //Si al tocar un procedimiento éste ya estaba en el arreglo, lo eliminamos del arreglo y lo pintamos
+                        //en negro, si no estaba entonces simplemente lo agregamos al arreglo y lo pintamos en verde
+                        if (this.inArray(index + "_" + id_element, arrayProcedimientos, "1")) {
+                            for (let k = 0; k < arrayProcedimientos.length; k++) {
+                                if (arrayProcedimientos[k].id_option === index + "_" + id_element) {
+                                    arrayProcedimientos.splice(k, 1);
+                                    localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
+                                }
+                            }
+                            document.getElementById(index + "_" + id_element).style.color = '#000000';
+                        } else {
+                            arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, precio_sug: item.precio_sug, minutos: item.minutos });
+                            localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
+                            document.getElementById(index + "_" + id_element).style.color = '#43D440';
+                        }
+                        //
+
+                        setTimeout(() => {
+                            let arrayProcedimientosLista = this.state.procedimientos;
+
+                            for (let z = 0; z < arrayProcedimientosLista.length; z++) {
+                                for (let y = 0; y < itemArray.length; y++) {
+                                    //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
+                                    if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
+                                        document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                                    }
+                                }
+                            }
+
+                            let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+                            for (let i = 0; i < arrayProcedimientosSeleccionados.length; i++) {
+                                for (let y = 0; y < itemArray.length; y++) {
+                                    //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                                    if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)) === null) {
+                                        continue;
+                                    } else if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)) !== null) {
+
+                                        if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                            document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                        }
+                                    }
+                                }
+                            }
+                            if (localStorage.getItem('arrayTecnicos')) {
+
+                                //
+                                setTimeout(() => {
+                                    let arrayTecnicosLista = this.state.tecnicos;
+                                    for (let z = 0; z < arrayTecnicosLista.length; z++) {
+                                        for (let y = 0; y < itemArray.length; y++) {
+                                            //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
+                                            if (document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                                                if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
+                                                    document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                                    for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
+                                        for (let y = 0; y < itemArray.length; y++) {
+                                            //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                                            if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null) {
+                                                continue;
+                                            } else if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                                                if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                                    document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    this.enableDisableBotonAgregarSetDeElements();
+                                }, 100)
+                                //
+
+                                //this.enableDisableBotonAgregarSetDeElements();
+                            }
+
+                            //Calculamos los minutos acumulatorios en función de los procedimientos que van seleccionados
+                            this.calcularMinutosAcumulatorios(1000);
+
+                        }, 500);
+
+                        if (localStorage.getItem('arrayProcedimientos')) {
+                            let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                            //Revisamos que haya al menos 1 técnico en 1 set, si ya estaba agregado, evitamos duplicar el dato
+                            for (let k = 0; k < arrayProcedimientosSeleccionados.length; k++) {
+                                if (document.getElementById(arrayProcedimientosSeleccionados[k].id_element) !== null) {
+                                    if (!this.inArray(arrayProcedimientosSeleccionados[k].id_element, tecnicosElements, "3")) {
+                                        tecnicosElements.push(arrayProcedimientosSeleccionados[k].id_element);
+                                    }
+                                }
+                            }
+                            console.log("TECNICOS CHECKX: " + tecnicosElements.length);
+                            console.log("ITEM ARRAY LENGTH: " + itemArray.length);
+
+                            setTimeout(() => {
+                                if (tecnicosElements.length === itemArray.length) {
+                                    document.getElementById("tecnicos_" + itemArray.length).disabled = false;
+                                } else {
+                                    document.getElementById("tecnicos_" + itemArray.length).disabled = true;
+                                }
+                            }, 500);
+                        }
+
+                        setTimeout(() => {
+                            if (localStorage.getItem("arrayTecnicos")) {
+                                let id_element = localStorage.getItem("tecnicoSeleccionadoSetActualIdElement");
+                                let arrayTecnicos = JSON.parse(localStorage.getItem("arrayTecnicos"));
+
+                                document.getElementById(id_element).style.color = "black";
+                                document.getElementById(id_element).disabled = false;
+
+                                if (this.inArray(id_element, arrayTecnicos, "1")) {
+                                    for (let k = 0; k < arrayTecnicos.length; k++) {
+                                        if (arrayTecnicos[k].id_option !== null) {
+                                            if (arrayTecnicos[k].id_option === id_element) {
+                                                arrayTecnicos.splice(k, 1);
+                                                localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+                                            }
+                                        }
+                                    }
+                                    
+                                        localStorage.setItem('tecnicoSeleccionadoSetActual', 0);
+                                        localStorage.setItem('tecnicoSeleccionadoSetActualIdElement', null);
+                                        document.getElementById('agregar').disabled = true;                                    
+                                        document.getElementById('registrar_cita').disabled = true;
+                                    /*if(arrayTecnicos.length == 0){
+                                        localStorage.removeItem('arrayTecnicos');
+                                    }*/
+                                }
+                            }
+                        }, 1000)
                     }
-                }
-                document.getElementById(index + "_" + id_element).style.color = '#000000';
+                })
             } else {
-                arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, minutos: item.minutos });
-                localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
-                document.getElementById(index + "_" + id_element).style.color = '#43D440';
-            }
-            //
+                this.setState({ tiempo_estimado_proc_actual: item.minutos });
+                let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
-            setTimeout(() => {
-                let arrayProcedimientosLista = this.state.procedimientos;
-
-                for (let z = 0; z < arrayProcedimientosLista.length; z++) {
-                    for (let y = 0; y < itemArray.length; y++) {
-                        //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
-                        if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
-                            document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                //Si al tocar un procedimiento éste ya estaba en el arreglo, lo eliminamos del arreglo y lo pintamos
+                //en negro, si no estaba entonces simplemente lo agregamos al arreglo y lo pintamos en verde
+                if (this.inArray(index + "_" + id_element, arrayProcedimientos, "1")) {
+                    for (let k = 0; k < arrayProcedimientos.length; k++) {
+                        if (arrayProcedimientos[k].id_option === index + "_" + id_element) {
+                            arrayProcedimientos.splice(k, 1);
+                            localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
                         }
                     }
+                    document.getElementById(index + "_" + id_element).style.color = '#000000';
+                } else {
+                    arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, precio_sug: item.precio_sug, minutos: item.minutos });
+                    localStorage.setItem('arrayProcedimientos', JSON.stringify(arrayProcedimientos));
+                    document.getElementById(index + "_" + id_element).style.color = '#43D440';
                 }
+                //
 
-                let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
-                for (let i = 0; i < arrayProcedimientosSeleccionados.length; i++) {
-                    for (let y = 0; y < itemArray.length; y++) {
-                        //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
-                        if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)) === null) {
-                            continue;
-                        } else if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                setTimeout(() => {
+                    let arrayProcedimientosLista = this.state.procedimientos;
 
-                            if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
-                                document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                    for (let z = 0; z < arrayProcedimientosLista.length; z++) {
+                        for (let y = 0; y < itemArray.length; y++) {
+                            //Si un elemento de cada lista de procedimientos no está en el arreglo de procedimientos
+                            if (!this.inArray(document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayProcedimientosLista, "1")) {
+                                document.getElementById(arrayProcedimientosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
                             }
                         }
                     }
-                }
-                if (localStorage.getItem('arrayTecnicos')) {
 
-                    //
+                    let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+                    for (let i = 0; i < arrayProcedimientosSeleccionados.length; i++) {
+                        for (let y = 0; y < itemArray.length; y++) {
+                            //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                            if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)) === null) {
+                                continue;
+                            } else if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)) !== null) {
+
+                                if (document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                    document.getElementById(arrayProcedimientosSeleccionados[i].id_proc + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                }
+                            }
+                        }
+                    }
+                    if (localStorage.getItem('arrayTecnicos')) {
+
+                        //
+                        setTimeout(() => {
+                            let arrayTecnicosLista = this.state.tecnicos;
+                            for (let z = 0; z < arrayTecnicosLista.length; z++) {
+                                for (let y = 0; y < itemArray.length; y++) {
+                                    //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
+                                    if (document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                                        if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
+                                            document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
+                                        }
+                                    }
+                                }
+                            }
+
+                            let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
+                            for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
+                                for (let y = 0; y < itemArray.length; y++) {
+                                    //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
+                                    if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null) {
+                                        continue;
+                                    } else if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
+                                        if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
+                                            document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
+                                        }
+                                    }
+                                }
+                            }
+
+                            this.enableDisableBotonAgregarSetDeElements();
+                        }, 100)
+                        //
+
+                        //this.enableDisableBotonAgregarSetDeElements();
+                    }
+
+                    //Calculamos los minutos acumulatorios en función de los procedimientos que van seleccionados
+                    this.calcularMinutosAcumulatorios(1000);
+
+                }, 500);
+
+                if (localStorage.getItem('arrayProcedimientos')) {
+                    let arrayProcedimientosSeleccionados = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                    //Revisamos que haya al menos 1 técnico en 1 set, si ya estaba agregado, evitamos duplicar el dato
+                    for (let k = 0; k < arrayProcedimientosSeleccionados.length; k++) {
+                        if (document.getElementById(arrayProcedimientosSeleccionados[k].id_element) !== null) {
+                            if (!this.inArray(arrayProcedimientosSeleccionados[k].id_element, tecnicosElements, "3")) {
+                                tecnicosElements.push(arrayProcedimientosSeleccionados[k].id_element);
+                            }
+                        }
+                    }
+                    console.log("TECNICOS CHECKX: " + tecnicosElements.length);
+                    console.log("ITEM ARRAY LENGTH: " + itemArray.length);
+
                     setTimeout(() => {
-                        let arrayTecnicosLista = this.state.tecnicos;
-                        for (let z = 0; z < arrayTecnicosLista.length; z++) {
-                            for (let y = 0; y < itemArray.length; y++) {
-                                //Si un elemento de cada lista de técnicos no está en el arreglo de técnicos
-                                if (document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)) !== null) {
-                                    if (!this.inArray(document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)), arrayTecnicosLista, "1")) {
-                                        document.getElementById(arrayTecnicosLista[z].id + "_" + parseInt(itemArray[y].id_element)).disabled = 'false'
-                                    }
-                                }
-                            }
+                        if (tecnicosElements.length === itemArray.length) {
+                            document.getElementById("tecnicos_" + itemArray.length).disabled = false;
+                        } else {
+                            document.getElementById("tecnicos_" + itemArray.length).disabled = true;
                         }
-
-                        let arrayTecnicosSeleccionados = JSON.parse(localStorage.getItem('arrayTecnicos'));
-                        for (let i = 0; i < arrayTecnicosSeleccionados.length; i++) {
-                            for (let y = 0; y < itemArray.length; y++) {
-                                //Si el elemento no tiene letras verdes en el texto, entonces le aplicamos la propiedad disabled="true"
-                                if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) === null) {
-                                    continue;
-                                } else if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)) !== null) {
-                                    if (document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).style.color !== 'rgb(67, 212, 64)') {
-                                        document.getElementById(arrayTecnicosSeleccionados[i].id_tecnico + "_" + parseInt(itemArray[y].id_element)).disabled = 'true'
-                                    }
-                                }
-                            }
-                        }
-
-                        this.enableDisableBotonAgregarSetDeElements();
-                    }, 100)
-                    //
-
-                    //this.enableDisableBotonAgregarSetDeElements();
+                    }, 500);
                 }
-
-                //Calculamos los minutos acumulatorios en función de los procedimientos que van seleccionados
-                this.calcularMinutosAcumulatorios(1000);
-
-            }, 500);
+            }
         }
 
         this.deshabilitarSetsAnteriores();
@@ -489,7 +707,7 @@ class CitaCrear extends Component {
                     loading_tecnicos: false,
                     tecnicos: responseJson
                 });
-                
+
                 Swal.close();
             })
             .catch((error) => {
@@ -514,7 +732,7 @@ class CitaCrear extends Component {
         }
 
         //Comprobamos la disponibilidad del técnico en función del tiempo actual en la cita
-        let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + fecha_completa_actualizada + "&minutos=0&minutos_desde=" + minutosAcumuladosSet; //+ this.state.tiempo_estimado_proc_actual;
+        let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + fecha_completa_actualizada + "&datetime_d=" + this.state.date_selected + "&minutos=0&minutos_desde=" + minutosAcumuladosSet; //+ this.state.tiempo_estimado_proc_actual;
         console.log(this.state.url + Parameters);
 
         fetch(this.state.url + Parameters)
@@ -523,7 +741,24 @@ class CitaCrear extends Component {
 
                 // Si el técnico está disponible en ese rango de horas, regresa un 1, si no regresa un 0
                 if (responseJson[0].disponible == 1) {
+
+                    //Mecanismo de verificación de cuántos procedimientos tiene asignado un técnico en un set
+                    //Hasta el momento que se selecciona un técnico, por ejemplo, había 3 procedimientos
+                    //Hasta que se eligió X técnico en el set actual
                     let itemArray = this.state.itemArray;
+                    let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
+
+                    let num_procedimientos_set_actual = 0;
+                    for (let i = 0; i < arrayProcedimientos.length; i++) {
+
+                        if (itemArray.length === arrayProcedimientos[i].id_element) {
+                            num_procedimientos_set_actual += 1;
+                        }
+                    }
+
+                    localStorage.setItem("numeroProcedimientosSetActual", num_procedimientos_set_actual);
+                    localStorage.setItem("tecnicoSeleccionadoSetActual", 1);
+                    localStorage.setItem("tecnicoSeleccionadoSetActualIdElement", item.id + "_" + id_element);
 
                     if (!localStorage.getItem('arrayTecnicos')) {
                         let arrayTecnicos = [];
@@ -755,7 +990,7 @@ class CitaCrear extends Component {
 
         let inputFile = document.getElementById('imagen-anticipo').files[0]; // En la posición 0; es decir, el primer elemento
 
-        if (typeof (inputFile) !== "undefined") {
+        if (typeof (inputFile) !== "undefined") { // CUANDO SE ADJUNTA LA IMAGEN DE ANTICIPO
 
             this.setState({
                 imagen_anticipo_uploading: true
@@ -779,7 +1014,7 @@ class CitaCrear extends Component {
                         setTimeout(() => {
 
                             let image_updloaded_name = this.state.image_updloaded_name;
-
+                            console.log("NOMBRE DE LA IMAGEN: " + image_updloaded_name);
                             var fec_ing = "NOW()";
                             var usr_ing = this.state.usuario_logueado;
 
@@ -793,32 +1028,93 @@ class CitaCrear extends Component {
                             }
                             */
 
+                            valuesCita = {
+                                cliente_id: cliente,
+                                fecha: fecha_cita,
+                                vend_recep_id: vendedor_recepcionista,
+                                deposito_foto: image_uploaded_path,
+                                terminos_y_cond_foto: '',
+                                fec_ing: "NOW()",
+                                usr_ing: this.state.usuario_logueado
+                            }
+
+                            //CITA ENCABEZADO
                             const requestOptionsCitax = prepararPost(valuesCita, "cita", "setJsons", "jsonSingle");
 
                             fetch(this.state.url, requestOptionsCitax)
                                 .then((response) => {
                                     if (response.status === 200) {
 
-                                        /*
-                                        Swal.close();
+                                        //TRAER EL ID MAXIMO DE CITA, ES DECIR, EL QUE SE ACABA DE INSERTAR
+                                        //PARA DÁRSELO AL DETALLE DE ESTA CITA
+                                        let ParametersMaxIdCita = '?action=getJSON&get=max_id_cita';
 
-                                        this.setState({
-                                            sending: false
-                                        });
+                                        fetch(this.state.url + ParametersMaxIdCita)
+                                            .then((res) => res.json())
+                                            .then((response) => {
 
-                                        Swal.fire({
-                                            title: '¡Éxito!',
-                                            text: '¡Cita ingresada exitosamente!',
-                                            icon: 'success',
-                                            confirmButtonText: 'Aceptar',
-                                            confirmButtonColor: '#E0218A'
-                                        }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                this.setState({ redireccionar_atras: true });
-                                            }
-                                        })
-                                        */
+                                                let arrayCitaDetalle = [];
+                                                let hora_primera_cita = this.state.date_selected;
+                                                let hora_ultima_cita = this.state.hora_actual;
 
+                                                //ARMAMOS EL SET DE PROCEDIMIENTOS DEL TECNICO EN ESTA CITA
+                                                for (let i = 0; i < tecnicos.length; i++) {
+                                                    for (let j = 0; j < procedimientos.length; j++) {
+                                                        if (procedimientos[j].id_element === (i + 1)) {
+                                                            if (j === 0) {
+                                                                arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, proc_precio_sug: procedimientos[j].precio_sug, hora: hora_primera_cita });
+                                                            } else if (j + 1 === procedimientos.length) {
+                                                                arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, proc_precio_sug: procedimientos[j].precio_sug, hora: convert(substractTimeToDatetime(hora_ultima_cita, procedimientos[j].minutos)) });
+                                                            } else {
+                                                                arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, proc_precio_sug: procedimientos[j].precio_sug, hora: convert(substractTimeToDatetime(hora_ultima_cita, procedimientos[j].minutos)) });
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                console.log(arrayCitaDetalle);
+
+                                                setTimeout(() => {
+                                                    const requestOptionsCitaDetalle = prepararPost(arrayCitaDetalle, "cita_detalle", "setJsons", "jsonArray");
+
+                                                    fetch(this.state.url, requestOptionsCitaDetalle)
+                                                        .then((response) => {
+                                                            if (response.status === 200) {
+                                                                Swal.close();
+
+                                                                this.setState({
+                                                                    sending: false
+                                                                });
+
+                                                                Swal.fire({
+                                                                    title: '¡Éxito!',
+                                                                    text: 'Cita agendada correctamente',
+                                                                    icon: 'success',
+                                                                    confirmButtonColor: '#E0218A'
+                                                                })
+                                                                /*.then((result) => {
+                                                                    if (result.isConfirmed) {
+                                                                        this.setState({ redireccionar_atras: true });
+                                                                    }
+                                                                });*/
+                                                            } else {
+                                                                Swal.fire({
+                                                                    title: 'Algo falló',
+                                                                    text: 'Ocurrió un error inesperado.',
+                                                                    icon: 'error',
+                                                                    confirmButtonText: 'Aceptar',
+                                                                    confirmButtonColor: 'red'
+                                                                });
+                                                            }
+                                                        })
+                                                }, 2000)
+
+                                                //console.log(arrayCita);
+
+                                            })
+                                            .catch((error) => {
+                                                console.log(error)
+                                            });
                                     } else {
                                         Swal.fire({
                                             title: 'Algo falló',
@@ -869,17 +1165,6 @@ class CitaCrear extends Component {
 
                     setTimeout(() => {
 
-                        //var fec_ing = "NOW()";
-                        //var usr_ing = this.state.usuario_logueado;
-
-                        /*
-                        var valuesCita = {
-                            cliente_id: cliente, proc_id: procedimiento,
-                            proc_precio_sug: procedimiento_precio_sug,
-                            tecnico_id: tecnico, vend_recep_id: vendedor_recepcionista,
-                            fecha_hora: fecha_cita, fec_ing: fec_ing, usr_ing: usr_ing
-                        }
-                        */
                         valuesCita = {
                             cliente_id: cliente,
                             fecha: fecha_cita,
@@ -914,18 +1199,18 @@ class CitaCrear extends Component {
                                                 for (let j = 0; j < procedimientos.length; j++) {
                                                     if (procedimientos[j].id_element === (i + 1)) {
                                                         if (j === 0) {
-                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, hora: hora_primera_cita });
+                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, proc_precio_sug: procedimientos[j].precio_sug, hora: hora_primera_cita });
                                                         } else if (j + 1 === procedimientos.length) {
-                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, hora: convert(substractTimeToDatetime(hora_ultima_cita, procedimientos[j].minutos)) });
+                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, proc_precio_sug: procedimientos[j].precio_sug, hora: convert(substractTimeToDatetime(hora_ultima_cita, procedimientos[j].minutos)) });
                                                         } else {
-                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, hora: convert(substractTimeToDatetime(hora_ultima_cita, procedimientos[j].minutos)) });
+                                                            arrayCitaDetalle.push({ tecnico_id: tecnicos[i].id_tecnico.substring(1), proc_id: procedimientos[j].id_proc.substring(1), cita_id: response[0].max_id, proc_precio_sug: procedimientos[j].precio_sug, hora: convert(substractTimeToDatetime(hora_ultima_cita, procedimientos[j].minutos)) });
                                                         }
                                                     }
                                                 }
                                             }
 
                                             console.log(arrayCitaDetalle);
-                                            
+
                                             setTimeout(() => {
                                                 const requestOptionsCitaDetalle = prepararPost(arrayCitaDetalle, "cita_detalle", "setJsons", "jsonArray");
 
@@ -967,27 +1252,6 @@ class CitaCrear extends Component {
                                         .catch((error) => {
                                             console.log(error)
                                         });
-
-                                    /*
-                                    Swal.close();
-
-                                    this.setState({
-                                        sending: false
-                                    });
-
-                                    Swal.fire({
-                                        title: '¡Éxito!',
-                                        text: '¡Cita ingresada exitosamente!',
-                                        icon: 'success',
-                                        confirmButtonText: 'Aceptar',
-                                        confirmButtonColor: '#E0218A'
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            this.setState({ redireccionar_atras: true });
-                                        }
-                                    })
-                                    */
-
                                 } else {
                                     Swal.fire({
                                         title: 'Algo falló',
@@ -1132,6 +1396,9 @@ class CitaCrear extends Component {
 
                         this.armarSetTecnicoProcedimiento(1000);
                     }
+                    //Reseteamos parámetros de línea 579
+                    localStorage.setItem("numeroProcedimientosSetActual", 0);
+                    localStorage.setItem("tecnicoSeleccionadoSetActual", 0);
                 })
             }
         } else {
@@ -1302,7 +1569,6 @@ class CitaCrear extends Component {
                     }
                 }
             }
-            console.log("PROCEDIMIENTOS CHECK: " + procedimientosElements);
         }
 
         if (localStorage.getItem('arrayTecnicos')) {
@@ -1317,7 +1583,6 @@ class CitaCrear extends Component {
                     }
                 }
             }
-            console.log("TECNICOS CHECK: " + tecnicosElements);
         }
 
 
@@ -1325,12 +1590,12 @@ class CitaCrear extends Component {
         //seleccionado o viceversa, un procedimiento tiene un técnico en ese set,
         //entonces habilitamos el botón de Agregar (+)
         if (tecnicosElements.length === procedimientosElements.length) {
-            console.log("===")
+            //console.log("===");
             document.getElementById('agregar').disabled = "false";
             document.getElementById('registrar_cita').disabled = "false";
         } else { //Caso contrario, el último set está disparejo, es decir, no tiene un técnico - proceimiento
             //o viceversa, deshabilitamos el botón de Agregar (+)
-            console.log("!===")
+            //console.log("!==");
             document.getElementById('agregar').disabled = "true";
             document.getElementById('registrar_cita').disabled = "true";
         }
@@ -1343,12 +1608,9 @@ class CitaCrear extends Component {
 
             let itemArray = this.state.itemArray;
 
-            console.log(itemArray);
-
             for (let i = 0; i < itemArray.length - 1; i++) {
                 for (let x = 0; x < this.state.procedimientos.length; x++) {
                     if (document.getElementById(this.state.procedimientos[x].id + "_" + itemArray[i].id_element) !== null) {
-                        console.log(this.state.procedimientos[x].id + "_" + itemArray[i].id_element);
                         document.getElementById(this.state.procedimientos[x].id + "_" + itemArray[i].id_element).disabled = true;
                     }
                 }
@@ -1520,11 +1782,6 @@ class CitaCrear extends Component {
                         <IonInput id="fecha_rotulo" type="text" style={{ display: "none", left: "5px", right: "5px" }} readonly>{this.state.fecha_rotulo}</IonInput>
                     </IonAccordionGroup>
 
-
-
-
-
-
                     { /* SELECCIONABLE DINAMICO */
                         this.state.itemArray.map((itemx, i) => {
                             return (
@@ -1550,7 +1807,7 @@ class CitaCrear extends Component {
                                                 {
                                                     pxn[itemx.id_element - 1].filter(procedimiento => procedimiento.nombre.includes(this.state.search_string_procedimiento)).map(item => (
                                                         <IonItem id={item.id + "_" + itemx.id_element} key={item.id} onClick={(e) => this._getProcedimiento(item, item.id, itemx.id_element)}>
-                                                            {item.id} - {item.nombre} - {"(" + item.tiempo_estimado + ")"}
+                                                            {item.id} - {item.nombre} - {"(" + item.tiempo_estimado + ", L " + item.precio_sug + ")"}
                                                         </IonItem>
 
                                                     ))
@@ -1571,7 +1828,7 @@ class CitaCrear extends Component {
 
                                     {/* LISTA DE TÉCNICOS */}
                                     <IonAccordionGroup id="tecnicos"  >
-                                        <IonAccordion value="tecnicos">
+                                        <IonAccordion id={"tecnicos_" + itemx.id_element} disabled="true">
                                             <IonItem slot="header">
                                                 <b><IonLabel>Seleccionar Técnico:</IonLabel></b>
                                             </IonItem>
@@ -1607,23 +1864,6 @@ class CitaCrear extends Component {
                                 </div>
                             )
                         })}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </IonContent>
                 <IonFooter>
                     <IonList>
