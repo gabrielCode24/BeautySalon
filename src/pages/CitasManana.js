@@ -9,9 +9,9 @@ import {
 import {
   arrowBackOutline, downloadOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-import { url, formatearFechaLista, prepararPost } from '../utilities/utilities.js'
+import { url, formatearFechaLista } from '../utilities/utilities.js'
 
 import Swal from 'sweetalert2'
 
@@ -117,7 +117,6 @@ class CitasManana extends Component {
             <IonRow style={{ backgroundColor: "#ffcc33", color: "#FFFFFF", textAlign:"center", fontFamily:"sans-serif" }}>
               <IonCol size="2">#CITA</IonCol>
               <IonCol size="2">CLI</IonCol>
-              <IonCol size="2">PROC</IonCol>
               <IonCol size="4">FECHA</IonCol>
               <IonCol size="2">IMG ANT</IonCol>
             </IonRow>
@@ -129,9 +128,13 @@ class CitasManana extends Component {
                     style={{ backgroundColor: ((i % 2 == 0) ? "#D4D4D4" : "#FFE4E1"), fontFamily: "sans-serif" }} /*onClick={(e) => this.setRedirect(e, item)}*/>
                     <IonCol size="2"> {item.cita_codigo} </IonCol>
                     <IonCol size="2"> {item.cliente_nombre} </IonCol>
-                    <IonCol size="2"> {item.procedimiento_nombre} </IonCol>
                     <IonCol size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
-                    <IonCol size="2"><IonButton href={item.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon></IonButton></IonCol>
+                    {
+                        item.cita_foto_deposito.length > 0 ?
+                        <IonCol size="2"><IonButton href={item.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon></IonButton></IonCol> :
+                        <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} size="2" style={{ fontSize: "10px" }}>Sin imagen de anticipo</IonCol>
+                    }
+                    
                   </IonRow>
                 )
               })

@@ -9,7 +9,7 @@ import {
 import {
   arrowBackOutline, downloadOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import { url, formatearFechaLista } from '../utilities/utilities.js'
 
@@ -93,7 +93,6 @@ class CitasTodas extends Component {
     this.setState({ loading_cita_data: true });
 
     let Parameters = '?action=getJSON&get=cita_data&id=' + id;
-
     fetch(this.state.url + Parameters)
       .then((res) => res.json())
       .then((responseJson) => {
@@ -147,7 +146,6 @@ class CitasTodas extends Component {
             <IonRow style={{ backgroundColor: "#ffcc33", color: "#FFFFFF", textAlign: "center", fontFamily: "sans-serif" }}>
               <IonCol size="2">#CITA</IonCol>
               <IonCol size="2">CLI</IonCol>
-              <IonCol size="2">PROC</IonCol>
               <IonCol size="4">FECHA</IonCol>
               <IonCol size="2">IMG ANT</IonCol>
             </IonRow>
@@ -159,7 +157,6 @@ class CitasTodas extends Component {
                     style={{ backgroundColor: ((i % 2 == 0) ? "#D4D4D4" : "#FFE4E1"), fontFamily: "sans-serif" }} /*onClick={(e) => this.setRedirect(e, item)}*/>
                     <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.cita_codigo} </IonCol>
                     <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.cliente_nombre} </IonCol>
-                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.procedimiento_nombre} </IonCol>
                     <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
                     {
                         item.cita_foto_deposito.length > 0 ?
