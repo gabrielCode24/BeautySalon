@@ -947,12 +947,8 @@ class CitaCrear extends Component {
     registrarCita = () => {
 
         let cliente = this.state.cliente_id_selected;
-        //let procedimiento = this.state.procedimiento_id_selected;
-        //let tecnico = this.state.tecnico_id_selected;
         let vendedor_recepcionista = this.state.vendedor_recepcionista_id_selected;
         let fecha_cita = this.state.date_selected;
-
-        let procedimiento_precio_sug = document.getElementById('procedimiento_selected_precio').value;
 
         let tecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
         let procedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
@@ -990,15 +986,15 @@ class CitaCrear extends Component {
                             var usr_ing = this.state.usuario_logueado;
 
                             let image_uploaded_path = this.state.url_guardar_imagen + "/archivos_imagenes/" + image_updloaded_name;
-
+                            
                             valuesCita = {
                                 cliente_id: cliente,
                                 fecha: fecha_cita,
                                 vend_recep_id: vendedor_recepcionista,
                                 deposito_foto: image_uploaded_path,
                                 terminos_y_cond_foto: '',
-                                fec_ing: "NOW()",
-                                usr_ing: this.state.usuario_logueado
+                                fec_ing: fec_ing,
+                                usr_ing: usr_ing
                             }
 
                             //CITA ENCABEZADO
@@ -1055,11 +1051,11 @@ class CitaCrear extends Component {
                                                                     icon: 'success',
                                                                     confirmButtonColor: '#E0218A'
                                                                 })
-                                                                /*.then((result) => {
+                                                                .then((result) => {
                                                                     if (result.isConfirmed) {
                                                                         this.setState({ redireccionar_atras: true });
                                                                     }
-                                                                });*/
+                                                                });
                                                             } else {
                                                                 Swal.fire({
                                                                     title: 'Algo falló',
@@ -1192,11 +1188,11 @@ class CitaCrear extends Component {
                                                                 icon: 'success',
                                                                 confirmButtonColor: '#E0218A'
                                                             })
-                                                            /*.then((result) => {
+                                                            .then((result) => {
                                                                 if (result.isConfirmed) {
                                                                     this.setState({ redireccionar_atras: true });
                                                                 }
-                                                            });*/
+                                                            });
                                                         } else {
                                                             Swal.fire({
                                                                 title: 'Algo falló',
@@ -1238,7 +1234,7 @@ class CitaCrear extends Component {
             })
         }
     }
-    
+
     armarSetTecnicoProcedimiento = () => {
         let itemArray = this.state.itemArray;
         let itemArraySize = itemArray.length;
