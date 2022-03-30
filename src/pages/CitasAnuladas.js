@@ -22,7 +22,7 @@ const mapStateToProps = store => ({
   cita: store.cita
 });
 
-class CitasManana extends Component {
+class CitasTodas extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -44,7 +44,7 @@ class CitasManana extends Component {
   _getCitas = () => {
     this.setState({ loading_citas: true })
 
-    let Parameters = "?action=getJSON&get=citas&filtro=completadas";
+    let Parameters = "?action=getJSON&get=citas&filtro=anuladas";
 
     console.log(this.state.url + Parameters)
     fetch(this.state.url + Parameters)
@@ -129,7 +129,7 @@ class CitasManana extends Component {
     }
 
     if (this.state.redirigir_a_cita_detalle) {
-      return (<div><Redirect to={'/cita-detalle'} /> { localStorage.setItem("route_from", "manana") }</div>);
+      return (<div><Redirect to={'/cita-detalle'} /> { localStorage.setItem("route_from", "anuladas") }</div>)
     }
 
     let citas = this.state.citas;
@@ -140,7 +140,7 @@ class CitasManana extends Component {
           <IonToolbar>
             <IonButtons slot="start">
               <IonBackButton defaultHref="/cita-pre-lista" icon={arrowBackOutline} />
-              <IonTitle><b>Citas de mañana</b></IonTitle>
+              <IonTitle><b>Citas Anuladas</b></IonTitle>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
@@ -178,4 +178,4 @@ class CitasManana extends Component {
   }
 }
 
-export default connect(mapStateToProps)(CitasManana);
+export default connect(mapStateToProps)(CitasTodas);

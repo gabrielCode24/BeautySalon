@@ -46,7 +46,11 @@ import ClienteDetalle from './pages/ClienteDetalle'
 import CitasTodas from './pages/CitasTodas'
 import CitasHoy from './pages/CitasHoy'
 import CitasManana from './pages/CitasManana'
+import CitasCompletadas from './pages/CitasCompletadas'
+import CitasAnuladas from './pages/CitasAnuladas'
+
 import CitaDetalle from './pages/CitaDetalle'
+
 
 import Config from './pages/Config'
 
@@ -124,6 +128,12 @@ function App() {
           </Route>
           <Route exact path="/citas-manana">
             <CitasManana />
+          </Route>
+          <Route exact path="/citas-completadas">
+            <CitasCompletadas />
+          </Route>
+          <Route exact path="/citas-anuladas">
+            <CitasAnuladas />
           </Route>
 
           <Route exact path="/config">

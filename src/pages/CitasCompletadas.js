@@ -22,7 +22,7 @@ const mapStateToProps = store => ({
   cita: store.cita
 });
 
-class CitasManana extends Component {
+class CitasCompletadas extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -129,7 +129,8 @@ class CitasManana extends Component {
     }
 
     if (this.state.redirigir_a_cita_detalle) {
-      return (<div><Redirect to={'/cita-detalle'} /> { localStorage.setItem("route_from", "manana") }</div>);
+      return (<div><Redirect to={'/cita-detalle'} /> { localStorage.setItem("route_from", "completadas") } </div>);
+      
     }
 
     let citas = this.state.citas;
@@ -140,7 +141,7 @@ class CitasManana extends Component {
           <IonToolbar>
             <IonButtons slot="start">
               <IonBackButton defaultHref="/cita-pre-lista" icon={arrowBackOutline} />
-              <IonTitle><b>Citas de mañana</b></IonTitle>
+              <IonTitle><b>Citas completadas</b></IonTitle>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
@@ -157,13 +158,13 @@ class CitasManana extends Component {
             {
               citas.map((item, i) => {
                 return (
-                  <IonRow key={item.cita_codigo} 
+                  <IonRow key={item.cita_codigo}
                     style={{ backgroundColor: ((i % 2 == 0) ? "#D4D4D4" : "#FFE4E1"), fontFamily: "sans-serif" }} /*onClick={(e) => this.setRedirect(e, item)}*/>
-                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.cita_codigo} </IonCol>
-                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.cliente_nombre} </IonCol>
-                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize: "12px" }} size="2"> {item.cita_codigo} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize: "12px" }} size="2"> {item.cliente_nombre} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize: "12px" }} size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
                     {
-                        item.cita_foto_deposito.length > 0 ?
+                      item.cita_foto_deposito.length > 0 ?
                         <IonCol size="2"><IonButton href={item.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon></IonButton></IonCol> :
                         <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} size="2" style={{ fontSize: "10px" }}>Sin imagen de anticipo</IonCol>
                     }
@@ -178,4 +179,4 @@ class CitasManana extends Component {
   }
 }
 
-export default connect(mapStateToProps)(CitasManana);
+export default connect(mapStateToProps)(CitasCompletadas);

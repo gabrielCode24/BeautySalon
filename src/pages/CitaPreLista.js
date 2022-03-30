@@ -15,6 +15,7 @@ import citasHoy from '../assets/images/hoy.png'
 import citasTodas from '../assets/images/todas.png'
 import citasManana from '../assets/images/manana.png'
 import citasCompletadas from '../assets/images/completadas.png'
+import citasAnuladas from '../assets/images/anuladas.png'
 
 import Swal from 'sweetalert2'
 
@@ -24,7 +25,9 @@ class CitaPreLista extends Component {
         this.state = {
             citas_todas: false,
             citas_hoy: false,
-            citas_manana: false
+            citas_manana: false,
+            citas_completadas: false,
+            citas_anuladas: false
         }
     }
 
@@ -57,6 +60,12 @@ class CitaPreLista extends Component {
             case 'citas_manana':
                 this.setState({ citas_manana: true });
                 break;
+            case 'citas_completadas':
+                this.setState({ citas_completadas: true });
+                break;
+            case 'citas_anuladas':
+                this.setState({ citas_anuladas: true });
+                break;
         }
     }
 
@@ -65,13 +74,21 @@ class CitaPreLista extends Component {
         if (this.state.citas_todas) {
             return (<Redirect to={'/citas-todas'} />)
         }
-
+        
         if (this.state.citas_hoy) {
             return (<Redirect to={'/citas-hoy'} />)
         }
 
         if (this.state.citas_manana) {
             return (<Redirect to={'/citas-manana'} />)
+        }
+
+        if (this.state.citas_completadas) {
+            return (<Redirect to={'/citas-completadas'} />)
+        }
+
+        if (this.state.citas_anuladas) {
+            return (<Redirect to={'/citas-anuladas'} />)
         }
 
         return (
@@ -104,10 +121,15 @@ class CitaPreLista extends Component {
                                     borderWidth: "1px", borderStyle: "solid"
                                 }}>{<IonImg src={citasManana} style={{ height: "100%" }}></IonImg>}</IonCol>
 
-                                <IonCol size="6" onClick={() => this.redirigir('crear_procedimiento')} style={{
+                                <IonCol size="6" onClick={() => this.redirigir('citas_completadas')} style={{
                                     height: "140px", borderColor: "#C0C0C0",
                                     borderWidth: "1px", borderStyle: "solid"
                                 }}>{<IonImg src={citasCompletadas} style={{ height: "100%" }}></IonImg>}</IonCol>
+
+                                <IonCol size="6" onClick={() => this.redirigir('citas_anuladas')} style={{
+                                    height: "140px", borderColor: "#C0C0C0",
+                                    borderWidth: "1px", borderStyle: "solid"
+                                }}>{<IonImg src={citasAnuladas} style={{ height: "100%" }}></IonImg>}</IonCol>
                             </IonRow>
                         </IonGrid>
                     </div>

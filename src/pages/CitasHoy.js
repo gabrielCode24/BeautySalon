@@ -9,11 +9,18 @@ import {
 import {
   arrowBackOutline, downloadOutline
 } from 'ionicons/icons';
-import React, { Component } from 'react'
+import { Component } from 'react'
 import { Redirect } from 'react-router-dom'
-import { url, formatearFechaLista, prepararPost } from '../utilities/utilities.js'
+import { url, formatearFechaLista } from '../utilities/utilities.js'
 
 import Swal from 'sweetalert2'
+
+import { connect } from 'react-redux'
+import { getCitaData } from '../actions/citaAction'
+
+const mapStateToProps = store => ({
+  cita: store.cita
+});
 
 class CitasHoy extends Component {
   constructor(props) {
@@ -21,16 +28,20 @@ class CitasHoy extends Component {
     this.state = {
       url: url(),
       citas: [],
-      loading_citas: false
+      loading_citas: false,
+      redirigir_a_cita_detalle: false,
+      loading_cita_data: false
     }
   }
 
   UNSAFE_componentWillMount() {
     this._getCitas();
+    if (localStorage.getItem('route_from')) {
+      localStorage.removeItem('route_from');
+    }
   }
 
   _getCitas = () => {
-
     this.setState({ loading_citas: true })
 
     let Parameters = "?action=getJSON&get=citas&filtro=hoy";
@@ -40,13 +51,9 @@ class CitasHoy extends Component {
       .then((res) => res.json())
       .then((responseJson) => {
 
-        //Guardamos las tiendas que vienen del API en el store de Redux
-        //this.props.dispatch(setTiendas(responseJson))
-
         this.setState({
           loading_citas: false,
           citas: responseJson
-          //tiendas: this.props.tiendas.list
         });
         Swal.close();
         console.log(this.state.citas)
@@ -85,6 +92,30 @@ class CitasHoy extends Component {
     }
   }
 
+  _getCita = (e, id) => {
+    this.setState({ loading_cita_data: true });
+
+    let Parameters = '?action=getJSON&get=cita_data&id=' + id;
+    console.log(this.state.url + Parameters)
+    fetch(this.state.url + Parameters)
+      .then((res) => res.json())
+      .then((responseJson) => {
+        console.log(JSON.stringify(responseJson))
+        //Guardamos la lista de clientes que vienen del API en el store de Redux
+        this.props.dispatch(getCitaData(responseJson))
+
+        this.setState({
+          loading_cita_data: false,
+          redirigir_a_cita_detalle: true
+        });
+
+        Swal.close();
+      })
+      .catch((error) => {
+        console.log(error)
+      });
+  }
+
   render() {
 
     if (!localStorage.getItem("userData")) {
@@ -97,6 +128,10 @@ class CitasHoy extends Component {
       </h1>;
     }
 
+    if (this.state.redirigir_a_cita_detalle) {
+      return (<div><Redirect to={'/cita-detalle'} /> { localStorage.setItem("route_from", "hoy") }</div>);
+    }
+
     let citas = this.state.citas;
 
     return (
@@ -105,28 +140,28 @@ class CitasHoy extends Component {
           <IonToolbar>
             <IonButtons slot="start">
               <IonBackButton defaultHref="/cita-pre-lista" icon={arrowBackOutline} />
-              <IonTitle><b>Citas de hoy</b></IonTitle>
+              <IonTitle><b>Citas de mañana</b></IonTitle>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
 
         <IonContent>
           <IonGrid style={{ borderRadius: "50% 50% 50% 50%" }}>
-            <IonRow style={{ backgroundColor: "#ffcc33", color: "#FFFFFF", textAlign:"center", fontFamily:"sans-serif" }}>
+            <IonRow style={{ backgroundColor: "#ffcc33", color: "#FFFFFF", textAlign: "center", fontFamily: "sans-serif" }}>
               <IonCol size="2">#CITA</IonCol>
               <IonCol size="2">CLI</IonCol>
               <IonCol size="4">FECHA</IonCol>
               <IonCol size="2">IMG ANT</IonCol>
             </IonRow>
-            
+
             {
               citas.map((item, i) => {
                 return (
-                  <IonRow key={item.cita_codigo}
+                  <IonRow key={item.cita_codigo} 
                     style={{ backgroundColor: ((i % 2 == 0) ? "#D4D4D4" : "#FFE4E1"), fontFamily: "sans-serif" }} /*onClick={(e) => this.setRedirect(e, item)}*/>
-                    <IonCol size="2"> {item.cita_codigo} </IonCol>
-                    <IonCol size="2"> {item.cliente_nombre} </IonCol>
-                    <IonCol size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.cita_codigo} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="2"> {item.cliente_nombre} </IonCol>
+                    <IonCol onClick={(e) => this._getCita(e, item.cita_codigo)} style={{ fontSize:"12px" }} size="4"> {formatearFechaLista(item.cita_fecha_hora)} </IonCol>
                     {
                         item.cita_foto_deposito.length > 0 ?
                         <IonCol size="2"><IonButton href={item.cita_foto_deposito} color="favorite" size="small"><IonIcon icon={downloadOutline}></IonIcon></IonButton></IonCol> :
@@ -143,4 +178,4 @@ class CitasHoy extends Component {
   }
 }
 
-export default CitasHoy;
+export default connect(mapStateToProps)(CitasHoy);
