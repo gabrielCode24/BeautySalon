@@ -56,7 +56,7 @@ class CitaDetalle extends Component {
     }
 
     modificarCita = () => {
-        return;
+        
         let inputFile = document.getElementById('imagen-terminos-condiciones').files[0];
         var fec_act = "NOW()";
         var usr_act = this.state.usuario_logueado;
