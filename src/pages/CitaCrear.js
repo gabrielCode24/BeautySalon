@@ -535,8 +535,8 @@ class CitaCrear extends Component {
                                 let arrayTecnicos = JSON.parse(localStorage.getItem("arrayTecnicos"));
 
                                 //if (document.getElementById(id_element) !== null) {
-                                    document.getElementById(id_element).style.color = "black";
-                                    document.getElementById(id_element).disabled = false;
+                                document.getElementById(id_element).style.color = "black";
+                                document.getElementById(id_element).disabled = false;
                                 //}
 
                                 if (this.inArray(id_element, arrayTecnicos, "1")) {
@@ -1357,76 +1357,8 @@ class CitaCrear extends Component {
         this.setState({ itemArray: itemArray });
         itemArray = this.state.itemArray;
 
-        //Habilitamos los botones agregar y registrar cita
-        /*if(itemArray.length >= 1){
-            document.getElementById('agregar').disabled = 'false';
-            document.getElementById('registrar_cita').disabled = 'false';
-        }*/
-
-        //Luego comprobamos que exista la localStorage de arrayTecnicos
-        if (localStorage.getItem('arrayTecnicos')) {
-            //Como ya sabemos que existe una localStorage de arrayTecnicos, lo traemos como un arreglo
-            let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
-            let idElementsItemArray = []; //Definimos una variable para meter ahí todos los índices de los elementos HTML, y así saber cuántos elementos hay
-
-            //Metemos en la variable de arreglo cada índice de itemArray
-            for (let i = 0; i < itemArray.length; i++) {
-                idElementsItemArray.push({ id_element: itemArray[i].id_element });
-            }
-
-            if (idElementsItemArray.length > 0) {
-                //Verificamos cuáles de los índices id_element de la localStorage arrayTecnicos no hace match con
-                //el arreglo idElementsItemArray para eliminarlo del arreglo arrayTecnicos
-                for (let y = 0; y < arrayTecnicos.length; y++) {
-                    if (arrayTecnicos[y + 1].id_element !== null) {
-                        if (!this.inArray(arrayTecnicos[y + 1].id_element, idElementsItemArray, "2")) {
-                            arrayTecnicos.splice(y + 1, 1);
-                        }
-                    }
-                }
-                //Finalmente actualizamos la localStorage con el resultado del ciclo anterior
-                localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
-
-                let arrayPreDisabledOptions = [];
-
-                //Mecánica para marcar los elementos deshabilitados cuando se elimina un set
-                for (let y = 0; y < arrayTecnicos.length; y++) {
-                    for (let x = 0; x < arrayTecnicos.length; x++) {
-                        arrayPreDisabledOptions.push({ item: arrayTecnicos[x].id_tecnico + "_" + parseInt(y + 1) })
-                    }
-                    if (y + 1 === arrayTecnicos.length) {
-                        break;
-                    }
-                }
-
-                for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
-                    if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
-                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicos, "1")) {
-                            setTimeout(() => {
-                                document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
-                            }, 500)
-                        }
-                    }
-                }
-            } else {
-                localStorage.removeItem('arrayTecnicos')
-            }
-            //
-        }
-
-        ///////////////////////////////////////////////////////////////////////////PROCEDIMIENTOS////////////////////
-        
-        if(this.state.date_selected !== ''){
-            setTimeout(() => {
-                document.getElementById('agregar').disabled = 'false';
-            }, 300)
-        }
-
-        //Si ya no hay elements (set de Técnico - Procedimiento), eliminamos la localStorage de Procedimientos
-        if (itemArray.length === 0) {
-            localStorage.removeItem('arrayProcedimientos');
-            return;
-        }
+        let procedimientosElements = []; //Aquí se guardará la información de procedimiento de 1 set
+        let tecnicosElements = []; //Aquí se guardará la información de técnico de 1 set
 
         //Comprobamos que exista la localStorage de arrayProcedimientos
         if (localStorage.getItem('arrayProcedimientos')) {
@@ -1464,7 +1396,7 @@ class CitaCrear extends Component {
                     }
                 }
             }
-            
+
             setTimeout(() => {
                 let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
@@ -1478,14 +1410,114 @@ class CitaCrear extends Component {
                     }
                 }
                 document.getElementById('agregar').disabled = 'false';
-                document.getElementById("procedimientos_" + itemArray.length).disabled = true;
+                if(document.getElementById("procedimientos_" + itemArray.length) !== null){
+                    document.getElementById("procedimientos_" + itemArray.length).disabled = true;
+                }
             }, 1000)
+
+            //Revisamos que haya al menos 1 procedimiento en 1 set, si ya estaba agregado, evitamos duplicar el dato
+            //Lo que necesitamos es saber si ya se ha elegido al menos un procedimiento del set
+            for (let k = 0; k < arrayProcedimientos.length; k++) {
+                if (document.getElementById(arrayProcedimientos[k].id_element) !== null) {
+                    if (!this.inArray(arrayProcedimientos[k].id_element, procedimientosElements, "3")) {
+                        procedimientosElements.push(arrayProcedimientos[k].id_element);
+                    }
+                }
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////PROCEDIMIENTOS////////////////////
+
+        //Luego comprobamos que exista la localStorage de arrayTecnicos
+        if (localStorage.getItem('arrayTecnicos')) {
+            //Como ya sabemos que existe una localStorage de arrayTecnicos, lo traemos como un arreglo
+            let arrayTecnicos = JSON.parse(localStorage.getItem('arrayTecnicos'));
+            let idElementsItemArray = []; //Definimos una variable para meter ahí todos los índices de los elementos HTML, y así saber cuántos elementos hay
+
+            //Metemos en la variable de arreglo cada índice de itemArray
+            for (let i = 0; i < itemArray.length; i++) {
+                idElementsItemArray.push({ id_element: itemArray[i].id_element });
+            }
+
+            if (idElementsItemArray.length > 0) {
+                //Verificamos cuáles de los índices id_element de la localStorage arrayTecnicos no hace match con
+                //el arreglo idElementsItemArray para eliminarlo del arreglo arrayTecnicos
+
+                //matchVar, esta variable de control sirve para cuando
+                //En un set se haya elegido al menos un procedimiento pero no un técnico, y se elimine en algún
+                //momento ese set con ese estado, entonces asigna 0 a la variable, si el set está parejo,
+                //es decir, se tiene elegido al menos un procedimiento y se eligió técnico, se le asigna +1,
+                //así se evita que truene por undefined index
+                let matchVar = 0;
+
+                //Si el set está parejo, matchVar vale +1
+                if (tecnicosElements.length === procedimientosElements.length) {
+                    matchVar = 1;
+                } else { //Caso contrario, matchVar vale 0
+                    matchVar = 0;
+                }
+
+                for (let y = 0; y < arrayTecnicos.length; y++) {
+                    if (arrayTecnicos[y + matchVar].id_element !== null) {
+                        if (!this.inArray(arrayTecnicos[y + matchVar].id_element, idElementsItemArray, "2")) {
+                            arrayTecnicos.splice(y + matchVar, 1);
+                        }
+                    }
+                }
+                //Finalmente actualizamos la localStorage con el resultado del ciclo anterior
+                localStorage.setItem('arrayTecnicos', JSON.stringify(arrayTecnicos));
+
+                let arrayPreDisabledOptions = [];
+
+                //Mecánica para marcar los elementos deshabilitados cuando se elimina un set
+                for (let y = 0; y < arrayTecnicos.length; y++) {
+                    for (let x = 0; x < arrayTecnicos.length; x++) {
+                        arrayPreDisabledOptions.push({ item: arrayTecnicos[x].id_tecnico + "_" + parseInt(y + 1) })
+                    }
+                    if (y + 1 === arrayTecnicos.length) {
+                        break;
+                    }
+                }
+
+                for (let r = 0; r < arrayPreDisabledOptions.length; r++) {
+                    if (document.getElementById(arrayPreDisabledOptions[r].item) !== null) {
+                        if (!this.inArray(arrayPreDisabledOptions[r].item, arrayTecnicos, "1")) {
+                            setTimeout(() => {
+                                document.getElementById(arrayPreDisabledOptions[r].item).disabled = true;
+                            }, 500)
+                        }
+                    }
+                }
+
+                //Revisamos que haya al menos 1 técnico en 1 set, si ya estaba agregado, evitamos duplicar el dato
+                for (let k = 0; k < arrayTecnicos.length; k++) {
+                    if (document.getElementById(arrayTecnicos[k].id_element) !== null) {
+                        if (!this.inArray(arrayTecnicos[k].id_element, tecnicosElements, "3")) {
+                            tecnicosElements.push(arrayTecnicos[k].id_element);
+                        }
+                    }
+                }
+
+            } else {
+                localStorage.removeItem('arrayTecnicos')
+            }
+            //
+        }
+
+        if (this.state.date_selected !== '') {
+            setTimeout(() => {
+                document.getElementById('agregar').disabled = 'false';
+            }, 300)
+        }
+
+        //Si ya no hay elements (set de Técnico - Procedimiento), eliminamos la localStorage de Procedimientos
+        if (itemArray.length === 0) {
+            localStorage.removeItem('arrayProcedimientos');
+            return;
         }
 
         //Calculamos los minutos acumulatorios en función de los procedimientos que van seleccionados
         this.calcularMinutosAcumulatorios(200);
-
-        
     }
 
     inArray = (needle, haystack, type) => {
