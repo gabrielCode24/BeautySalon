@@ -56,7 +56,7 @@ class CitaDetalle extends Component {
     }
 
     modificarCita = () => {
-        
+
         let inputFile = document.getElementById('imagen-terminos-condiciones').files[0];
         var fec_act = "NOW()";
         var usr_act = this.state.usuario_logueado;
@@ -101,7 +101,7 @@ class CitaDetalle extends Component {
 
                                     let valuesCambiarEstado = {
                                         id: this.state.cita[0].cita_codigo,
-                                        estado: 0,
+                                        estado: 1,
                                         terminos_y_cond_foto: image_uploaded_path,
                                         fec_act: fec_act,
                                         usr_act: usr_act
@@ -144,40 +144,6 @@ class CitaDetalle extends Component {
                             });
                         return true;
                     }
-
-                    /*
-                    const requestOptionsCambiarEstadoCita = prepararPost(valuesCambiarEstado, "update_cita_estado", "updateJsons", "jsonSingle");
-                    
-                    fetch(this.state.url, requestOptionsCambiarEstadoCita)
-                        .then((response) => {
-                            if (response.status === 200) {
-                                Swal.close();
-
-                                this.setState({
-                                    sending: false
-                                });
-
-                                Swal.fire({
-                                    title: '¡Éxito!',
-                                    text: '¡Cita cerrada correctamente!',
-                                    icon: 'success',
-                                    confirmButtonColor: '#E0218A'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        this.setState({ redireccionar_atras: true });
-                                    }
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Algo falló',
-                                    text: 'Ocurrió un error inesperado, no se cerró la cita, favor comunicarse con el desarrollador.',
-                                    icon: 'error',
-                                    confirmButtonText: 'Aceptar',
-                                    confirmButtonColor: 'red'
-                                });
-                            }
-                        })
-                        */
                 }
             })
         } else if (this.state.cita_anulada) {
@@ -295,7 +261,7 @@ class CitaDetalle extends Component {
                         <IonToolbar>
 
                             <IonButtons slot="start">
-                                <IonBackButton defaultHref="/citas" icon={arrowBackOutline} />
+                                <IonBackButton defaultHref="/cita-pre-lista" icon={arrowBackOutline} />
                             </IonButtons>
 
                             <IonTitle style={{ fontFamily: "sans-serif", fontSize: "15px" }}><b>DETALLE CITA</b></IonTitle>
@@ -349,9 +315,7 @@ class CitaDetalle extends Component {
                                                         ""
                                                 }
                                             </IonRow>
-
                                         </IonItem>
-
                                         <hr />
                                     </div>
                                 )
@@ -394,10 +358,20 @@ class CitaDetalle extends Component {
                         }
                     </IonList>
                 </IonContent>
-                <IonFooter>
-                    <IonButton color="favorite" expand="block" onClick={() => this.modificarCita()} disabled="false">{this.state.texto_boton_procesar}</IonButton>
-                </IonFooter>
-            </IonPage >
+                {
+                    (route_from !== "completadas" && route_from !== "anuladas") ?
+                        <div>
+                            <IonFooter>
+                                <IonButton color="favorite" expand="block" onClick={() => this.modificarCita()} disabled="false">{this.state.texto_boton_procesar}</IonButton>
+                            </IonFooter>
+                        </div> : 
+                        <div>
+                            <IonFooter>
+                                <IonButton color="favorite" expand="block" disabled="true">!</IonButton>
+                            </IonFooter>
+                        </div>
+                }
+            </IonPage>
         )
     }
 }

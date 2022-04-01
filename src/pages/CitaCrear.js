@@ -534,8 +534,10 @@ class CitaCrear extends Component {
                                 let id_element = localStorage.getItem("tecnicoSeleccionadoSetActualIdElement");
                                 let arrayTecnicos = JSON.parse(localStorage.getItem("arrayTecnicos"));
 
-                                document.getElementById(id_element).style.color = "black";
-                                document.getElementById(id_element).disabled = false;
+                                //if (document.getElementById(id_element) !== null) {
+                                    document.getElementById(id_element).style.color = "black";
+                                    document.getElementById(id_element).disabled = false;
+                                //}
 
                                 if (this.inArray(id_element, arrayTecnicos, "1")) {
                                     for (let k = 0; k < arrayTecnicos.length; k++) {
@@ -986,7 +988,7 @@ class CitaCrear extends Component {
                             var usr_ing = this.state.usuario_logueado;
 
                             let image_uploaded_path = this.state.url_guardar_imagen + "/archivos_imagenes/" + image_updloaded_name;
-                            
+
                             valuesCita = {
                                 cliente_id: cliente,
                                 fecha: fecha_cita,
@@ -1051,11 +1053,11 @@ class CitaCrear extends Component {
                                                                     icon: 'success',
                                                                     confirmButtonColor: '#E0218A'
                                                                 })
-                                                                .then((result) => {
-                                                                    if (result.isConfirmed) {
-                                                                        this.setState({ redireccionar_atras: true });
-                                                                    }
-                                                                });
+                                                                    .then((result) => {
+                                                                        if (result.isConfirmed) {
+                                                                            this.setState({ redireccionar_atras: true });
+                                                                        }
+                                                                    });
                                                             } else {
                                                                 Swal.fire({
                                                                     title: 'Algo falló',
@@ -1188,11 +1190,11 @@ class CitaCrear extends Component {
                                                                 icon: 'success',
                                                                 confirmButtonColor: '#E0218A'
                                                             })
-                                                            .then((result) => {
-                                                                if (result.isConfirmed) {
-                                                                    this.setState({ redireccionar_atras: true });
-                                                                }
-                                                            });
+                                                                .then((result) => {
+                                                                    if (result.isConfirmed) {
+                                                                        this.setState({ redireccionar_atras: true });
+                                                                    }
+                                                                });
                                                         } else {
                                                             Swal.fire({
                                                                 title: 'Algo falló',
@@ -1348,11 +1350,18 @@ class CitaCrear extends Component {
     }
 
     quitarSetTecnicoProcedimiento = () => {
+
         let itemArray = this.state.itemArray;
         //Primero eliminamos el último elemento del arreglo, el de los HTML
         itemArray.pop();
         this.setState({ itemArray: itemArray });
         itemArray = this.state.itemArray;
+
+        //Habilitamos los botones agregar y registrar cita
+        /*if(itemArray.length >= 1){
+            document.getElementById('agregar').disabled = 'false';
+            document.getElementById('registrar_cita').disabled = 'false';
+        }*/
 
         //Luego comprobamos que exista la localStorage de arrayTecnicos
         if (localStorage.getItem('arrayTecnicos')) {
@@ -1369,7 +1378,7 @@ class CitaCrear extends Component {
                 //Verificamos cuáles de los índices id_element de la localStorage arrayTecnicos no hace match con
                 //el arreglo idElementsItemArray para eliminarlo del arreglo arrayTecnicos
                 for (let y = 0; y < arrayTecnicos.length; y++) {
-                    if (arrayTecnicos[y + 1].id_element !== null || arrayTecnicos[y + 1].id_element !== undefined) {
+                    if (arrayTecnicos[y + 1].id_element !== null) {
                         if (!this.inArray(arrayTecnicos[y + 1].id_element, idElementsItemArray, "2")) {
                             arrayTecnicos.splice(y + 1, 1);
                         }
@@ -1406,6 +1415,12 @@ class CitaCrear extends Component {
         }
 
         ///////////////////////////////////////////////////////////////////////////PROCEDIMIENTOS////////////////////
+        
+        if(this.state.date_selected !== ''){
+            setTimeout(() => {
+                document.getElementById('agregar').disabled = 'false';
+            }, 300)
+        }
 
         //Si ya no hay elements (set de Técnico - Procedimiento), eliminamos la localStorage de Procedimientos
         if (itemArray.length === 0) {
@@ -1449,7 +1464,7 @@ class CitaCrear extends Component {
                     }
                 }
             }
-
+            
             setTimeout(() => {
                 let arrayProcedimientos = JSON.parse(localStorage.getItem('arrayProcedimientos'));
 
@@ -1462,11 +1477,15 @@ class CitaCrear extends Component {
                         }
                     }
                 }
+                document.getElementById('agregar').disabled = 'false';
+                document.getElementById("procedimientos_" + itemArray.length).disabled = true;
             }, 1000)
         }
 
         //Calculamos los minutos acumulatorios en función de los procedimientos que van seleccionados
         this.calcularMinutosAcumulatorios(200);
+
+        
     }
 
     inArray = (needle, haystack, type) => {
@@ -1738,7 +1757,7 @@ class CitaCrear extends Component {
 
                                     {/* LISTA DE PROCEDIMIENTOS */}
                                     <IonAccordionGroup id="procedimientos">
-                                        <IonAccordion value="procedimientos">
+                                        <IonAccordion id={"procedimientos_" + itemx.id_element} value="procedimientos">
                                             <IonItem slot="header">
                                                 <b><IonLabel>Seleccionar Procedimiento:</IonLabel></b>
                                             </IonItem>
