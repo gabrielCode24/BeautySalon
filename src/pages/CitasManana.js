@@ -44,7 +44,7 @@ class CitasManana extends Component {
   _getCitas = () => {
     this.setState({ loading_citas: true })
 
-    let Parameters = "?action=getJSON&get=citas&filtro=completadas";
+    let Parameters = "?action=getJSON&get=citas&filtro=manana";
 
     console.log(this.state.url + Parameters)
     fetch(this.state.url + Parameters)

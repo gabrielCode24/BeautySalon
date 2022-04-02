@@ -40,7 +40,6 @@ export function prepararPost(values, set, action = "setJsons", structure = "json
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
       body: formBody
     };
-    console.log(requestOptions);
     return requestOptions;
 
   } else if (structure == "jsonArray") {
@@ -54,8 +53,7 @@ export function prepararPost(values, set, action = "setJsons", structure = "json
       set: set,
       data: JSON.stringify(data)
     }
-
-    //Formateamos requestMetaData de JSON a formato de URL (ej. => &x=1&y=2&z=3)
+    
     var formBody = [];
     for (var property in requestMetaData) {
       var encodedKey = encodeURIComponent(property);
@@ -64,14 +62,11 @@ export function prepararPost(values, set, action = "setJsons", structure = "json
     }
     formBody = formBody.join("&");
 
-    //Finalmente preparamos toda la estructura del request que enviaremos a la función fetch para hacer el POST
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
       body: formBody
     };
-
-    console.log(requestOptions);
     return requestOptions;
 
   }

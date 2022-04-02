@@ -45,8 +45,7 @@ class CitasHoy extends Component {
     this.setState({ loading_citas: true })
 
     let Parameters = "?action=getJSON&get=citas&filtro=hoy";
-
-    console.log(this.state.url + Parameters)
+    
     fetch(this.state.url + Parameters)
       .then((res) => res.json())
       .then((responseJson) => {

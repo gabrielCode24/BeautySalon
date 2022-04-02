@@ -39,8 +39,7 @@ class ProcedimientoCrear extends Component {
         this.setState({ loading_tiempo_est: true })
 
         let Parameters = "?action=getJSON&get=procedimiento_tiempo_est";
-
-        console.log(this.state.url + Parameters)
+        
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -50,7 +49,6 @@ class ProcedimientoCrear extends Component {
                     tiempos_est: responseJson
                 });
                 Swal.close();
-                console.log(this.state.tiempos_est)
             })
             .catch((error) => {
                 console.log(error)

@@ -93,7 +93,6 @@ class ClienteLista extends Component {
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
-                console.log(JSON.stringify(responseJson))
                 //Guardamos la lista de clientes que vienen del API en el store de Redux
                 this.props.dispatch(getClienteData(responseJson))
                 

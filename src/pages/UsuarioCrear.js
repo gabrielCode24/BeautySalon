@@ -144,7 +144,6 @@ class UsuarioCrear extends Component {
                                                 foto_usuario_uploading: false,
                                                 sending: true
                                             });
-                                            console.log(nombreArchivo);
 
                                             setTimeout(() => {
 

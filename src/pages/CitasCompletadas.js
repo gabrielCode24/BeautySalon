@@ -46,7 +46,6 @@ class CitasCompletadas extends Component {
 
     let Parameters = "?action=getJSON&get=citas&filtro=completadas";
 
-    console.log(this.state.url + Parameters)
     fetch(this.state.url + Parameters)
       .then((res) => res.json())
       .then((responseJson) => {
@@ -56,7 +55,6 @@ class CitasCompletadas extends Component {
           citas: responseJson
         });
         Swal.close();
-        console.log(this.state.citas)
       })
       .catch((error) => {
         console.log(error)
@@ -96,11 +94,10 @@ class CitasCompletadas extends Component {
     this.setState({ loading_cita_data: true });
 
     let Parameters = '?action=getJSON&get=cita_data&id=' + id;
-    console.log(this.state.url + Parameters)
+    
     fetch(this.state.url + Parameters)
       .then((res) => res.json())
       .then((responseJson) => {
-        console.log(JSON.stringify(responseJson))
         //Guardamos la lista de clientes que vienen del API en el store de Redux
         this.props.dispatch(getCitaData(responseJson))
 

@@ -50,7 +50,6 @@ class ProcedimientoDetalle extends Component {
 
         let Parameters = "?action=getJSON&get=procedimiento_tiempo_est";
 
-        console.log(this.state.url + Parameters)
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -60,7 +59,6 @@ class ProcedimientoDetalle extends Component {
                     tiempos_est: responseJson
                 });
                 Swal.close();
-                console.log(this.state.tiempos_est)
             })
             .catch((error) => {
                 console.log(error)
@@ -93,15 +91,6 @@ class ProcedimientoDetalle extends Component {
         var activo = document.getElementById('activo').value;
         var perm_camb_pre_vend = document.getElementById('perm_camb_pre_vend').value;
         var tiempo_estimado = this.state.tiempo_estimado_selected;
-
-        /*
-        console.log(nombre);
-        console.log(precio);
-        console.log(activo);
-        console.log(perm_camb_pre_vend);
-        console.log(tiempo_estimado);
-        */
-
         var fec_act = "NOW()";
         var usr_act = this.state.usuario_logueado;
 

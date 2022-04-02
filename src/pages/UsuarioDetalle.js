@@ -94,7 +94,8 @@ class UsuarioDetalle extends Component {
             //Si pasó todas las validaciones pasamos al siguiente bloque
             var valuesUsuario = {
                 id: id, telefono: telefono, fecha_nac: fecha_nac, id_rtn: identidad,
-                direccion: direccion, activo: activo, fec_act: fec_act, usr_act: usr_act
+                clave: clave, direccion: direccion, activo: activo,
+                fec_act: fec_act, usr_act: usr_act
             }
 
             const requestOptionsUsuario = prepararPost(valuesUsuario, "update_usuario", "updateJsons", "jsonSingle");

@@ -362,7 +362,6 @@ class CitaCrear extends Component {
         if (!localStorage.getItem('arrayProcedimientos')) {
             let arrayProcedimientos = [];
 
-            console.log(item.minutos);
             this.setState({ tiempo_estimado_proc_actual: item.minutos });
 
             arrayProcedimientos.push({ id_proc: item.id, id_element: id_element, id_option: item.id + "_" + id_element, precio_sug: item.precio_sug, minutos: item.minutos });
@@ -389,8 +388,6 @@ class CitaCrear extends Component {
                         }
                     }
                 }
-                console.log("TECNICOS CHECKX: " + tecnicosElements.length);
-                console.log("ITEM ARRAY LENGTH: " + itemArray.length);
 
                 setTimeout(() => {
                     if (tecnicosElements.length === itemArray.length) {
@@ -406,7 +403,6 @@ class CitaCrear extends Component {
 
             if (localStorage.getItem("tecnicoSeleccionadoSetActual") == 1
                 && localStorage.getItem("numeroProcedimientosSetActual") > 0) {
-                console.log("ENTRÓ");
                 Swal.fire({
                     title: 'Técnico ya elegido, el tiempo ya estaba calculado',
                     text: "Ya ha elegido un técnico para este set, si modifica los procedimientos tendrá que volver a seleccionar a un técnico, ¿está seguro(a) que desea continuar?",
@@ -517,8 +513,6 @@ class CitaCrear extends Component {
                                     }
                                 }
                             }
-                            console.log("TECNICOS CHECKX: " + tecnicosElements.length);
-                            console.log("ITEM ARRAY LENGTH: " + itemArray.length);
 
                             setTimeout(() => {
                                 if (tecnicosElements.length === itemArray.length) {
@@ -661,8 +655,6 @@ class CitaCrear extends Component {
                             }
                         }
                     }
-                    console.log("TECNICOS CHECKX: " + tecnicosElements.length);
-                    console.log("ITEM ARRAY LENGTH: " + itemArray.length);
 
                     setTimeout(() => {
                         if (tecnicosElements.length === itemArray.length) {
@@ -686,7 +678,7 @@ class CitaCrear extends Component {
 
         //let Parameters = '?action=getJSON&get=tecnicos_lista';
         let Parameters = '?action=getJSON&get=tecnicos_lista&datetime=' + fecha_cita;
-        console.log(this.state.url + Parameters)
+
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -721,7 +713,6 @@ class CitaCrear extends Component {
 
         //Comprobamos la disponibilidad del técnico en función del tiempo actual en la cita
         let Parameters = "?action=getJSON&get=tecnico_disponibilidad&id=" + item.id + "&datetime=" + fecha_completa_actualizada + "&datetime_d=" + this.state.date_selected + "&minutos=0&minutos_desde=" + minutosAcumuladosSet; //+ this.state.tiempo_estimado_proc_actual;
-        console.log(this.state.url + Parameters);
 
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
@@ -916,17 +907,9 @@ class CitaCrear extends Component {
                 date_selected: ''
             });
             return;
-        } else {
-            console.log("Es una fecha en el futuro");
         }
 
-        console.log("Cita agendada para el " + date + " a las " + hour + " horas");
-
-        console.log(dateFromIonDatetime);
-        console.log(this.state.date_selected);
-
         setTimeout(() => {
-            console.log("Fecha y hora seleccionada para la cita: " + dateAndTimeOfAppointment);
             document.getElementById('agregar').disabled = "false"; //Habilitar botón Agregar
         }, 1000);
 
@@ -983,7 +966,6 @@ class CitaCrear extends Component {
                         setTimeout(() => {
 
                             let image_updloaded_name = this.state.image_updloaded_name;
-                            console.log("NOMBRE DE LA IMAGEN: " + image_updloaded_name);
                             var fec_ing = "NOW()";
                             var usr_ing = this.state.usuario_logueado;
 
@@ -1033,8 +1015,6 @@ class CitaCrear extends Component {
                                                     }
                                                 }
 
-                                                console.log(arrayCitaDetalle);
-
                                                 setTimeout(() => {
                                                     const requestOptionsCitaDetalle = prepararPost(arrayCitaDetalle, "cita_detalle", "setJsons", "jsonArray");
 
@@ -1069,9 +1049,6 @@ class CitaCrear extends Component {
                                                             }
                                                         })
                                                 }, 2000)
-
-                                                //console.log(arrayCita);
-
                                             })
                                             .catch((error) => {
                                                 console.log(error)
@@ -1170,8 +1147,6 @@ class CitaCrear extends Component {
                                                 }
                                             }
 
-                                            console.log(arrayCitaDetalle);
-
                                             setTimeout(() => {
                                                 const requestOptionsCitaDetalle = prepararPost(arrayCitaDetalle, "cita_detalle", "setJsons", "jsonArray");
 
@@ -1206,9 +1181,6 @@ class CitaCrear extends Component {
                                                         }
                                                     })
                                             }, 2000)
-
-                                            //console.log(arrayCita);
-
                                         })
                                         .catch((error) => {
                                             console.log(error)
@@ -1320,18 +1292,14 @@ class CitaCrear extends Component {
                         let itemArray = this.state.itemArray;
 
                         setTimeout(() => {
-                            console.log(itemArray);
-
                             for (let i = 0; i < itemArray.length - 1; i++) {
                                 for (let x = 0; x < this.state.procedimientos.length; x++) {
-                                    console.log(this.state.procedimientos[x].id + "_" + itemArray[i].id_element);
                                     document.getElementById(this.state.procedimientos[x].id + "_" + itemArray[i].id_element).disabled = true;
                                 }
                             }
 
                             for (let i = 0; i < itemArray.length - 1; i++) {
                                 for (let x = 0; x < this.state.tecnicos.length; x++) {
-                                    console.log(this.state.tecnicos[x].id + "_" + itemArray[i].id_element);
                                     document.getElementById(this.state.tecnicos[x].id + "_" + itemArray[i].id_element).disabled = true;
                                 }
                             }
@@ -1410,7 +1378,7 @@ class CitaCrear extends Component {
                     }
                 }
                 document.getElementById('agregar').disabled = 'false';
-                if(document.getElementById("procedimientos_" + itemArray.length) !== null){
+                if (document.getElementById("procedimientos_" + itemArray.length) !== null) {
                     document.getElementById("procedimientos_" + itemArray.length).disabled = true;
                 }
             }, 1000)
@@ -1582,12 +1550,10 @@ class CitaCrear extends Component {
         //seleccionado o viceversa, un procedimiento tiene un técnico en ese set,
         //entonces habilitamos el botón de Agregar (+)
         if (tecnicosElements.length === procedimientosElements.length) {
-            //console.log("===");
             document.getElementById('agregar').disabled = "false";
             document.getElementById('registrar_cita').disabled = "false";
         } else { //Caso contrario, el último set está disparejo, es decir, no tiene un técnico - proceimiento
-            //o viceversa, deshabilitamos el botón de Agregar (+)
-            //console.log("!==");
+                 //o viceversa, deshabilitamos el botón de Agregar (+)
             document.getElementById('agregar').disabled = "true";
             document.getElementById('registrar_cita').disabled = "true";
         }
@@ -1611,7 +1577,6 @@ class CitaCrear extends Component {
             for (let y = 0; y < itemArray.length - 1; y++) {
                 for (let z = 0; z < this.state.tecnicos.length; z++) {
                     if (document.getElementById(this.state.tecnicos[z].id + "_" + itemArray[y].id_element) !== null) {
-                        console.log(this.state.tecnicos[z].id + "_" + itemArray[y].id_element);
                         document.getElementById(this.state.tecnicos[z].id + "_" + itemArray[y].id_element).disabled = true;
                     }
                 }
@@ -1635,10 +1600,6 @@ class CitaCrear extends Component {
             fecha_cita_time_added = convert(fecha_cita_time_added);
 
             this.setState({ hora_actual: fecha_cita_time_added });
-
-            setTimeout(() => {
-                console.log("HORA ACTUAL EN FUNCION DE PROCEDIMIENTOS SELECCIONADOS: " + this.state.hora_actual);
-            }, milisegundos);
         }
     }
 

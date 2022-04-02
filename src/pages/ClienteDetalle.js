@@ -138,7 +138,6 @@ class ClienteDetalle extends Component {
         }
 
         let cliente = this.state.cliente;
-        console.log(JSON.stringify(cliente))
 
         return (
             <IonPage>
