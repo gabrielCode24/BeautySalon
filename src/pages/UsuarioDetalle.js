@@ -197,7 +197,6 @@ class UsuarioDetalle extends Component {
                             <IonThumbnail slot="start">
                                 <IonImg src={usuario.foto} />
                             </IonThumbnail>
-                            <IonButton color="favorite">Cambiar foto</IonButton>
                         </IonItem>
 
                         <IonItem>
