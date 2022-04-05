@@ -1477,8 +1477,8 @@ class CitaCrear extends Component {
                 document.getElementById('agregar').disabled = 'false';
 
                 if(itemArray.length > 0){
-                    document.getElementById('registrar_cita').disabled = 'false';                }
-
+                    document.getElementById('registrar_cita').disabled = 'false';                
+                }
             }, 300)
         }
 
