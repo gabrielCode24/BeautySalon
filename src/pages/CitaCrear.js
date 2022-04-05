@@ -1475,6 +1475,10 @@ class CitaCrear extends Component {
         if (this.state.date_selected !== '') {
             setTimeout(() => {
                 document.getElementById('agregar').disabled = 'false';
+
+                if(itemArray.length > 0){
+                    document.getElementById('registrar_cita').disabled = 'false';                }
+
             }, 300)
         }
 
