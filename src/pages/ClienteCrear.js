@@ -86,6 +86,10 @@ class ClienteCrear extends Component {
                 correo: correo, direccion: direccion, fec_ing: fec_ing, usr_ing: usr_ing
             }
 
+            this.setState({
+                sending: true
+            });
+
             const requestOptionsCliente = prepararPost(valuesUsuario, "cliente", "setJsons", "jsonSingle");
 
             fetch(this.state.url, requestOptionsCliente)
@@ -133,6 +137,12 @@ class ClienteCrear extends Component {
 
         if (this.state.redireccionar_atras) {
             return (<Redirect to={'/clientes'} />)
+        }
+
+        if (this.state.sending) {
+            return <h1>
+                {Swal.showLoading()}
+            </h1>;
         }
 
         return (

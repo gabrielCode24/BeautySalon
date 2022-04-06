@@ -39,7 +39,7 @@ class ProcedimientoCrear extends Component {
         this.setState({ loading_tiempo_est: true })
 
         let Parameters = "?action=getJSON&get=procedimiento_tiempo_est";
-        
+
         fetch(this.state.url + Parameters)
             .then((res) => res.json())
             .then((responseJson) => {
@@ -57,7 +57,7 @@ class ProcedimientoCrear extends Component {
 
     _getTiempoEstimadoSeleccionado = (e) => {
         let id = e.target.value.id;
-        
+
         this.setState({
             tiempo_estimado_selected: id
         });
@@ -79,8 +79,8 @@ class ProcedimientoCrear extends Component {
         var precio = document.getElementById('precio').value;
         var perm_camb_pre_vend = document.getElementById('perm_camb_pre_vend').value;
         var tiempo_estimado = this.state.tiempo_estimado_selected;
-        
-        if(typeof(perm_camb_pre_vend)){
+
+        if (typeof (perm_camb_pre_vend)) {
             perm_camb_pre_vend = 1;
         }
 
@@ -90,13 +90,13 @@ class ProcedimientoCrear extends Component {
         if (nombre.length > 0 && precio.length > 0) {
 
             //VALIDACIONES
-            //Nombre
+            //Nombre del procedimiento
             if (nombre.length < 6) {
                 this.mensajeValidacion("El nombre debe tener al menos 6 caracteres.");
                 return;
             }
 
-            //Teléfono
+            //Descripción
             if (descripcion.length > 1) {
                 if (descripcion.length < 10) {
                     this.mensajeValidacion("La descripción del procedimiento debe tener al menos 10 caracteres.");
@@ -104,7 +104,7 @@ class ProcedimientoCrear extends Component {
                 }
             }
 
-            //Identidad
+            //Precio
             if (precio == 0.00 & precio == 0 && precio < 0) {
                 this.mensajeValidacion("El precio ingresado no es correcto, favor ingrese un precio válido.");
                 return;
@@ -118,8 +118,12 @@ class ProcedimientoCrear extends Component {
                 fec_ing: fec_ing, usr_ing: usr_ing
             }
 
-            const requestOptionsProcedimiento = prepararPost(valuesProcedimiento, "procedimiento", "setJsons", "jsonSingle");
+            this.setState({
+                sending: true
+            });
 
+            const requestOptionsProcedimiento = prepararPost(valuesProcedimiento, "procedimiento", "setJsons", "jsonSingle");
+            
             fetch(this.state.url, requestOptionsProcedimiento)
                 .then((response) => {
                     if (response.status === 200) {
@@ -167,6 +171,12 @@ class ProcedimientoCrear extends Component {
             return (<Redirect to={'/procedimientos'} />)
         }
 
+        if (this.state.sending) {
+            return <h1>
+                {Swal.showLoading()}
+            </h1>;
+        }
+
         return (
             <IonPage>
                 <IonContent>
@@ -208,9 +218,9 @@ class ProcedimientoCrear extends Component {
                             <IonLabel>Precio (L):</IonLabel>
                             <IonInput id="precio" type="number" placeholder="Precio (L)" required></IonInput>
                         </IonItem>
-                        
+
                         <IonItem>
-                            <IonLabel style={{ fontSize:"13px" }}>¿Permitido cambiar precio en cita por Vendedor?</IonLabel>
+                            <IonLabel style={{ fontSize: "13px" }}>¿Permitido cambiar precio en cita por Vendedor?</IonLabel>
                             <IonSelect id="perm_camb_pre_vend" okText="Aceptar" placeholder="Sí" cancelText="Cancelar" interface="action-sheet">
                                 <IonSelectOption value="1">Sí</IonSelectOption>
                                 <IonSelectOption value="0">No</IonSelectOption>
