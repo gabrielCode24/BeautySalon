@@ -861,66 +861,157 @@ class CitaCrear extends Component {
     }
 
     dateChanged = (event) => {
-        let datetime = event.detail.value;
-        const dateFromIonDatetime = datetime;
-        const formattedString = format(parseISO(dateFromIonDatetime), 'yyyy-MM-dd hh:mm:ss a');
-        const formattedStringDate = format(parseISO(dateFromIonDatetime), 'yyyy-MM-dd');
-
-        let optionsDate = {};
-        let optionsHour = {};
-
-        this.setState({
-            fecha_cita_selected: formattedString
-        })
-
-        //FECHA FORMATEADA EN ESPAÑOL
-        let d = new Date(formattedString);
-        let date = '';
-        let hour = '';
-
-        optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        optionsHour = { hour: 'numeric', minute: 'numeric', hour12: false };
-
-        date = d.toLocaleDateString("es-MX", optionsDate);
-        hour = d.toLocaleString("es-MX", optionsHour);
-
-        //Fecha que será guardada en la base de datos
-        let dateAndTimeOfAppointment = formattedStringDate + " " + hour;
-
-        this.setState({
-            date_selected: dateAndTimeOfAppointment
-        });
-
-        let datex = new Date(formattedString);
-        let datePast = isPast(datex);
-
-        if (datePast) {
+        
+        if (this.state.date_selected !== '') {
             Swal.fire({
-                title: 'Fecha no válida',
-                text: 'No se permite establecer una fecha u hora del pasado como una fecha para cita.',
-                icon: 'info',
-                confirmButtonText: 'Aceptar',
-                confirmButtonColor: '#E0218A'
+                title: 'Advertencia',
+                text: 'Si cambia la fecha o la hora de la cita se eliminará TODA su selección de procedimientos y técnicos, ¿está segura(o) que desea continuar?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'No',
+                confirmButtonText: 'Sí',
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    this.state.itemArray = [];
+
+                    if(localStorage.getItem('arrayProcedimientos')){
+                        localStorage.removeItem('arrayProcedimientos');
+                        localStorage.removeItem('numeroProcedimientosSetActual');
+                    }
+
+                    if(localStorage.getItem('arrayTecnicos')){
+                        localStorage.removeItem('arrayTecnicos');
+                        localStorage.removeItem('tecnicoSeleccionadoSetActual');
+                        localStorage.removeItem('tecnicoSeleccionadoSetActualIdElement');                        
+                    }
+
+                    let datetime = event.detail.value;
+                    const dateFromIonDatetime = datetime;
+                    const formattedString = format(parseISO(dateFromIonDatetime), 'yyyy-MM-dd hh:mm:ss a');
+                    const formattedStringDate = format(parseISO(dateFromIonDatetime), 'yyyy-MM-dd');
+
+                    let optionsDate = {};
+                    let optionsHour = {};
+
+                    this.setState({
+                        fecha_cita_selected: formattedString
+                    })
+
+                    //FECHA FORMATEADA EN ESPAÑOL
+                    let d = new Date(formattedString);
+                    let date = '';
+                    let hour = '';
+
+                    optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    optionsHour = { hour: 'numeric', minute: 'numeric', hour12: false };
+
+                    date = d.toLocaleDateString("es-MX", optionsDate);
+                    hour = d.toLocaleString("es-MX", optionsHour);
+
+                    //Fecha que será guardada en la base de datos
+                    let dateAndTimeOfAppointment = formattedStringDate + " " + hour;
+
+                    this.setState({
+                        date_selected: dateAndTimeOfAppointment
+                    });
+
+                    let datex = new Date(formattedString);
+                    let datePast = isPast(datex);
+
+                    if (datePast) {
+                        Swal.fire({
+                            title: 'Fecha no válida',
+                            text: 'No se permite establecer una fecha u hora del pasado como una fecha para cita.',
+                            icon: 'info',
+                            confirmButtonText: 'Aceptar',
+                            confirmButtonColor: '#E0218A'
+                        });
+
+                        this.setState({
+                            date_selected: ''
+                        });
+                        return;
+                    }
+
+                    setTimeout(() => {
+                        document.getElementById('agregar').disabled = "false"; //Habilitar botón Agregar
+                    }, 1000);
+
+                    this.setState({
+                        show_picker: false,
+                        fecha_rotulo: "Fecha y hora seleccionadas: " + date + " a las " + hour + " horas"
+                    });
+
+                    document.getElementById("fecha_rotulo").style.display = 'block';
+
+                    this._getTecnicos();
+                }
             });
+        } else {
+            let datetime = event.detail.value;
+            const dateFromIonDatetime = datetime;
+            const formattedString = format(parseISO(dateFromIonDatetime), 'yyyy-MM-dd hh:mm:ss a');
+            const formattedStringDate = format(parseISO(dateFromIonDatetime), 'yyyy-MM-dd');
+
+            let optionsDate = {};
+            let optionsHour = {};
 
             this.setState({
-                date_selected: ''
+                fecha_cita_selected: formattedString
+            })
+
+            //FECHA FORMATEADA EN ESPAÑOL
+            let d = new Date(formattedString);
+            let date = '';
+            let hour = '';
+
+            optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            optionsHour = { hour: 'numeric', minute: 'numeric', hour12: false };
+
+            date = d.toLocaleDateString("es-MX", optionsDate);
+            hour = d.toLocaleString("es-MX", optionsHour);
+
+            //Fecha que será guardada en la base de datos
+            let dateAndTimeOfAppointment = formattedStringDate + " " + hour;
+
+            this.setState({
+                date_selected: dateAndTimeOfAppointment
             });
-            return;
+
+            let datex = new Date(formattedString);
+            let datePast = isPast(datex);
+
+            if (datePast) {
+                Swal.fire({
+                    title: 'Fecha no válida',
+                    text: 'No se permite establecer una fecha u hora del pasado como una fecha para cita.',
+                    icon: 'info',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#E0218A'
+                });
+
+                this.setState({
+                    date_selected: ''
+                });
+                return;
+            }
+
+            setTimeout(() => {
+                document.getElementById('agregar').disabled = "false"; //Habilitar botón Agregar
+            }, 1000);
+
+            this.setState({
+                show_picker: false,
+                fecha_rotulo: "Fecha y hora seleccionadas: " + date + " a las " + hour + " horas"
+            });
+
+            document.getElementById("fecha_rotulo").style.display = 'block';
+
+            this._getTecnicos();
         }
-
-        setTimeout(() => {
-            document.getElementById('agregar').disabled = "false"; //Habilitar botón Agregar
-        }, 1000);
-
-        this.setState({
-            show_picker: false,
-            fecha_rotulo: "Fecha y hora seleccionadas: " + date + " a las " + hour + " horas"
-        });
-
-        document.getElementById("fecha_rotulo").style.display = 'block';
-
-        this._getTecnicos();
     }
 
     showPicker = () => {
@@ -1032,12 +1123,11 @@ class CitaCrear extends Component {
                                                                     text: 'Cita agendada correctamente',
                                                                     icon: 'success',
                                                                     confirmButtonColor: '#E0218A'
-                                                                })
-                                                                    .then((result) => {
-                                                                        if (result.isConfirmed) {
-                                                                            this.setState({ redireccionar_atras: true });
-                                                                        }
-                                                                    });
+                                                                }).then((result) => {
+                                                                    if (result.isConfirmed) {
+                                                                        this.setState({ redireccionar_atras: true });
+                                                                    }
+                                                                });
                                                             } else {
                                                                 Swal.fire({
                                                                     title: 'Algo falló',
@@ -1476,8 +1566,8 @@ class CitaCrear extends Component {
             setTimeout(() => {
                 document.getElementById('agregar').disabled = 'false';
 
-                if(itemArray.length > 0){
-                    document.getElementById('registrar_cita').disabled = 'false';                
+                if (itemArray.length > 0) {
+                    document.getElementById('registrar_cita').disabled = 'false';
                 }
             }, 300)
         }
@@ -1557,7 +1647,7 @@ class CitaCrear extends Component {
             document.getElementById('agregar').disabled = "false";
             document.getElementById('registrar_cita').disabled = "false";
         } else { //Caso contrario, el último set está disparejo, es decir, no tiene un técnico - proceimiento
-                 //o viceversa, deshabilitamos el botón de Agregar (+)
+            //o viceversa, deshabilitamos el botón de Agregar (+)
             document.getElementById('agregar').disabled = "true";
             document.getElementById('registrar_cita').disabled = "true";
         }
