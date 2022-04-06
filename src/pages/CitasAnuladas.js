@@ -136,7 +136,7 @@ class CitasTodas extends Component {
           <IonToolbar>
             <IonButtons slot="start">
               <IonBackButton defaultHref="/cita-pre-lista" icon={arrowBackOutline} />
-              <IonTitle><b>Citas Anuladas</b></IonTitle>
+              <IonTitle><b>Citas anuladas</b></IonTitle>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
