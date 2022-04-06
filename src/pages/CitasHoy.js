@@ -139,7 +139,7 @@ class CitasHoy extends Component {
           <IonToolbar>
             <IonButtons slot="start">
               <IonBackButton defaultHref="/cita-pre-lista" icon={arrowBackOutline} />
-              <IonTitle><b>Citas de mañana</b></IonTitle>
+              <IonTitle><b>Citas de hoy</b></IonTitle>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
