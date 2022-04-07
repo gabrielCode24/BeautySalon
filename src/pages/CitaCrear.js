@@ -1189,8 +1189,6 @@ class CitaCrear extends Component {
 
                 if (resultado == 1) {
 
-                    this.setState({ sending: true })
-
                     setTimeout(() => {
 
                         valuesCita = {
@@ -1237,6 +1235,7 @@ class CitaCrear extends Component {
                                                 }
                                             }
 
+                                            this.setState({ sending: true });
                                             setTimeout(() => {
                                                 const requestOptionsCitaDetalle = prepararPost(arrayCitaDetalle, "cita_detalle", "setJsons", "jsonArray");
 
