@@ -39,7 +39,7 @@ class Config extends Component {
     fetch(this.state.url + Parameters)
       .then((res) => res.json())
       .then((responseJson) => {
-
+        
         localStorage.setItem('ultimoValorParametro1', responseJson[0].valor);
         //localStorage.setItem('ultimoValorParametro2', responseJson[1].valor);
 
@@ -256,6 +256,7 @@ class Config extends Component {
           </div>
         </IonContent>
         <IonFooter>
+        <IonLabel style={{ paddingLeft: "10px", fontSize:"12px" }}><b>Versión 1.0.0</b></IonLabel>
           <IonButton disabled="false" color="favorite" expand="block" onClick={() => this.modificarParametros()}>Modificar Parámetros</IonButton>
         </IonFooter>
       </IonPage >
