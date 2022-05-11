@@ -35,13 +35,13 @@ class Config extends Component {
     this.setState({ loading_parametros: true });
 
     let Parameters = '?action=getJSON&get=parametros';
-
+    console.log(this.state.url + Parameters)
     fetch(this.state.url + Parameters)
       .then((res) => res.json())
       .then((responseJson) => {
 
         localStorage.setItem('ultimoValorParametro1', responseJson[0].valor);
-        localStorage.setItem('ultimoValorParametro2', responseJson[1].valor);
+        //localStorage.setItem('ultimoValorParametro2', responseJson[1].valor);
 
         this.setState({
           loading_parametros: false,
@@ -83,13 +83,13 @@ class Config extends Component {
   modificarParametros = () => {
 
     let ultimoValorParametro1 = localStorage.getItem('ultimoValorParametro1');
-    let ultimoValorParametro2 = localStorage.getItem('ultimoValorParametro2');
+    //let ultimoValorParametro2 = localStorage.getItem('ultimoValorParametro2');
 
     var id_1 = document.getElementById('id_1').value;
     var valor_1 = document.getElementById('valor_1').value;
 
-    var id_2 = document.getElementById('id_2').value;
-    var valor_2 = document.getElementById('valor_2').value;
+    //var id_2 = document.getElementById('id_2').value;
+    //var valor_2 = document.getElementById('valor_2').value;
 
     var fec_act = "NOW()";
     var usr_act = this.state.usuario_logueado;
@@ -142,7 +142,7 @@ class Config extends Component {
     }
 
     //PARAMETRO 2
-    if (valor_2 != ultimoValorParametro2) {
+    /*if (valor_2 != ultimoValorParametro2) {
       let valuesParametro2 = {
         id: id_2, valor: valor_2,
         fec_act: fec_act, usr_act: usr_act
@@ -182,7 +182,7 @@ class Config extends Component {
             });
           }
         })
-    }
+    }*/
   }
 
   render() {
@@ -247,7 +247,6 @@ class Config extends Component {
                         <IonInput disabled type="text" value={item.usr_act}></IonInput>
                       </IonItem>
                       <IonInput type="hidden" value={item.id} id={"id_" + item.id}></IonInput>
-                      <IonLabel style={{ paddingLeft: "10px", fontSize:"12px" }}><b>Versión 1.0.0</b></IonLabel>
                     </div>
                   )
                 })

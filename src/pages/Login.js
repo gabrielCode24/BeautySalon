@@ -35,7 +35,7 @@ class Login extends Component {
       let saltingCode = this.state.salting_code;
       let password = MD5(this.state.password + saltingCode);
       let Parameters = '?action=getJSON&get=usuario&usuario=' + usuario + '&password=' + password;
-      
+      console.log(this.state.url + Parameters)
       fetch(this.state.url + Parameters)
         .then((res) => res.json())
         .then((responseJson) => {

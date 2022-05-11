@@ -31,7 +31,7 @@ class CitaDetalle extends Component {
             usuario_perfil: infoUsuario('perfil'),
             cita: [],
             redireccionar_atras: false,
-            url_guardar_imagen: 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr',
+            url_guardar_imagen: 'https://eyebrowsbygr.site/system/',
             imagen_terminos_uploading: false,
             sending: false,
             cita_anulada: false,

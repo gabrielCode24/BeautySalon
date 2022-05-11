@@ -94,7 +94,7 @@ export function getTodayDate(params) {
 }
 
 export function url() {
-  return 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr/api/beautysalon_eyebrowsbygr.php';
+  return 'https://eyebrowsbygr.site/system/api/beautysalon_eyebrowsbygr.php';
 }
 
 export var saltingCode = "kDHXM!yMMS$mS60x*EPJD*";

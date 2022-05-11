@@ -30,7 +30,7 @@ class UsuarioCrear extends Component {
             foto_uploaded_name: '',
             foto_usuario_uploading: false,
 
-            url_guardar_foto: 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr',
+            url_guardar_foto: 'https://eyebrowsbygr.site/system/',
             redireccionar_atras: false,
         }
     }

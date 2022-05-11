@@ -61,7 +61,7 @@ class CitaCrear extends Component {
             vendedor_recepcionista_id_selected: '',
             fecha_cita_selected: '',
 
-            url_guardar_imagen: 'https://pymesys.000webhostapp.com/beautysalon_eyebrowsbygr',
+            url_guardar_imagen: 'https://eyebrowsbygr.site/system/',
             image_updloaded_name: '',
             imagen_anticipo_uploading: false,
             sending: false,
