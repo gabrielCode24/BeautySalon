@@ -256,7 +256,7 @@ class Config extends Component {
           </div>
         </IonContent>
         <IonFooter>
-        <IonLabel style={{ paddingLeft: "10px", fontSize:"12px" }}><b>Versión 1.0.0</b></IonLabel>
+        <IonLabel style={{ paddingLeft: "10px", fontSize:"12px" }}><b>Versión 1.0.0.0</b></IonLabel>
           <IonButton disabled="false" color="favorite" expand="block" onClick={() => this.modificarParametros()}>Modificar Parámetros</IonButton>
         </IonFooter>
       </IonPage >
